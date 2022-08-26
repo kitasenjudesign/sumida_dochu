@@ -14,8 +14,8 @@
 * これらに加えmainVisual.cssがあればメインビジュアルは動きます。
 
 ### コンテンツ（＝メインビジュアル以外）
-* <div id="contents" class="contents">の中にコンテンツ（＝メインビジュアルl以外）を入れてください
+* (div id="contents" class="contents")の中にコンテンツ（＝メインビジュアルl以外）を入れてください
 * contentsを表示／非表示にしたり、レイヤーの重ね順の関係で上記のidが指定されていてJSからコントロールしています。
 * その内部は自由に構成して大丈夫です。cssはcontent.cssに書いてください。
-* <div id="footer" class="footer">←ただ現状これだけ全画面になるようにheightをJSからいじってます
+* (div id="footer" class="footer")←ただ現状これだけ全画面になるようにheightをJSからいじってます
 * そのほかheaderもいじってもらって問題ないです。
