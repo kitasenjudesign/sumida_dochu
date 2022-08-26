@@ -1,0 +1,30 @@
+#enter{
+    font-family: serif;
+    color: #fff;
+    text-align: center;
+}
+
+#enter .enterVertical{
+    text-align: center;
+    display: inline-block;
+    writing-mode: vertical-rl;
+    transform: scale(1,0.75);
+    font-size: 22px;
+}
+
+#enter .enterPlay{
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+#enter .play img{
+    width: 45px;
+    height: 45px;
+}
+
+#webgl{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
