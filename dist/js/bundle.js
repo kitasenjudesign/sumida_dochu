@@ -2,20 +2,457 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/MyGPU.ts":
-/*!**********************!*\
-  !*** ./src/MyGPU.ts ***!
-  \**********************/
+/***/ "./src/data/DataManager.ts":
+/*!*********************************!*\
+  !*** ./src/data/DataManager.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DataManager": () => (/* binding */ DataManager)
+/* harmony export */ });
+/* harmony import */ var lil_gui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lil-gui */ "./node_modules/lil-gui/dist/lil-gui.esm.js");
+
+var DataManager = /** @class */ (function () {
+    /**
+     * The Singleton's constructor should always be private to prevent direct
+     * construction calls with the `new` operator.
+     */
+    function DataManager() {
+    }
+    DataManager.prototype.init = function () {
+        this.gui = new lil_gui__WEBPACK_IMPORTED_MODULE_0__.GUI();
+    };
+    /**
+     * The static method that controls the access to the singleton instance.
+     *
+     * This implementation let you subclass the Singleton class while keeping
+     * just one instance of each subclass around.
+     */
+    DataManager.getInstance = function () {
+        if (!DataManager.instance) {
+            DataManager.instance = new DataManager();
+            DataManager.instance.init();
+        }
+        return DataManager.instance;
+    };
+    return DataManager;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/main/EnterPanel.ts":
+/*!********************************!*\
+  !*** ./src/main/EnterPanel.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "EnterPanel": () => (/* binding */ EnterPanel)
+/* harmony export */ });
+var EnterPanel = /** @class */ (function () {
+    function EnterPanel() {
+        this.enterOffsetY = 0;
+    }
+    EnterPanel.prototype.init = function (callback) {
+        var _this = this;
+        this.callback = callback;
+        this.enter = document.getElementById("enter");
+        this.enter.onclick = function () {
+            //this.playSound();
+            _this.callback();
+        };
+        /*
+        if(this.isStart){
+            this.enterOffsetY-=1;
+            this.enter.style.top=
+            (window.innerHeight/2-this.enter.clientHeight/2+this.enterOffsetY)+"px"
+        }*/
+    };
+    EnterPanel.prototype.update = function () {
+    };
+    EnterPanel.prototype.resize = function () {
+        this.enter.style.cursor = 'pointer';
+        this.enter.style.position = "absolute";
+        this.enter.style.zIndex = "999";
+        this.enter.style.top = (window.innerHeight / 2 - this.enter.clientHeight / 2 + this.enterOffsetY) + "px";
+        this.enter.style.left = (window.innerWidth / 2 - this.enter.clientWidth / 2) + "px";
+    };
+    return EnterPanel;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/main/KeyFrame.ts":
+/*!******************************!*\
+  !*** ./src/main/KeyFrame.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "KeyFrame": () => (/* binding */ KeyFrame)
+/* harmony export */ });
+var KeyFrame = /** @class */ (function () {
+    function KeyFrame(time, callback) {
+        this.flag = false;
+        this.time = time;
+        this.callback = callback;
+        this.flag = false;
+    }
+    KeyFrame.prototype.doCallback = function () {
+        if (!this.flag)
+            this.callback();
+        this.flag = true;
+    };
+    KeyFrame.prototype.update = function () {
+    };
+    KeyFrame.prototype.reset = function () {
+        this.flag = false;
+    };
+    return KeyFrame;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/main/Main.ts":
+/*!**************************!*\
+  !*** ./src/main/Main.ts ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Main": () => (/* binding */ Main)
+/* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _wave_MyGPU__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../wave/MyGPU */ "./src/wave/MyGPU.ts");
+/* harmony import */ var _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../sound/MyAudio */ "./src/sound/MyAudio.ts");
+/* harmony import */ var _wave_MyWaveMesh__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../wave/MyWaveMesh */ "./src/wave/MyWaveMesh.ts");
+/* harmony import */ var _MyTimeline__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MyTimeline */ "./src/main/MyTimeline.ts");
+/* harmony import */ var three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three/examples/jsm/libs/stats.module */ "../../../../../node_modules/three/examples/jsm/libs/stats.module.js");
+/* harmony import */ var _EnterPanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EnterPanel */ "./src/main/EnterPanel.ts");
+
+
+
+
+
+
+
+var Main = /** @class */ (function () {
+    function Main() {
+        this.enterOffsetY = 0;
+        this.isStart = false;
+    }
+    Main.prototype.init = function () {
+        var _this = this;
+        this.enterPanel = new _EnterPanel__WEBPACK_IMPORTED_MODULE_5__.EnterPanel();
+        this.enterPanel.init(function () {
+            _this.playSound();
+        });
+        this.stats = (0,three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_4__["default"])();
+        document.body.appendChild(this.stats.dom);
+        this.renderer = new three__WEBPACK_IMPORTED_MODULE_6__.WebGLRenderer({
+            canvas: document.querySelector('#webgl')
+        });
+        this.renderer.setClearColor(new three__WEBPACK_IMPORTED_MODULE_6__.Color(0x00469b));
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.scene = new three__WEBPACK_IMPORTED_MODULE_6__.Scene();
+        this.camera = new three__WEBPACK_IMPORTED_MODULE_6__.PerspectiveCamera(20, 640 / 480, 1, 10000);
+        this.camera.position.set(0, 0, 700);
+        //const myMesh = new MyMesh();
+        //scene.add( myMesh.mesh );
+        this.myGPU = new _wave_MyGPU__WEBPACK_IMPORTED_MODULE_0__.MyGPU();
+        this.myGPU.init();
+        this.myGPU.initWater(this.renderer);
+        //scene.add(myGPU.testMesh);
+        this.myWaveMesh = new _wave_MyWaveMesh__WEBPACK_IMPORTED_MODULE_2__.MyWaveMesh();
+        this.myWaveMesh.init();
+        this.scene.add(this.myWaveMesh.waterMesh);
+        //光
+        var light = new three__WEBPACK_IMPORTED_MODULE_6__.DirectionalLight(0xffffff);
+        light.position.set(5, -10, 10);
+        this.scene.add(light);
+        var light2 = new three__WEBPACK_IMPORTED_MODULE_6__.AmbientLight(0x555555);
+        this.scene.add(light2);
+        //const controls = new OrbitControls(this.camera, this.renderer.domElement);
+        if (document.getElementById("contents") != null) {
+            document.getElementById("contents").style.display = "none";
+        }
+        this.audio = new _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__.MyAudio();
+        this.audio.init(this.scene, this.onLoadSound);
+        // 毎フレーム更新関数を実行
+        this.tick();
+        window.addEventListener('resize', function () {
+            _this.onWindowResize();
+        }, false);
+        this.onWindowResize();
+    };
+    Main.prototype.onLoadSound = function () {
+        console.log("ON_LOAD!!!!");
+    };
+    Main.prototype.playSound = function () {
+        this.timeline = new _MyTimeline__WEBPACK_IMPORTED_MODULE_3__.MyTimeline();
+        this.timeline.init(this);
+        this.timeline.start();
+        if (document.getElementById("contents") != null) {
+            document.getElementById("contents").style.display = "block";
+        }
+    };
+    Main.prototype.tick = function () {
+        var _this = this;
+        var _a;
+        this.enterPanel.update();
+        if (this.audio != null) {
+            this.audio.update();
+            this.myGPU.update(this.audio);
+        }
+        this.myWaveMesh.update(this.myGPU.testMat.map);
+        // 描画
+        this.renderer.render(this.scene, this.camera);
+        this.stats.update();
+        //loop
+        window.requestAnimationFrame(function () {
+            _this.tick();
+        });
+        (_a = this.timeline) === null || _a === void 0 ? void 0 : _a.update();
+    };
+    Main.prototype.onWindowResize = function () {
+        var fovRad = (this.camera.fov / 2) * (Math.PI / 180); //角度
+        var distance = (window.innerHeight / 2) / Math.tan(fovRad); //距離
+        this.camera.position.set(0, 0, distance); //距離を指定
+        //let scale:number = window.innerHeight/100;//大きさ指定
+        var scale = window.innerWidth / this.myWaveMesh.BOUNDS; //大きさ指定
+        if (window.innerWidth < window.innerHeight) {
+            scale = window.innerHeight / this.myWaveMesh.BOUNDS;
+        }
+        scale *= 1.2;
+        this.myWaveMesh.waterMesh.scale.set(scale, scale, 1);
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.enterPanel.resize();
+    };
+    return Main;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/main/MyTimeline.ts":
+/*!********************************!*\
+  !*** ./src/main/MyTimeline.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MyTimeline": () => (/* binding */ MyTimeline)
+/* harmony export */ });
+/* harmony import */ var _KeyFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./KeyFrame */ "./src/main/KeyFrame.ts");
+
+var MyTimeline = /** @class */ (function () {
+    function MyTimeline() {
+        this.past = 0;
+    }
+    MyTimeline.prototype.init = function (main) {
+        var _this = this;
+        this.audio = main.audio;
+        this.myWaveMesh = main.myWaveMesh;
+        this.myGPU = main.myGPU;
+        this.frames = [];
+        this.frames.push(new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(10, function () { _this.hoge1(1); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(20, function () { _this.hoge1(2); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(30, function () { _this.hoge1(3); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(46, function () { _this.hoge1(3); }));
+    };
+    MyTimeline.prototype.hoge1 = function (index) {
+        console.log(">>>>>>" + index);
+        this.myGPU.setAmplitude(index);
+        this.myWaveMesh.changeTex();
+    };
+    MyTimeline.prototype.start = function () {
+        this.audio.play();
+        this.myWaveMesh.startScroll();
+    };
+    MyTimeline.prototype.update = function () {
+        var currentTime = this.audio.currentTime;
+        if (currentTime == 0)
+            return;
+        for (var i = 0; i < this.frames.length; i++) {
+            var t = this.frames[i].time;
+            if (this.past < t && t <= currentTime) {
+                this.frames[i].doCallback();
+            }
+        }
+        //keyframeチェック
+        this.past = this.audio.currentTime;
+        //this.audio.currentTime
+    };
+    return MyTimeline;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/sound/MyAudio.ts":
+/*!******************************!*\
+  !*** ./src/sound/MyAudio.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MyAudio": () => (/* binding */ MyAudio)
+/* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+
+
+var MyAudio = /** @class */ (function () {
+    function MyAudio() {
+        this.SMOOTHING = 0.5;
+        this.FFT_SIZE = 128;
+        this.FFT_MATOME = 8;
+        this.volume = 0;
+        this.isReady = false;
+    }
+    //fftする
+    MyAudio.prototype.init = function (scene, callback) {
+        var _this = this;
+        this.callback = callback;
+        this.context = new AudioContext();
+        //let buffer = null;
+        this.source = this.context.createBufferSource();
+        var request = new XMLHttpRequest();
+        request.open('GET', './sound/seppuku.mp3', true);
+        request.responseType = 'arraybuffer';
+        request.send();
+        request.onload = function () {
+            //start
+            var res = request.response;
+            _this.context.decodeAudioData(res, function (buf) {
+                _this.source.buffer = buf;
+                _this.analyser = _this.context.createAnalyser();
+                _this.analyser.minDecibels = -140;
+                _this.analyser.maxDecibels = 0;
+                _this.source.connect(_this.analyser);
+                //this.source.connect(this.gain);
+                _this.freqs = new Uint8Array(_this.FFT_SIZE); //this.analyser.frequencyBinCount);
+                _this.times = new Uint8Array(_this.FFT_SIZE); //this.analyser.frequencyBinCount);
+                _this.mFreqs = new Uint8Array(_this.FFT_SIZE / _this.FFT_MATOME);
+                _this.mSubFreqs = new Int8Array(_this.FFT_SIZE / _this.FFT_MATOME);
+                _this.mOldFreqs = new Uint8Array(_this.FFT_SIZE / _this.FFT_MATOME);
+                for (var i = 0; i < _this.mFreqs.length; i++) {
+                    _this.mFreqs[i] = 0;
+                    _this.mSubFreqs[i] = 0;
+                    _this.mOldFreqs[i] = 0;
+                }
+                _this.isReady = true;
+                var gui = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().gui;
+                gui.add(_this.context, "currentTime").name("currentTime").listen();
+                _this.callback();
+            });
+        };
+        //this.source.connect(this.context.destination);
+        this.gain = this.context.createGain();
+        this.source.connect(this.gain);
+        this.gain.connect(this.context.destination);
+        this.gain.gain.value = 0.1;
+        this.bars = new Array;
+        for (var i = 0; i < this.FFT_SIZE / this.FFT_MATOME; i++) {
+            this.bars[i] = new three__WEBPACK_IMPORTED_MODULE_1__.Mesh(new three__WEBPACK_IMPORTED_MODULE_1__.BoxGeometry(1.5, 100, 1, 1, 1, 1), new three__WEBPACK_IMPORTED_MODULE_1__.MeshBasicMaterial({ color: 0xff0000 }));
+            this.bars[i].position.set(2 * (i), 0, 300);
+            scene.add(this.bars[i]);
+        }
+    };
+    MyAudio.prototype.play = function () {
+        this.source.start(0);
+        this.source.loop = true;
+    };
+    MyAudio.prototype.update = function () {
+        if (this.freqs == null)
+            return;
+        this.analyser.smoothingTimeConstant = this.SMOOTHING;
+        this.analyser.fftSize = this.FFT_SIZE;
+        this.analyser.getByteFrequencyData(this.freqs);
+        //this.analyser.getByteTimeDomainData(this.times);
+        this.volume = 0;
+        /*
+        for(let i=0;i<this.FFT_SIZE;i++){
+          this.volume += this.freqs[i]/this.FFT_SIZE;
+          this.bars[i].scale.y = this.freqs[i]/300;
+        }*/
+        for (var i = 0; i < this.FFT_MATOME; i++) {
+            this.volume += this.mFreqs[i] / this.FFT_MATOME;
+            this.bars[i].scale.y = Math.abs(this.mSubFreqs[i]) / 300;
+        }
+        //まとめをつくる
+        for (var i = 0; i < this.FFT_SIZE / this.FFT_MATOME; i++) {
+            var sum = 0;
+            for (var j = 0; j < this.FFT_MATOME; j++) {
+                sum += this.freqs[i * this.FFT_MATOME + j] / this.FFT_MATOME;
+            }
+            this.mOldFreqs[i] = this.mFreqs[i]; //過去のをいれておく
+            this.mSubFreqs[i] = (sum - this.mFreqs[i]); //現在-過去
+            this.mFreqs[i] = Math.floor(sum); //現在
+        }
+        //console.log(
+        //  this.mFreqs[3] + "/" + this.mSubFreqs[3] + "/" + this.mOldFreqs[3]
+        //);
+        //console.log( this.volume );
+    };
+    MyAudio.prototype.update2 = function () {
+        /*
+        if(this.audio!=null){
+            let vol = 1-window.scrollY/500;
+            if(vol<0.02)vol=0.02;
+            this.audio.volume=vol*0.8;
+        }*/
+    };
+    Object.defineProperty(MyAudio.prototype, "currentTime", {
+        get: function () {
+            return this.context.currentTime;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    MyAudio.prototype.getFFT = function () {
+        if (this.times == null)
+            return 0;
+        return this.volume;
+    };
+    return MyAudio;
+}());
+
+//https://codepen.io/ZachSaucier/pen/bBJmbz
+
+
+/***/ }),
+
+/***/ "./src/wave/MyGPU.ts":
+/*!***************************!*\
+  !*** ./src/wave/MyGPU.ts ***!
+  \***************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MyGPU": () => (/* binding */ MyGPU)
 /* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
-/* harmony import */ var _glsl_wave_frag__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./glsl/wave.frag */ "./src/glsl/wave.frag");
-/* harmony import */ var _glsl_read_frag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./glsl/read.frag */ "./src/glsl/read.frag");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _glsl_waveCalc_frag__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../glsl/waveCalc.frag */ "./src/glsl/waveCalc.frag");
+/* harmony import */ var _glsl_read_frag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../glsl/read.frag */ "./src/glsl/read.frag");
 /* harmony import */ var three_examples_jsm_misc_GPUComputationRenderer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/misc/GPUComputationRenderer */ "../../../../../node_modules/three/examples/jsm/misc/GPUComputationRenderer.js");
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+
 
 
 
@@ -32,74 +469,95 @@ var MyGPU = /** @class */ (function () {
         this.attenuation = 0.99;
     }
     MyGPU.prototype.init = function () {
-        this.testMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshPhongMaterial();
-        this.testMesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(new three__WEBPACK_IMPORTED_MODULE_3__.PlaneGeometry(100, 100, 1, 1), this.testMat);
+        this.testMat = new three__WEBPACK_IMPORTED_MODULE_4__.MeshPhongMaterial();
+        this.testMesh = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(new three__WEBPACK_IMPORTED_MODULE_4__.PlaneGeometry(100, 100, 1, 1), this.testMat);
     };
     MyGPU.prototype.initWater = function (renderer) {
-        var geometry = new three__WEBPACK_IMPORTED_MODULE_3__.PlaneGeometry(this.BOUNDS, this.BOUNDS, this.WIDTH - 1, this.WIDTH - 1);
+        var geometry = new three__WEBPACK_IMPORTED_MODULE_4__.PlaneGeometry(this.BOUNDS, this.BOUNDS, this.WIDTH - 1, this.WIDTH - 1);
         // Creates the gpu computation class and sets it up
         this.gpuCompute = new three_examples_jsm_misc_GPUComputationRenderer__WEBPACK_IMPORTED_MODULE_2__.GPUComputationRenderer(this.WIDTH, this.WIDTH, renderer);
         //if ( renderer.capabilities.isWebGL2 === false ) {
-        this.gpuCompute.setDataType(three__WEBPACK_IMPORTED_MODULE_3__.HalfFloatType);
+        this.gpuCompute.setDataType(three__WEBPACK_IMPORTED_MODULE_4__.HalfFloatType);
         //}
         this.heightmap0 = this.gpuCompute.createTexture();
         //fillTexture( heightmap0 );
-        this.heightmapVariable = this.gpuCompute.addVariable('heightmap', _glsl_wave_frag__WEBPACK_IMPORTED_MODULE_0__["default"], //document.getElementById( 'heightmapFragmentShader' ).textContent, 
+        this.heightmapVariable = this.gpuCompute.addVariable('heightmap', _glsl_waveCalc_frag__WEBPACK_IMPORTED_MODULE_0__["default"], //document.getElementById( 'heightmapFragmentShader' ).textContent, 
         this.heightmap0);
         this.gpuCompute.setVariableDependencies(this.heightmapVariable, [this.heightmapVariable]);
-        this.heightmapVariable.material.uniforms['mousePos'] = { value: new three__WEBPACK_IMPORTED_MODULE_3__.Vector2(10000, 10000) };
-        this.heightmapVariable.material.uniforms['mouseSize'] = { value: 20.0 };
-        this.heightmapVariable.material.uniforms['viscosityConstant'] = { value: 0.9 };
-        this.heightmapVariable.material.uniforms['heightCompensation'] = { value: 0.5 };
-        this.heightmapVariable.material.uniforms['attenuation'] = { value: this.attenuation };
+        this.uniforms = this.heightmapVariable.material.uniforms;
+        this.uniforms['mousePos'] = { value: new three__WEBPACK_IMPORTED_MODULE_4__.Vector2(10000, 10000) };
+        this.uniforms['mouseSize'] = { value: 20.0 };
+        this.uniforms['viscosityConstant'] = { value: 0.9 };
+        this.uniforms['heightCompensation'] = { value: 0.5 };
+        this.uniforms['attenuation'] = { value: this.attenuation };
+        this.uniforms['amplitude'] = { value: 0 }; //1.28 };
         this.heightmapVariable.material.defines.BOUNDS = this.BOUNDS.toFixed(1);
         var error = this.gpuCompute.init();
         if (error !== null) {
             console.error(error);
         }
+        var gui = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui;
+        gui.add(this.uniforms['attenuation'], "value", 0.901, 0.999).name("attenuation").listen();
+        gui.add(this.uniforms['mouseSize'], "value", 2, 100.0).name("mouseSize").listen();
+        gui.add(this.uniforms['amplitude'], "value", 0, 20.0).name("amplitude").listen();
         // Create compute shader to smooth the water surface and velocity
         //smoothShader = gpuCompute.createShaderMaterial( document.getElementById( 'smoothFragmentShader' ).textContent, { smoothTexture: { value: null } } );
         // Create compute shader to read water level
         this.readWaterLevelShader = this.gpuCompute.createShaderMaterial(_glsl_read_frag__WEBPACK_IMPORTED_MODULE_1__["default"], {
-            point1: { value: new three__WEBPACK_IMPORTED_MODULE_3__.Vector2() },
+            point1: { value: new three__WEBPACK_IMPORTED_MODULE_4__.Vector2() },
             levelTexture: { value: null }
         });
         this.readWaterLevelShader.defines.WIDTH = this.WIDTH.toFixed(1);
         this.readWaterLevelShader.defines.BOUNDS = this.BOUNDS.toFixed(1);
         // Create a 4x1 pixel image and a render target (Uint8, 4 channels, 1 byte per channel) to read water height and orientation
         this.readWaterLevelImage = new Uint8Array(4 * 1 * 4);
-        this.readWaterLevelRenderTarget = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderTarget(4, 1, {
-            wrapS: three__WEBPACK_IMPORTED_MODULE_3__.ClampToEdgeWrapping,
-            wrapT: three__WEBPACK_IMPORTED_MODULE_3__.ClampToEdgeWrapping,
-            minFilter: three__WEBPACK_IMPORTED_MODULE_3__.NearestFilter,
-            magFilter: three__WEBPACK_IMPORTED_MODULE_3__.NearestFilter,
-            format: three__WEBPACK_IMPORTED_MODULE_3__.RGBAFormat,
-            type: three__WEBPACK_IMPORTED_MODULE_3__.UnsignedByteType,
+        this.readWaterLevelRenderTarget = new three__WEBPACK_IMPORTED_MODULE_4__.WebGLRenderTarget(4, 1, {
+            wrapS: three__WEBPACK_IMPORTED_MODULE_4__.ClampToEdgeWrapping,
+            wrapT: three__WEBPACK_IMPORTED_MODULE_4__.ClampToEdgeWrapping,
+            minFilter: three__WEBPACK_IMPORTED_MODULE_4__.NearestFilter,
+            magFilter: three__WEBPACK_IMPORTED_MODULE_4__.NearestFilter,
+            format: three__WEBPACK_IMPORTED_MODULE_4__.RGBAFormat,
+            type: three__WEBPACK_IMPORTED_MODULE_4__.UnsignedByteType,
             depthBuffer: false
         });
     };
+    MyGPU.prototype.setAmplitude = function (a) {
+        this.uniforms['amplitude'].value = a;
+    };
+    MyGPU.prototype.setAttenuation = function (a) {
+        this.uniforms['attenuation'].value = a;
+    };
     MyGPU.prototype.startMusic = function () {
-        this.attenuation = 0.97;
-        this.isFirst = false;
+        //this.attenuation=0.97;
+        //this.isFirst=false;
     };
     MyGPU.prototype.startMoriagari = function () {
-        var _this = this;
-        this.attenuation = 0.99;
-        window.setTimeout(function () {
-            _this.isMoriagari = true;
-        }, 100);
-        var uniforms = this.heightmapVariable.material.uniforms;
-        uniforms['mousePos'].value.set(1000 * (Math.random() - 0.5), 1000 * (Math.random() - 0.5));
+        /*
+        this.attenuation=0.99;
+
+        window.setTimeout(()=>{
+            this.isMoriagari = true;
+        },100);
+        const uniforms = this.heightmapVariable.material.uniforms;
+            uniforms[ 'mousePos' ].value.set(
+                1000*(Math.random()-0.5),
+                1000*(Math.random()-0.5)
+            );*/
     };
-    MyGPU.prototype.update = function () {
+    MyGPU.prototype.update = function (audio) {
         //console.log(this.attenuation);
         // Set uniforms: mouse interaction
         var uniforms = this.heightmapVariable.material.uniforms;
-        uniforms['attenuation'].value = this.attenuation;
+        //uniforms['attenuation'].value=this.attenuation;
         //if(this.isImpulse){
-        if (this.isFirst || this.isMoriagari) {
-            var limit = this.isFirst ? 0.02 : 0.05;
-            if (Math.random() < limit) {
+        //if(this.isFirst || this.isMoriagari){
+        if (true) {
+            var limit = this.isFirst ? 0.02 : 0;
+            //console.log(audio.isReady);
+            //if(audio.isReady) console.log(audio.mSubFreqs[3]>0);
+            if (audio.isReady && audio.mSubFreqs[3] > 0) {
+                //uniforms['amplitude'].value = audio.mSubFreqs[3]/10;//1.28;//20*Math.random();//ここの大きさが小さすぎる
+                //uniforms['mouseSize'].value = 20;//ここの大きさが小さすぎる
                 uniforms['mousePos'].value.set(1000 * (Math.random() - 0.5), 1000 * (Math.random() - 0.5));
             }
             else {
@@ -112,7 +570,7 @@ var MyGPU = /** @class */ (function () {
         this.gpuCompute.compute();
         // Get compute output in custom uniform
         //this.waterUniforms[ 'heightmap' ].value = 
-        //    this.gpuCompute.getCurrentRenderTarget( this.heightmapVariable ).texture;
+        // this.gpuCompute.getCurrentRenderTarget( this.heightmapVariable ).texture;
     };
     return MyGPU;
 }());
@@ -121,19 +579,23 @@ var MyGPU = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/MyWaveMesh.ts":
-/*!***************************!*\
-  !*** ./src/MyWaveMesh.ts ***!
-  \***************************/
+/***/ "./src/wave/MyWaveMesh.ts":
+/*!********************************!*\
+  !*** ./src/wave/MyWaveMesh.ts ***!
+  \********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MyWaveMesh": () => (/* binding */ MyWaveMesh)
 /* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
-/* harmony import */ var _glsl_waveRender_vert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./glsl/waveRender.vert */ "./src/glsl/waveRender.vert");
-/* harmony import */ var _glsl_hoge_frag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./glsl/hoge.frag */ "./src/glsl/hoge.frag");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _glsl_waveRender_vert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../glsl/waveRender.vert */ "./src/glsl/waveRender.vert");
+/* harmony import */ var _glsl_waveRender_frag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../glsl/waveRender.frag */ "./src/glsl/waveRender.frag");
+/* harmony import */ var _glsl_simplexNoise_frag__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../glsl/simplexNoise.frag */ "./src/glsl/simplexNoise.frag");
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+
+
 
 
 
@@ -150,67 +612,55 @@ var MyWaveMesh = /** @class */ (function () {
     }
     MyWaveMesh.prototype.init = function () {
         var materialColor = 0x0040C0;
-        var geometry = new three__WEBPACK_IMPORTED_MODULE_2__.PlaneGeometry(this.BOUNDS, this.BOUNDS, this.WIDTH - 1, this.WIDTH - 1);
-        var loader = new three__WEBPACK_IMPORTED_MODULE_2__.TextureLoader();
+        var geometry = new three__WEBPACK_IMPORTED_MODULE_4__.PlaneGeometry(this.BOUNDS, this.BOUNDS, this.WIDTH - 1, this.WIDTH - 1);
+        var loader = new three__WEBPACK_IMPORTED_MODULE_4__.TextureLoader();
         var filename = window.innerWidth > window.innerHeight ? './topimg/img.png' : './topimg/img2.png';
         this.texture = loader.load(filename);
-        var loader2 = new three__WEBPACK_IMPORTED_MODULE_2__.TextureLoader();
+        var loader2 = new three__WEBPACK_IMPORTED_MODULE_4__.TextureLoader();
         this.texture2 = loader2.load("./topimg/img3.png");
-        this.texture.magFilter = three__WEBPACK_IMPORTED_MODULE_2__.LinearFilter;
-        this.texture.minFilter = three__WEBPACK_IMPORTED_MODULE_2__.NearestFilter;
-        this.texture2.magFilter = three__WEBPACK_IMPORTED_MODULE_2__.LinearFilter;
-        this.texture2.minFilter = three__WEBPACK_IMPORTED_MODULE_2__.NearestFilter;
+        this.texture.magFilter = three__WEBPACK_IMPORTED_MODULE_4__.LinearFilter;
+        this.texture.minFilter = three__WEBPACK_IMPORTED_MODULE_4__.NearestFilter;
+        this.texture2.magFilter = three__WEBPACK_IMPORTED_MODULE_4__.LinearFilter;
+        this.texture2.minFilter = three__WEBPACK_IMPORTED_MODULE_4__.NearestFilter;
+        var loader3 = new three__WEBPACK_IMPORTED_MODULE_4__.TextureLoader();
+        this.envMap = loader3.load('./topimg/img3.png');
+        this.envMap.mapping = three__WEBPACK_IMPORTED_MODULE_4__.EquirectangularReflectionMapping;
+        this.envMap.encoding = three__WEBPACK_IMPORTED_MODULE_4__.sRGBEncoding;
+        console.log(three__WEBPACK_IMPORTED_MODULE_4__.ShaderLib.phong.uniforms);
         // material: make a THREE.ShaderMaterial clone of THREE.MeshPhongMaterial, with customized vertex shader
-        this.material = new three__WEBPACK_IMPORTED_MODULE_2__.ShaderMaterial({
-            uniforms: three__WEBPACK_IMPORTED_MODULE_2__.UniformsUtils.merge([
-                three__WEBPACK_IMPORTED_MODULE_2__.ShaderLib.phong.uniforms,
+        this.material = new three__WEBPACK_IMPORTED_MODULE_4__.ShaderMaterial({
+            uniforms: three__WEBPACK_IMPORTED_MODULE_4__.UniformsUtils.merge([
+                three__WEBPACK_IMPORTED_MODULE_4__.ShaderLib.phong.uniforms,
                 {
                     'heightmap': { value: null },
-                    'diffuse': { value: new three__WEBPACK_IMPORTED_MODULE_2__.Color(0xffffff) },
-                    'specular': { value: new three__WEBPACK_IMPORTED_MODULE_2__.Color(0x222222) },
+                    'diffuse': { value: new three__WEBPACK_IMPORTED_MODULE_4__.Color(0xffffff) },
+                    'specular': { value: new three__WEBPACK_IMPORTED_MODULE_4__.Color(0x222222) },
+                    'emissive': { value: new three__WEBPACK_IMPORTED_MODULE_4__.Color(0x000000) },
                     'shininess': { value: 30 },
                     'map': { value: this.texture },
-                    'counter': { value: 0 }
+                    'envMap': { value: this.envMap },
+                    'counter': { value: 0 },
+                    'offsetY': { value: this.getOffsetY() }
                 }
             ]),
             vertexShader: _glsl_waveRender_vert__WEBPACK_IMPORTED_MODULE_0__["default"],
-            fragmentShader: _glsl_hoge_frag__WEBPACK_IMPORTED_MODULE_1__["default"] //THREE.ShaderChunk[ 'meshphong_frag' ]
+            fragmentShader: _glsl_simplexNoise_frag__WEBPACK_IMPORTED_MODULE_2__["default"] + _glsl_waveRender_frag__WEBPACK_IMPORTED_MODULE_1__["default"] //THREE.ShaderChunk[ 'meshphong_frag' ]
         });
+        this.material.lights = true;
         //let m:MyMat = new MyMat();
         //m.init();
         //this.material = m.material;
-        this.material.lights = true;
-        // Material attributes from THREE.MeshPhongMaterial
-        //material.color = new THREE.Color( materialColor );
-        //material.specular = new THREE.Color( 0x111111 );
-        //material.shininess = 50;
-        // Sets the uniforms with the material values
-        //material.uniforms[ 'diffuse' ].value = material.color as any;
-        //material.uniforms[ 'specular' ].value = material.specular as any;
-        //material.uniforms[ 'shininess' ].value = Math.max( material.shininess, 1e-4 ) as any;
-        //material.uniforms[ 'opacity' ].value = material.opacity as any;
-        // Defines
+        var uniform = this.material.uniforms;
+        _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui.add(uniform["offsetY"], "value", 0, 1).name("offsetY");
         this.material.defines.WIDTH = this.WIDTH.toFixed(1);
         this.material.defines.BOUNDS = this.BOUNDS.toFixed(1);
-        //        waterUniforms = material.uniforms;
-        this.waterMesh = new three__WEBPACK_IMPORTED_MODULE_2__.Mesh(geometry, this.material);
+        this.waterMesh = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(geometry, this.material);
         this.waterMesh.visible = true;
         this.waterMesh.receiveShadow = true;
-        this.waterMesh.castShadow = false;
-        //scene.add( waterMesh );
+        this.waterMesh.castShadow = true;
     };
-    MyWaveMesh.prototype.startIntro = function () {
-        this.waterMesh.visible = true;
+    MyWaveMesh.prototype.startScroll = function () {
         this.isStart = true;
-        this.counter = 0;
-        /*
-            this.waterMesh.position.set(0,-this.BOUNDS,0);//=new THREE.Vector3(0,-100,0);
-            gsap.to(this.waterMesh.position, {
-                "duration":30,
-                "y":0,
-                "ease":"linear"
-            });
-        */
     };
     MyWaveMesh.prototype.changeTex = function () {
         this.texFlag = !this.texFlag;
@@ -219,11 +669,14 @@ var MyWaveMesh = /** @class */ (function () {
     MyWaveMesh.prototype.update = function (tex) {
         if (this.isStart)
             this.counter += 0.06;
-        else
-            this.counter -= 0.06;
+        //else this.counter-=0.06;
         this.material.uniforms['heightmap'].value = tex;
         this.material.uniforms['counter'].value = this.counter + window.scrollY * 0.06;
-        //waterUniforms[ 'heightmap' ].value
+    };
+    MyWaveMesh.prototype.getOffsetY = function () {
+        //スケールも加味する
+        var w = window.innerHeight / window.innerWidth;
+        return (1 - w) / 2 * 1.2;
     };
     return MyWaveMesh;
 }());
@@ -232,145 +685,2353 @@ var MyWaveMesh = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/main/MyThreeMain.ts":
-/*!*********************************!*\
-  !*** ./src/main/MyThreeMain.ts ***!
-  \*********************************/
+/***/ "./node_modules/lil-gui/dist/lil-gui.esm.js":
+/*!**************************************************!*\
+  !*** ./node_modules/lil-gui/dist/lil-gui.esm.js ***!
+  \**************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "MyThreeMain": () => (/* binding */ MyThreeMain)
-/* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
-/* harmony import */ var _MyGPU__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../MyGPU */ "./src/MyGPU.ts");
-/* harmony import */ var _MyWaveMesh__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../MyWaveMesh */ "./src/MyWaveMesh.ts");
-/* harmony import */ var three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/libs/stats.module */ "../../../../../node_modules/three/examples/jsm/libs/stats.module.js");
-
-
-
-
-var MyThreeMain = /** @class */ (function () {
-    function MyThreeMain() {
-        this.enterOffsetY = 0;
-        this.isStart = false;
-    }
-    MyThreeMain.prototype.init = function () {
-        var _this = this;
-        this.enter = document.getElementById("enter");
-        this.enter.onclick = function () {
-            _this.playSound();
-        };
-        var phongShader = three__WEBPACK_IMPORTED_MODULE_3__.ShaderLib.phong;
-        this.stats = (0,three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_2__["default"])();
-        document.body.appendChild(this.stats.dom);
-        this.renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer({
-            canvas: document.querySelector('#webgl')
-        });
-        this.renderer.setClearColor(new three__WEBPACK_IMPORTED_MODULE_3__.Color(0x00469b));
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.scene = new three__WEBPACK_IMPORTED_MODULE_3__.Scene();
-        this.camera = new three__WEBPACK_IMPORTED_MODULE_3__.PerspectiveCamera(20, 640 / 480, 1, 10000);
-        this.camera.position.set(0, 0, 700);
-        //const myMesh = new MyMesh();
-        //scene.add( myMesh.mesh );
-        this.myGPU = new _MyGPU__WEBPACK_IMPORTED_MODULE_0__.MyGPU();
-        this.myGPU.init();
-        this.myGPU.initWater(this.renderer);
-        //scene.add(myGPU.testMesh);
-        this.myWaveMesh = new _MyWaveMesh__WEBPACK_IMPORTED_MODULE_1__.MyWaveMesh();
-        this.myWaveMesh.init();
-        this.scene.add(this.myWaveMesh.waterMesh);
-        //GUI
-        //const gui = new GUI();
-        //const cubeFolder = gui.addFolder('Cube');
-        //gui.add(this.myWaveMesh,"changeTex");
-        //cubeFolder.add(this, 'isDebug')
-        //cubeFolder.add(myMesh.mesh.rotation, 'y', 0, Math.PI * 2)
-        //cubeFolder.add(myMesh.mesh.rotation, 'z', 0, Math.PI * 2)
-        //cubeFolder.open();
-        //光
-        var light = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
-        light.position.set(5, -10, 10);
-        this.scene.add(light);
-        var light2 = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0x444444);
-        this.scene.add(light2);
-        //const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        document.getElementById("contents").style.display = "none";
-        // 毎フレーム更新関数を実行
-        this.tick();
-        window.addEventListener('resize', function () {
-            _this.onWindowResize();
-        }, false);
-        this.onWindowResize();
-    };
-    MyThreeMain.prototype.playSound = function () {
-        var _this = this;
-        this.audio = new Audio('./sound/sound.mp3');
-        this.audio.play(); // 再生
-        this.audio.currentTime = 18;
-        //this.enter.style.visibility='hidden';
-        this.myWaveMesh.startIntro();
-        this.isStart = true;
-        document.getElementById("contents").style.display = "block";
-        this.myGPU.startMusic();
-        window.setTimeout(function () {
-            _this.myGPU.startMoriagari();
-        }, 20000);
-    };
-    MyThreeMain.prototype.tick = function () {
-        var _this = this;
-        // キューブの回転を変更
-        //myMesh.update();
-        this.myGPU.update();
-        this.myWaveMesh.update(this.myGPU.testMat.map);
-        // 描画
-        this.renderer.render(this.scene, this.camera);
-        this.stats.update();
-        if (this.audio != null) {
-            var vol = 1 - window.scrollY / 500;
-            if (vol < 0.02)
-                vol = 0.02;
-            this.audio.volume = vol * 0.8;
-        }
-        //
-        if (this.isStart) {
-            this.enterOffsetY -= 1;
-            this.enter.style.top = (window.innerHeight / 2 - this.enter.clientHeight / 2 + this.enterOffsetY) + "px";
-        }
-        //loop
-        window.requestAnimationFrame(function () {
-            _this.tick();
-        });
-    };
-    MyThreeMain.prototype.onWindowResize = function () {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.enter.style.cursor = 'pointer';
-        this.enter.style.position = "absolute";
-        this.enter.style.zIndex = "999";
-        this.enter.style.top = (window.innerHeight / 2 - this.enter.clientHeight / 2 + this.enterOffsetY) + "px";
-        this.enter.style.left = (window.innerWidth / 2 - this.enter.clientWidth / 2) + "px";
-    };
-    return MyThreeMain;
-}());
-
-
-
-/***/ }),
-
-/***/ "./src/glsl/hoge.frag":
-/*!****************************!*\
-  !*** ./src/glsl/hoge.frag ***!
-  \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "BooleanController": () => (/* binding */ BooleanController),
+/* harmony export */   "ColorController": () => (/* binding */ ColorController),
+/* harmony export */   "Controller": () => (/* binding */ Controller),
+/* harmony export */   "FunctionController": () => (/* binding */ FunctionController),
+/* harmony export */   "GUI": () => (/* binding */ GUI),
+/* harmony export */   "NumberController": () => (/* binding */ NumberController),
+/* harmony export */   "OptionController": () => (/* binding */ OptionController),
+/* harmony export */   "StringController": () => (/* binding */ StringController),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n    vec2 newUV = vUv.xy+vec2(0.0,-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n    vec4 aa = texture2D( map, (newUV+vNormal.xy*0.02) );\n    vec4 bb = texture2D( map, (newUV+vNormal.xy*0.03) );\n    vec4 cc = texture2D( map, (newUV+vNormal.xy*0.04) );\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\tsampledDiffuseColor.xyz += vNormal.xyz*0.4;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
+/**
+ * lil-gui
+ * https://lil-gui.georgealways.com
+ * @version 0.17.0
+ * @author George Michael Brower
+ * @license MIT
+ */
+
+/**
+ * Base class for all controllers.
+ */
+class Controller {
+
+	constructor( parent, object, property, className, widgetTag = 'div' ) {
+
+		/**
+		 * The GUI that contains this controller.
+		 * @type {GUI}
+		 */
+		this.parent = parent;
+
+		/**
+		 * The object this controller will modify.
+		 * @type {object}
+		 */
+		this.object = object;
+
+		/**
+		 * The name of the property to control.
+		 * @type {string}
+		 */
+		this.property = property;
+
+		/**
+		 * Used to determine if the controller is disabled.
+		 * Use `controller.disable( true|false )` to modify this value
+		 * @type {boolean}
+		 */
+		this._disabled = false;
+
+		/**
+		 * Used to determine if the Controller is hidden.
+		 * Use `controller.show()` or `controller.hide()` to change this.
+		 * @type {boolean}
+		 */
+		this._hidden = false;
+
+		/**
+		 * The value of `object[ property ]` when the controller was created.
+		 * @type {any}
+		 */
+		this.initialValue = this.getValue();
+
+		/**
+		 * The outermost container DOM element for this controller.
+		 * @type {HTMLElement}
+		 */
+		this.domElement = document.createElement( 'div' );
+		this.domElement.classList.add( 'controller' );
+		this.domElement.classList.add( className );
+
+		/**
+		 * The DOM element that contains the controller's name.
+		 * @type {HTMLElement}
+		 */
+		this.$name = document.createElement( 'div' );
+		this.$name.classList.add( 'name' );
+
+		Controller.nextNameID = Controller.nextNameID || 0;
+		this.$name.id = `lil-gui-name-${++Controller.nextNameID}`;
+
+		/**
+		 * The DOM element that contains the controller's "widget" (which differs by controller type).
+		 * @type {HTMLElement}
+		 */
+		this.$widget = document.createElement( widgetTag );
+		this.$widget.classList.add( 'widget' );
+
+		/**
+		 * The DOM element that receives the disabled attribute when using disable()
+		 * @type {HTMLElement}
+		 */
+		this.$disable = this.$widget;
+
+		this.domElement.appendChild( this.$name );
+		this.domElement.appendChild( this.$widget );
+
+		this.parent.children.push( this );
+		this.parent.controllers.push( this );
+
+		this.parent.$children.appendChild( this.domElement );
+
+		this._listenCallback = this._listenCallback.bind( this );
+
+		this.name( property );
+
+	}
+
+	/**
+	 * Sets the name of the controller and its label in the GUI.
+	 * @param {string} name
+	 * @returns {this}
+	 */
+	name( name ) {
+		/**
+		 * The controller's name. Use `controller.name( 'Name' )` to modify this value.
+		 * @type {string}
+		 */
+		this._name = name;
+		this.$name.innerHTML = name;
+		return this;
+	}
+
+	/**
+	 * Pass a function to be called whenever the value is modified by this controller.
+	 * The function receives the new value as its first parameter. The value of `this` will be the
+	 * controller.
+	 * @param {Function} callback
+	 * @returns {this}
+	 * @example
+	 * const controller = gui.add( object, 'property' );
+	 *
+	 * controller.onChange( function( v ) {
+	 * 	console.log( 'The value is now ' + v );
+	 * 	console.assert( this === controller );
+	 * } );
+	 */
+	onChange( callback ) {
+		/**
+		 * Used to access the function bound to `onChange` events. Don't modify this value directly.
+		 * Use the `controller.onChange( callback )` method instead.
+		 * @type {Function}
+		 */
+		this._onChange = callback;
+		return this;
+	}
+
+	/**
+	 * Calls the onChange methods of this controller and its parent GUI.
+	 * @protected
+	 */
+	_callOnChange() {
+
+		this.parent._callOnChange( this );
+
+		if ( this._onChange !== undefined ) {
+			this._onChange.call( this, this.getValue() );
+		}
+
+		this._changed = true;
+
+	}
+
+	/**
+	 * Pass a function to be called after this controller has been modified and loses focus.
+	 * @param {Function} callback
+	 * @returns {this}
+	 * @example
+	 * const controller = gui.add( object, 'property' );
+	 *
+	 * controller.onFinishChange( function( v ) {
+	 * 	console.log( 'Changes complete: ' + v );
+	 * 	console.assert( this === controller );
+	 * } );
+	 */
+	onFinishChange( callback ) {
+		/**
+		 * Used to access the function bound to `onFinishChange` events. Don't modify this value
+		 * directly. Use the `controller.onFinishChange( callback )` method instead.
+		 * @type {Function}
+		 */
+		this._onFinishChange = callback;
+		return this;
+	}
+
+	/**
+	 * Should be called by Controller when its widgets lose focus.
+	 * @protected
+	 */
+	_callOnFinishChange() {
+
+		if ( this._changed ) {
+
+			this.parent._callOnFinishChange( this );
+
+			if ( this._onFinishChange !== undefined ) {
+				this._onFinishChange.call( this, this.getValue() );
+			}
+
+		}
+
+		this._changed = false;
+
+	}
+
+	/**
+	 * Sets the controller back to its initial value.
+	 * @returns {this}
+	 */
+	reset() {
+		this.setValue( this.initialValue );
+		this._callOnFinishChange();
+		return this;
+	}
+
+	/**
+	 * Enables this controller.
+	 * @param {boolean} enabled
+	 * @returns {this}
+	 * @example
+	 * controller.enable();
+	 * controller.enable( false ); // disable
+	 * controller.enable( controller._disabled ); // toggle
+	 */
+	enable( enabled = true ) {
+		return this.disable( !enabled );
+	}
+
+	/**
+	 * Disables this controller.
+	 * @param {boolean} disabled
+	 * @returns {this}
+	 * @example
+	 * controller.disable();
+	 * controller.disable( false ); // enable
+	 * controller.disable( !controller._disabled ); // toggle
+	 */
+	disable( disabled = true ) {
+
+		if ( disabled === this._disabled ) return this;
+
+		this._disabled = disabled;
+
+		this.domElement.classList.toggle( 'disabled', disabled );
+		this.$disable.toggleAttribute( 'disabled', disabled );
+
+		return this;
+
+	}
+
+	/**
+	 * Shows the Controller after it's been hidden.
+	 * @param {boolean} show
+	 * @returns {this}
+	 * @example
+	 * controller.show();
+	 * controller.show( false ); // hide
+	 * controller.show( controller._hidden ); // toggle
+	 */
+	show( show = true ) {
+
+		this._hidden = !show;
+
+		this.domElement.style.display = this._hidden ? 'none' : '';
+
+		return this;
+
+	}
+
+	/**
+	 * Hides the Controller.
+	 * @returns {this}
+	 */
+	hide() {
+		return this.show( false );
+	}
+
+	/**
+	 * Destroys this controller and replaces it with a new option controller. Provided as a more
+	 * descriptive syntax for `gui.add`, but primarily for compatibility with dat.gui.
+	 *
+	 * Use caution, as this method will destroy old references to this controller. It will also
+	 * change controller order if called out of sequence, moving the option controller to the end of
+	 * the GUI.
+	 * @example
+	 * // safe usage
+	 *
+	 * gui.add( object1, 'property' ).options( [ 'a', 'b', 'c' ] );
+	 * gui.add( object2, 'property' );
+	 *
+	 * // danger
+	 *
+	 * const c = gui.add( object1, 'property' );
+	 * gui.add( object2, 'property' );
+	 *
+	 * c.options( [ 'a', 'b', 'c' ] );
+	 * // controller is now at the end of the GUI even though it was added first
+	 *
+	 * assert( c.parent.children.indexOf( c ) === -1 )
+	 * // c references a controller that no longer exists
+	 *
+	 * @param {object|Array} options
+	 * @returns {Controller}
+	 */
+	options( options ) {
+		const controller = this.parent.add( this.object, this.property, options );
+		controller.name( this._name );
+		this.destroy();
+		return controller;
+	}
+
+	/**
+	 * Sets the minimum value. Only works on number controllers.
+	 * @param {number} min
+	 * @returns {this}
+	 */
+	min( min ) {
+		return this;
+	}
+
+	/**
+	 * Sets the maximum value. Only works on number controllers.
+	 * @param {number} max
+	 * @returns {this}
+	 */
+	max( max ) {
+		return this;
+	}
+
+	/**
+	 * Values set by this controller will be rounded to multiples of `step`. Only works on number
+	 * controllers.
+	 * @param {number} step
+	 * @returns {this}
+	 */
+	step( step ) {
+		return this;
+	}
+
+	/**
+	 * Rounds the displayed value to a fixed number of decimals, without affecting the actual value
+	 * like `step()`. Only works on number controllers.
+	 * @example
+	 * gui.add( object, 'property' ).listen().decimals( 4 );
+	 * @param {number} decimals
+	 * @returns {this}
+	 */
+	decimals( decimals ) {
+		return this;
+	}
+
+	/**
+	 * Calls `updateDisplay()` every animation frame. Pass `false` to stop listening.
+	 * @param {boolean} listen
+	 * @returns {this}
+	 */
+	listen( listen = true ) {
+
+		/**
+		 * Used to determine if the controller is currently listening. Don't modify this value
+		 * directly. Use the `controller.listen( true|false )` method instead.
+		 * @type {boolean}
+		 */
+		this._listening = listen;
+
+		if ( this._listenCallbackID !== undefined ) {
+			cancelAnimationFrame( this._listenCallbackID );
+			this._listenCallbackID = undefined;
+		}
+
+		if ( this._listening ) {
+			this._listenCallback();
+		}
+
+		return this;
+
+	}
+
+	_listenCallback() {
+
+		this._listenCallbackID = requestAnimationFrame( this._listenCallback );
+
+		// To prevent framerate loss, make sure the value has changed before updating the display.
+		// Note: save() is used here instead of getValue() only because of ColorController. The !== operator
+		// won't work for color objects or arrays, but ColorController.save() always returns a string.
+
+		const curValue = this.save();
+
+		if ( curValue !== this._listenPrevValue ) {
+			this.updateDisplay();
+		}
+
+		this._listenPrevValue = curValue;
+
+	}
+
+	/**
+	 * Returns `object[ property ]`.
+	 * @returns {any}
+	 */
+	getValue() {
+		return this.object[ this.property ];
+	}
+
+	/**
+	 * Sets the value of `object[ property ]`, invokes any `onChange` handlers and updates the display.
+	 * @param {any} value
+	 * @returns {this}
+	 */
+	setValue( value ) {
+		this.object[ this.property ] = value;
+		this._callOnChange();
+		this.updateDisplay();
+		return this;
+	}
+
+	/**
+	 * Updates the display to keep it in sync with the current value. Useful for updating your
+	 * controllers when their values have been modified outside of the GUI.
+	 * @returns {this}
+	 */
+	updateDisplay() {
+		return this;
+	}
+
+	load( value ) {
+		this.setValue( value );
+		this._callOnFinishChange();
+		return this;
+	}
+
+	save() {
+		return this.getValue();
+	}
+
+	/**
+	 * Destroys this controller and removes it from the parent GUI.
+	 */
+	destroy() {
+		this.listen( false );
+		this.parent.children.splice( this.parent.children.indexOf( this ), 1 );
+		this.parent.controllers.splice( this.parent.controllers.indexOf( this ), 1 );
+		this.parent.$children.removeChild( this.domElement );
+	}
+
+}
+
+class BooleanController extends Controller {
+
+	constructor( parent, object, property ) {
+
+		super( parent, object, property, 'boolean', 'label' );
+
+		this.$input = document.createElement( 'input' );
+		this.$input.setAttribute( 'type', 'checkbox' );
+		this.$input.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$widget.appendChild( this.$input );
+
+		this.$input.addEventListener( 'change', () => {
+			this.setValue( this.$input.checked );
+			this._callOnFinishChange();
+		} );
+
+		this.$disable = this.$input;
+
+		this.updateDisplay();
+
+	}
+
+	updateDisplay() {
+		this.$input.checked = this.getValue();
+		return this;
+	}
+
+}
+
+function normalizeColorString( string ) {
+
+	let match, result;
+
+	if ( match = string.match( /(#|0x)?([a-f0-9]{6})/i ) ) {
+
+		result = match[ 2 ];
+
+	} else if ( match = string.match( /rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/ ) ) {
+
+		result = parseInt( match[ 1 ] ).toString( 16 ).padStart( 2, 0 )
+			+ parseInt( match[ 2 ] ).toString( 16 ).padStart( 2, 0 )
+			+ parseInt( match[ 3 ] ).toString( 16 ).padStart( 2, 0 );
+
+	} else if ( match = string.match( /^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i ) ) {
+
+		result = match[ 1 ] + match[ 1 ] + match[ 2 ] + match[ 2 ] + match[ 3 ] + match[ 3 ];
+
+	}
+
+	if ( result ) {
+		return '#' + result;
+	}
+
+	return false;
+
+}
+
+const STRING = {
+	isPrimitive: true,
+	match: v => typeof v === 'string',
+	fromHexString: normalizeColorString,
+	toHexString: normalizeColorString
+};
+
+const INT = {
+	isPrimitive: true,
+	match: v => typeof v === 'number',
+	fromHexString: string => parseInt( string.substring( 1 ), 16 ),
+	toHexString: value => '#' + value.toString( 16 ).padStart( 6, 0 )
+};
+
+const ARRAY = {
+	isPrimitive: false,
+	match: Array.isArray,
+	fromHexString( string, target, rgbScale = 1 ) {
+
+		const int = INT.fromHexString( string );
+
+		target[ 0 ] = ( int >> 16 & 255 ) / 255 * rgbScale;
+		target[ 1 ] = ( int >> 8 & 255 ) / 255 * rgbScale;
+		target[ 2 ] = ( int & 255 ) / 255 * rgbScale;
+
+	},
+	toHexString( [ r, g, b ], rgbScale = 1 ) {
+
+		rgbScale = 255 / rgbScale;
+
+		const int = ( r * rgbScale ) << 16 ^
+			( g * rgbScale ) << 8 ^
+			( b * rgbScale ) << 0;
+
+		return INT.toHexString( int );
+
+	}
+};
+
+const OBJECT = {
+	isPrimitive: false,
+	match: v => Object( v ) === v,
+	fromHexString( string, target, rgbScale = 1 ) {
+
+		const int = INT.fromHexString( string );
+
+		target.r = ( int >> 16 & 255 ) / 255 * rgbScale;
+		target.g = ( int >> 8 & 255 ) / 255 * rgbScale;
+		target.b = ( int & 255 ) / 255 * rgbScale;
+
+	},
+	toHexString( { r, g, b }, rgbScale = 1 ) {
+
+		rgbScale = 255 / rgbScale;
+
+		const int = ( r * rgbScale ) << 16 ^
+			( g * rgbScale ) << 8 ^
+			( b * rgbScale ) << 0;
+
+		return INT.toHexString( int );
+
+	}
+};
+
+const FORMATS = [ STRING, INT, ARRAY, OBJECT ];
+
+function getColorFormat( value ) {
+	return FORMATS.find( format => format.match( value ) );
+}
+
+class ColorController extends Controller {
+
+	constructor( parent, object, property, rgbScale ) {
+
+		super( parent, object, property, 'color' );
+
+		this.$input = document.createElement( 'input' );
+		this.$input.setAttribute( 'type', 'color' );
+		this.$input.setAttribute( 'tabindex', -1 );
+		this.$input.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$text = document.createElement( 'input' );
+		this.$text.setAttribute( 'type', 'text' );
+		this.$text.setAttribute( 'spellcheck', 'false' );
+		this.$text.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$display = document.createElement( 'div' );
+		this.$display.classList.add( 'display' );
+
+		this.$display.appendChild( this.$input );
+		this.$widget.appendChild( this.$display );
+		this.$widget.appendChild( this.$text );
+
+		this._format = getColorFormat( this.initialValue );
+		this._rgbScale = rgbScale;
+
+		this._initialValueHexString = this.save();
+		this._textFocused = false;
+
+		this.$input.addEventListener( 'input', () => {
+			this._setValueFromHexString( this.$input.value );
+		} );
+
+		this.$input.addEventListener( 'blur', () => {
+			this._callOnFinishChange();
+		} );
+
+		this.$text.addEventListener( 'input', () => {
+			const tryParse = normalizeColorString( this.$text.value );
+			if ( tryParse ) {
+				this._setValueFromHexString( tryParse );
+			}
+		} );
+
+		this.$text.addEventListener( 'focus', () => {
+			this._textFocused = true;
+			this.$text.select();
+		} );
+
+		this.$text.addEventListener( 'blur', () => {
+			this._textFocused = false;
+			this.updateDisplay();
+			this._callOnFinishChange();
+		} );
+
+		this.$disable = this.$text;
+
+		this.updateDisplay();
+
+	}
+
+	reset() {
+		this._setValueFromHexString( this._initialValueHexString );
+		return this;
+	}
+
+	_setValueFromHexString( value ) {
+
+		if ( this._format.isPrimitive ) {
+
+			const newValue = this._format.fromHexString( value );
+			this.setValue( newValue );
+
+		} else {
+
+			this._format.fromHexString( value, this.getValue(), this._rgbScale );
+			this._callOnChange();
+			this.updateDisplay();
+
+		}
+
+	}
+
+	save() {
+		return this._format.toHexString( this.getValue(), this._rgbScale );
+	}
+
+	load( value ) {
+		this._setValueFromHexString( value );
+		this._callOnFinishChange();
+		return this;
+	}
+
+	updateDisplay() {
+		this.$input.value = this._format.toHexString( this.getValue(), this._rgbScale );
+		if ( !this._textFocused ) {
+			this.$text.value = this.$input.value.substring( 1 );
+		}
+		this.$display.style.backgroundColor = this.$input.value;
+		return this;
+	}
+
+}
+
+class FunctionController extends Controller {
+
+	constructor( parent, object, property ) {
+
+		super( parent, object, property, 'function' );
+
+		// Buttons are the only case where widget contains name
+		this.$button = document.createElement( 'button' );
+		this.$button.appendChild( this.$name );
+		this.$widget.appendChild( this.$button );
+
+		this.$button.addEventListener( 'click', e => {
+			e.preventDefault();
+			this.getValue().call( this.object );
+		} );
+
+		// enables :active pseudo class on mobile
+		this.$button.addEventListener( 'touchstart', () => {}, { passive: true } );
+
+		this.$disable = this.$button;
+
+	}
+
+}
+
+class NumberController extends Controller {
+
+	constructor( parent, object, property, min, max, step ) {
+
+		super( parent, object, property, 'number' );
+
+		this._initInput();
+
+		this.min( min );
+		this.max( max );
+
+		const stepExplicit = step !== undefined;
+		this.step( stepExplicit ? step : this._getImplicitStep(), stepExplicit );
+
+		this.updateDisplay();
+
+	}
+
+	decimals( decimals ) {
+		this._decimals = decimals;
+		this.updateDisplay();
+		return this;
+	}
+
+	min( min ) {
+		this._min = min;
+		this._onUpdateMinMax();
+		return this;
+	}
+
+	max( max ) {
+		this._max = max;
+		this._onUpdateMinMax();
+		return this;
+	}
+
+	step( step, explicit = true ) {
+		this._step = step;
+		this._stepExplicit = explicit;
+		return this;
+	}
+
+	updateDisplay() {
+
+		const value = this.getValue();
+
+		if ( this._hasSlider ) {
+
+			let percent = ( value - this._min ) / ( this._max - this._min );
+			percent = Math.max( 0, Math.min( percent, 1 ) );
+
+			this.$fill.style.width = percent * 100 + '%';
+
+		}
+
+		if ( !this._inputFocused ) {
+			this.$input.value = this._decimals === undefined ? value : value.toFixed( this._decimals );
+		}
+
+		return this;
+
+	}
+
+	_initInput() {
+
+		this.$input = document.createElement( 'input' );
+		this.$input.setAttribute( 'type', 'number' );
+		this.$input.setAttribute( 'step', 'any' );
+		this.$input.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$widget.appendChild( this.$input );
+
+		this.$disable = this.$input;
+
+		const onInput = () => {
+
+			let value = parseFloat( this.$input.value );
+
+			if ( isNaN( value ) ) return;
+
+			if ( this._stepExplicit ) {
+				value = this._snap( value );
+			}
+
+			this.setValue( this._clamp( value ) );
+
+		};
+
+		// Keys & mouse wheel
+		// ---------------------------------------------------------------------
+
+		const increment = delta => {
+
+			const value = parseFloat( this.$input.value );
+
+			if ( isNaN( value ) ) return;
+
+			this._snapClampSetValue( value + delta );
+
+			// Force the input to updateDisplay when it's focused
+			this.$input.value = this.getValue();
+
+		};
+
+		const onKeyDown = e => {
+			if ( e.code === 'Enter' ) {
+				this.$input.blur();
+			}
+			if ( e.code === 'ArrowUp' ) {
+				e.preventDefault();
+				increment( this._step * this._arrowKeyMultiplier( e ) );
+			}
+			if ( e.code === 'ArrowDown' ) {
+				e.preventDefault();
+				increment( this._step * this._arrowKeyMultiplier( e ) * -1 );
+			}
+		};
+
+		const onWheel = e => {
+			if ( this._inputFocused ) {
+				e.preventDefault();
+				increment( this._step * this._normalizeMouseWheel( e ) );
+			}
+		};
+
+		// Vertical drag
+		// ---------------------------------------------------------------------
+
+		let testingForVerticalDrag = false,
+			initClientX,
+			initClientY,
+			prevClientY,
+			initValue,
+			dragDelta;
+
+		// Once the mouse is dragged more than DRAG_THRESH px on any axis, we decide
+		// on the user's intent: horizontal means highlight, vertical means drag.
+		const DRAG_THRESH = 5;
+
+		const onMouseDown = e => {
+
+			initClientX = e.clientX;
+			initClientY = prevClientY = e.clientY;
+			testingForVerticalDrag = true;
+
+			initValue = this.getValue();
+			dragDelta = 0;
+
+			window.addEventListener( 'mousemove', onMouseMove );
+			window.addEventListener( 'mouseup', onMouseUp );
+
+		};
+
+		const onMouseMove = e => {
+
+			if ( testingForVerticalDrag ) {
+
+				const dx = e.clientX - initClientX;
+				const dy = e.clientY - initClientY;
+
+				if ( Math.abs( dy ) > DRAG_THRESH ) {
+
+					e.preventDefault();
+					this.$input.blur();
+					testingForVerticalDrag = false;
+					this._setDraggingStyle( true, 'vertical' );
+
+				} else if ( Math.abs( dx ) > DRAG_THRESH ) {
+
+					onMouseUp();
+
+				}
+
+			}
+
+			// This isn't an else so that the first move counts towards dragDelta
+			if ( !testingForVerticalDrag ) {
+
+				const dy = e.clientY - prevClientY;
+
+				dragDelta -= dy * this._step * this._arrowKeyMultiplier( e );
+
+				// Clamp dragDelta so we don't have 'dead space' after dragging past bounds.
+				// We're okay with the fact that bounds can be undefined here.
+				if ( initValue + dragDelta > this._max ) {
+					dragDelta = this._max - initValue;
+				} else if ( initValue + dragDelta < this._min ) {
+					dragDelta = this._min - initValue;
+				}
+
+				this._snapClampSetValue( initValue + dragDelta );
+
+			}
+
+			prevClientY = e.clientY;
+
+		};
+
+		const onMouseUp = () => {
+			this._setDraggingStyle( false, 'vertical' );
+			this._callOnFinishChange();
+			window.removeEventListener( 'mousemove', onMouseMove );
+			window.removeEventListener( 'mouseup', onMouseUp );
+		};
+
+		// Focus state & onFinishChange
+		// ---------------------------------------------------------------------
+
+		const onFocus = () => {
+			this._inputFocused = true;
+		};
+
+		const onBlur = () => {
+			this._inputFocused = false;
+			this.updateDisplay();
+			this._callOnFinishChange();
+		};
+
+		this.$input.addEventListener( 'input', onInput );
+		this.$input.addEventListener( 'keydown', onKeyDown );
+		this.$input.addEventListener( 'wheel', onWheel, { passive: false } );
+		this.$input.addEventListener( 'mousedown', onMouseDown );
+		this.$input.addEventListener( 'focus', onFocus );
+		this.$input.addEventListener( 'blur', onBlur );
+
+	}
+
+	_initSlider() {
+
+		this._hasSlider = true;
+
+		// Build DOM
+		// ---------------------------------------------------------------------
+
+		this.$slider = document.createElement( 'div' );
+		this.$slider.classList.add( 'slider' );
+
+		this.$fill = document.createElement( 'div' );
+		this.$fill.classList.add( 'fill' );
+
+		this.$slider.appendChild( this.$fill );
+		this.$widget.insertBefore( this.$slider, this.$input );
+
+		this.domElement.classList.add( 'hasSlider' );
+
+		// Map clientX to value
+		// ---------------------------------------------------------------------
+
+		const map = ( v, a, b, c, d ) => {
+			return ( v - a ) / ( b - a ) * ( d - c ) + c;
+		};
+
+		const setValueFromX = clientX => {
+			const rect = this.$slider.getBoundingClientRect();
+			let value = map( clientX, rect.left, rect.right, this._min, this._max );
+			this._snapClampSetValue( value );
+		};
+
+		// Mouse drag
+		// ---------------------------------------------------------------------
+
+		const mouseDown = e => {
+			this._setDraggingStyle( true );
+			setValueFromX( e.clientX );
+			window.addEventListener( 'mousemove', mouseMove );
+			window.addEventListener( 'mouseup', mouseUp );
+		};
+
+		const mouseMove = e => {
+			setValueFromX( e.clientX );
+		};
+
+		const mouseUp = () => {
+			this._callOnFinishChange();
+			this._setDraggingStyle( false );
+			window.removeEventListener( 'mousemove', mouseMove );
+			window.removeEventListener( 'mouseup', mouseUp );
+		};
+
+		// Touch drag
+		// ---------------------------------------------------------------------
+
+		let testingForScroll = false, prevClientX, prevClientY;
+
+		const beginTouchDrag = e => {
+			e.preventDefault();
+			this._setDraggingStyle( true );
+			setValueFromX( e.touches[ 0 ].clientX );
+			testingForScroll = false;
+		};
+
+		const onTouchStart = e => {
+
+			if ( e.touches.length > 1 ) return;
+
+			// If we're in a scrollable container, we should wait for the first
+			// touchmove to see if the user is trying to slide or scroll.
+			if ( this._hasScrollBar ) {
+
+				prevClientX = e.touches[ 0 ].clientX;
+				prevClientY = e.touches[ 0 ].clientY;
+				testingForScroll = true;
+
+			} else {
+
+				// Otherwise, we can set the value straight away on touchstart.
+				beginTouchDrag( e );
+
+			}
+
+			window.addEventListener( 'touchmove', onTouchMove, { passive: false } );
+			window.addEventListener( 'touchend', onTouchEnd );
+
+		};
+
+		const onTouchMove = e => {
+
+			if ( testingForScroll ) {
+
+				const dx = e.touches[ 0 ].clientX - prevClientX;
+				const dy = e.touches[ 0 ].clientY - prevClientY;
+
+				if ( Math.abs( dx ) > Math.abs( dy ) ) {
+
+					// We moved horizontally, set the value and stop checking.
+					beginTouchDrag( e );
+
+				} else {
+
+					// This was, in fact, an attempt to scroll. Abort.
+					window.removeEventListener( 'touchmove', onTouchMove );
+					window.removeEventListener( 'touchend', onTouchEnd );
+
+				}
+
+			} else {
+
+				e.preventDefault();
+				setValueFromX( e.touches[ 0 ].clientX );
+
+			}
+
+		};
+
+		const onTouchEnd = () => {
+			this._callOnFinishChange();
+			this._setDraggingStyle( false );
+			window.removeEventListener( 'touchmove', onTouchMove );
+			window.removeEventListener( 'touchend', onTouchEnd );
+		};
+
+		// Mouse wheel
+		// ---------------------------------------------------------------------
+
+		// We have to use a debounced function to call onFinishChange because
+		// there's no way to tell when the user is "done" mouse-wheeling.
+		const callOnFinishChange = this._callOnFinishChange.bind( this );
+		const WHEEL_DEBOUNCE_TIME = 400;
+		let wheelFinishChangeTimeout;
+
+		const onWheel = e => {
+
+			// ignore vertical wheels if there's a scrollbar
+			const isVertical = Math.abs( e.deltaX ) < Math.abs( e.deltaY );
+			if ( isVertical && this._hasScrollBar ) return;
+
+			e.preventDefault();
+
+			// set value
+			const delta = this._normalizeMouseWheel( e ) * this._step;
+			this._snapClampSetValue( this.getValue() + delta );
+
+			// force the input to updateDisplay when it's focused
+			this.$input.value = this.getValue();
+
+			// debounce onFinishChange
+			clearTimeout( wheelFinishChangeTimeout );
+			wheelFinishChangeTimeout = setTimeout( callOnFinishChange, WHEEL_DEBOUNCE_TIME );
+
+		};
+
+		this.$slider.addEventListener( 'mousedown', mouseDown );
+		this.$slider.addEventListener( 'touchstart', onTouchStart, { passive: false } );
+		this.$slider.addEventListener( 'wheel', onWheel, { passive: false } );
+
+	}
+
+	_setDraggingStyle( active, axis = 'horizontal' ) {
+		if ( this.$slider ) {
+			this.$slider.classList.toggle( 'active', active );
+		}
+		document.body.classList.toggle( 'lil-gui-dragging', active );
+		document.body.classList.toggle( `lil-gui-${axis}`, active );
+	}
+
+	_getImplicitStep() {
+
+		if ( this._hasMin && this._hasMax ) {
+			return ( this._max - this._min ) / 1000;
+		}
+
+		return 0.1;
+
+	}
+
+	_onUpdateMinMax() {
+
+		if ( !this._hasSlider && this._hasMin && this._hasMax ) {
+
+			// If this is the first time we're hearing about min and max
+			// and we haven't explicitly stated what our step is, let's
+			// update that too.
+			if ( !this._stepExplicit ) {
+				this.step( this._getImplicitStep(), false );
+			}
+
+			this._initSlider();
+			this.updateDisplay();
+
+		}
+
+	}
+
+	_normalizeMouseWheel( e ) {
+
+		let { deltaX, deltaY } = e;
+
+		// Safari and Chrome report weird non-integral values for a notched wheel,
+		// but still expose actual lines scrolled via wheelDelta. Notched wheels
+		// should behave the same way as arrow keys.
+		if ( Math.floor( e.deltaY ) !== e.deltaY && e.wheelDelta ) {
+			deltaX = 0;
+			deltaY = -e.wheelDelta / 120;
+			deltaY *= this._stepExplicit ? 1 : 10;
+		}
+
+		const wheel = deltaX + -deltaY;
+
+		return wheel;
+
+	}
+
+	_arrowKeyMultiplier( e ) {
+
+		let mult = this._stepExplicit ? 1 : 10;
+
+		if ( e.shiftKey ) {
+			mult *= 10;
+		} else if ( e.altKey ) {
+			mult /= 10;
+		}
+
+		return mult;
+
+	}
+
+	_snap( value ) {
+
+		// This would be the logical way to do things, but floating point errors.
+		// return Math.round( value / this._step ) * this._step;
+
+		// Using inverse step solves a lot of them, but not all
+		// const inverseStep = 1 / this._step;
+		// return Math.round( value * inverseStep ) / inverseStep;
+
+		// Not happy about this, but haven't seen it break.
+		const r = Math.round( value / this._step ) * this._step;
+		return parseFloat( r.toPrecision( 15 ) );
+
+	}
+
+	_clamp( value ) {
+		// either condition is false if min or max is undefined
+		if ( value < this._min ) value = this._min;
+		if ( value > this._max ) value = this._max;
+		return value;
+	}
+
+	_snapClampSetValue( value ) {
+		this.setValue( this._clamp( this._snap( value ) ) );
+	}
+
+	get _hasScrollBar() {
+		const root = this.parent.root.$children;
+		return root.scrollHeight > root.clientHeight;
+	}
+
+	get _hasMin() {
+		return this._min !== undefined;
+	}
+
+	get _hasMax() {
+		return this._max !== undefined;
+	}
+
+}
+
+class OptionController extends Controller {
+
+	constructor( parent, object, property, options ) {
+
+		super( parent, object, property, 'option' );
+
+		this.$select = document.createElement( 'select' );
+		this.$select.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$display = document.createElement( 'div' );
+		this.$display.classList.add( 'display' );
+
+		this._values = Array.isArray( options ) ? options : Object.values( options );
+		this._names = Array.isArray( options ) ? options : Object.keys( options );
+
+		this._names.forEach( name => {
+			const $option = document.createElement( 'option' );
+			$option.innerHTML = name;
+			this.$select.appendChild( $option );
+		} );
+
+		this.$select.addEventListener( 'change', () => {
+			this.setValue( this._values[ this.$select.selectedIndex ] );
+			this._callOnFinishChange();
+		} );
+
+		this.$select.addEventListener( 'focus', () => {
+			this.$display.classList.add( 'focus' );
+		} );
+
+		this.$select.addEventListener( 'blur', () => {
+			this.$display.classList.remove( 'focus' );
+		} );
+
+		this.$widget.appendChild( this.$select );
+		this.$widget.appendChild( this.$display );
+
+		this.$disable = this.$select;
+
+		this.updateDisplay();
+
+	}
+
+	updateDisplay() {
+		const value = this.getValue();
+		const index = this._values.indexOf( value );
+		this.$select.selectedIndex = index;
+		this.$display.innerHTML = index === -1 ? value : this._names[ index ];
+		return this;
+	}
+
+}
+
+class StringController extends Controller {
+
+	constructor( parent, object, property ) {
+
+		super( parent, object, property, 'string' );
+
+		this.$input = document.createElement( 'input' );
+		this.$input.setAttribute( 'type', 'text' );
+		this.$input.setAttribute( 'aria-labelledby', this.$name.id );
+
+		this.$input.addEventListener( 'input', () => {
+			this.setValue( this.$input.value );
+		} );
+
+		this.$input.addEventListener( 'keydown', e => {
+			if ( e.code === 'Enter' ) {
+				this.$input.blur();
+			}
+		} );
+
+		this.$input.addEventListener( 'blur', () => {
+			this._callOnFinishChange();
+		} );
+
+		this.$widget.appendChild( this.$input );
+
+		this.$disable = this.$input;
+
+		this.updateDisplay();
+
+	}
+
+	updateDisplay() {
+		this.$input.value = this.getValue();
+		return this;
+	}
+
+}
+
+const stylesheet = `.lil-gui {
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  text-align: left;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  --background-color: #1f1f1f;
+  --text-color: #ebebeb;
+  --title-background-color: #111111;
+  --title-text-color: #ebebeb;
+  --widget-color: #424242;
+  --hover-color: #4f4f4f;
+  --focus-color: #595959;
+  --number-color: #2cc9ff;
+  --string-color: #a2db3c;
+  --font-size: 11px;
+  --input-font-size: 11px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-mono: Menlo, Monaco, Consolas, "Droid Sans Mono", monospace;
+  --padding: 4px;
+  --spacing: 4px;
+  --widget-height: 20px;
+  --name-width: 45%;
+  --slider-knob-width: 2px;
+  --slider-input-width: 27%;
+  --color-input-width: 27%;
+  --slider-input-min-width: 45px;
+  --color-input-min-width: 45px;
+  --folder-indent: 7px;
+  --widget-padding: 0 0 0 3px;
+  --widget-border-radius: 2px;
+  --checkbox-size: calc(0.75 * var(--widget-height));
+  --scrollbar-width: 5px;
+}
+.lil-gui, .lil-gui * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+.lil-gui.root {
+  width: var(--width, 245px);
+  display: flex;
+  flex-direction: column;
+}
+.lil-gui.root > .title {
+  background: var(--title-background-color);
+  color: var(--title-text-color);
+}
+.lil-gui.root > .children {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.lil-gui.root > .children::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+  background: var(--background-color);
+}
+.lil-gui.root > .children::-webkit-scrollbar-thumb {
+  border-radius: var(--scrollbar-width);
+  background: var(--focus-color);
+}
+@media (pointer: coarse) {
+  .lil-gui.allow-touch-styles {
+    --widget-height: 28px;
+    --padding: 6px;
+    --spacing: 6px;
+    --font-size: 13px;
+    --input-font-size: 16px;
+    --folder-indent: 10px;
+    --scrollbar-width: 7px;
+    --slider-input-min-width: 50px;
+    --color-input-min-width: 65px;
+  }
+}
+.lil-gui.force-touch-styles {
+  --widget-height: 28px;
+  --padding: 6px;
+  --spacing: 6px;
+  --font-size: 13px;
+  --input-font-size: 16px;
+  --folder-indent: 10px;
+  --scrollbar-width: 7px;
+  --slider-input-min-width: 50px;
+  --color-input-min-width: 65px;
+}
+.lil-gui.autoPlace {
+  max-height: 100%;
+  position: fixed;
+  top: 0;
+  right: 15px;
+  z-index: 1001;
+}
+
+.lil-gui .controller {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+}
+.lil-gui .controller.disabled {
+  opacity: 0.5;
+}
+.lil-gui .controller.disabled, .lil-gui .controller.disabled * {
+  pointer-events: none !important;
+}
+.lil-gui .controller > .name {
+  min-width: var(--name-width);
+  flex-shrink: 0;
+  white-space: pre;
+  padding-right: var(--spacing);
+  line-height: var(--widget-height);
+}
+.lil-gui .controller .widget {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--widget-height);
+}
+.lil-gui .controller.string input {
+  color: var(--string-color);
+}
+.lil-gui .controller.boolean .widget {
+  cursor: pointer;
+}
+.lil-gui .controller.color .display {
+  width: 100%;
+  height: var(--widget-height);
+  border-radius: var(--widget-border-radius);
+  position: relative;
+}
+@media (hover: hover) {
+  .lil-gui .controller.color .display:hover:before {
+    content: " ";
+    display: block;
+    position: absolute;
+    border-radius: var(--widget-border-radius);
+    border: 1px solid #fff9;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+.lil-gui .controller.color input[type=color] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.lil-gui .controller.color input[type=text] {
+  margin-left: var(--spacing);
+  font-family: var(--font-family-mono);
+  min-width: var(--color-input-min-width);
+  width: var(--color-input-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.option select {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+}
+.lil-gui .controller.option .display {
+  position: relative;
+  pointer-events: none;
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  line-height: var(--widget-height);
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-all;
+  padding-left: 0.55em;
+  padding-right: 1.75em;
+  background: var(--widget-color);
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .display.focus {
+    background: var(--focus-color);
+  }
+}
+.lil-gui .controller.option .display.active {
+  background: var(--focus-color);
+}
+.lil-gui .controller.option .display:after {
+  font-family: "lil-gui";
+  content: "↕";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding-right: 0.375em;
+}
+.lil-gui .controller.option .widget,
+.lil-gui .controller.option select {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .lil-gui .controller.option .widget:hover .display {
+    background: var(--hover-color);
+  }
+}
+.lil-gui .controller.number input {
+  color: var(--number-color);
+}
+.lil-gui .controller.number.hasSlider input {
+  margin-left: var(--spacing);
+  width: var(--slider-input-width);
+  min-width: var(--slider-input-min-width);
+  flex-shrink: 0;
+}
+.lil-gui .controller.number .slider {
+  width: 100%;
+  height: var(--widget-height);
+  background-color: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  padding-right: var(--slider-knob-width);
+  overflow: hidden;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+@media (hover: hover) {
+  .lil-gui .controller.number .slider:hover {
+    background-color: var(--hover-color);
+  }
+}
+.lil-gui .controller.number .slider.active {
+  background-color: var(--focus-color);
+}
+.lil-gui .controller.number .slider.active .fill {
+  opacity: 0.95;
+}
+.lil-gui .controller.number .fill {
+  height: 100%;
+  border-right: var(--slider-knob-width) solid var(--number-color);
+  box-sizing: content-box;
+}
+
+.lil-gui-dragging .lil-gui {
+  --hover-color: var(--widget-color);
+}
+.lil-gui-dragging * {
+  cursor: ew-resize !important;
+}
+
+.lil-gui-dragging.lil-gui-vertical * {
+  cursor: ns-resize !important;
+}
+
+.lil-gui .title {
+  --title-height: calc(var(--widget-height) + var(--spacing) * 1.25);
+  height: var(--title-height);
+  line-height: calc(var(--title-height) - 4px);
+  font-weight: 600;
+  padding: 0 var(--padding);
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  outline: none;
+  text-decoration-skip: objects;
+}
+.lil-gui .title:before {
+  font-family: "lil-gui";
+  content: "▾";
+  padding-right: 2px;
+  display: inline-block;
+}
+.lil-gui .title:active {
+  background: var(--title-background-color);
+  opacity: 0.75;
+}
+@media (hover: hover) {
+  body:not(.lil-gui-dragging) .lil-gui .title:hover {
+    background: var(--title-background-color);
+    opacity: 0.85;
+  }
+  .lil-gui .title:focus {
+    text-decoration: underline var(--focus-color);
+  }
+}
+.lil-gui.root > .title:focus {
+  text-decoration: none !important;
+}
+.lil-gui.closed > .title:before {
+  content: "▸";
+}
+.lil-gui.closed > .children {
+  transform: translateY(-7px);
+  opacity: 0;
+}
+.lil-gui.closed:not(.transition) > .children {
+  display: none;
+}
+.lil-gui.transition > .children {
+  transition-duration: 300ms;
+  transition-property: height, opacity, transform;
+  transition-timing-function: cubic-bezier(0.2, 0.6, 0.35, 1);
+  overflow: hidden;
+  pointer-events: none;
+}
+.lil-gui .children:empty:before {
+  content: "Empty";
+  padding: 0 var(--padding);
+  margin: var(--spacing) 0;
+  display: block;
+  height: var(--widget-height);
+  font-style: italic;
+  line-height: var(--widget-height);
+  opacity: 0.5;
+}
+.lil-gui.root > .children > .lil-gui > .title {
+  border: 0 solid var(--widget-color);
+  border-width: 1px 0;
+  transition: border-color 300ms;
+}
+.lil-gui.root > .children > .lil-gui.closed > .title {
+  border-bottom-color: transparent;
+}
+.lil-gui + .controller {
+  border-top: 1px solid var(--widget-color);
+  margin-top: 0;
+  padding-top: var(--spacing);
+}
+.lil-gui .lil-gui .lil-gui > .title {
+  border: none;
+}
+.lil-gui .lil-gui .lil-gui > .children {
+  border: none;
+  margin-left: var(--folder-indent);
+  border-left: 2px solid var(--widget-color);
+}
+.lil-gui .lil-gui .controller {
+  border: none;
+}
+
+.lil-gui input {
+  -webkit-tap-highlight-color: transparent;
+  border: 0;
+  outline: none;
+  font-family: var(--font-family);
+  font-size: var(--input-font-size);
+  border-radius: var(--widget-border-radius);
+  height: var(--widget-height);
+  background: var(--widget-color);
+  color: var(--text-color);
+  width: 100%;
+}
+@media (hover: hover) {
+  .lil-gui input:hover {
+    background: var(--hover-color);
+  }
+  .lil-gui input:active {
+    background: var(--focus-color);
+  }
+}
+.lil-gui input:disabled {
+  opacity: 1;
+}
+.lil-gui input[type=text],
+.lil-gui input[type=number] {
+  padding: var(--widget-padding);
+}
+.lil-gui input[type=text]:focus,
+.lil-gui input[type=number]:focus {
+  background: var(--focus-color);
+}
+.lil-gui input::-webkit-outer-spin-button,
+.lil-gui input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.lil-gui input[type=number] {
+  -moz-appearance: textfield;
+}
+.lil-gui input[type=checkbox] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: var(--checkbox-size);
+  width: var(--checkbox-size);
+  border-radius: var(--widget-border-radius);
+  text-align: center;
+  cursor: pointer;
+}
+.lil-gui input[type=checkbox]:checked:before {
+  font-family: "lil-gui";
+  content: "✓";
+  font-size: var(--checkbox-size);
+  line-height: var(--checkbox-size);
+}
+@media (hover: hover) {
+  .lil-gui input[type=checkbox]:focus {
+    box-shadow: inset 0 0 0 1px var(--focus-color);
+  }
+}
+.lil-gui button {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  color: var(--text-color);
+  width: 100%;
+  height: var(--widget-height);
+  text-transform: none;
+  background: var(--widget-color);
+  border-radius: var(--widget-border-radius);
+  border: 1px solid var(--widget-color);
+  text-align: center;
+  line-height: calc(var(--widget-height) - 4px);
+}
+@media (hover: hover) {
+  .lil-gui button:hover {
+    background: var(--hover-color);
+    border-color: var(--hover-color);
+  }
+  .lil-gui button:focus {
+    border-color: var(--focus-color);
+  }
+}
+.lil-gui button:active {
+  background: var(--focus-color);
+}
+
+@font-face {
+  font-family: "lil-gui";
+  src: url("data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAUsAAsAAAAACJwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAAH4AAADAImwmYE9TLzIAAAGIAAAAPwAAAGBKqH5SY21hcAAAAcgAAAD0AAACrukyyJBnbHlmAAACvAAAAF8AAACEIZpWH2hlYWQAAAMcAAAAJwAAADZfcj2zaGhlYQAAA0QAAAAYAAAAJAC5AHhobXR4AAADXAAAABAAAABMAZAAAGxvY2EAAANsAAAAFAAAACgCEgIybWF4cAAAA4AAAAAeAAAAIAEfABJuYW1lAAADoAAAASIAAAIK9SUU/XBvc3QAAATEAAAAZgAAAJCTcMc2eJxVjbEOgjAURU+hFRBK1dGRL+ALnAiToyMLEzFpnPz/eAshwSa97517c/MwwJmeB9kwPl+0cf5+uGPZXsqPu4nvZabcSZldZ6kfyWnomFY/eScKqZNWupKJO6kXN3K9uCVoL7iInPr1X5baXs3tjuMqCtzEuagm/AAlzQgPAAB4nGNgYRBlnMDAysDAYM/gBiT5oLQBAwuDJAMDEwMrMwNWEJDmmsJwgCFeXZghBcjlZMgFCzOiKOIFAB71Bb8AeJy1kjFuwkAQRZ+DwRAwBtNQRUGKQ8OdKCAWUhAgKLhIuAsVSpWz5Bbkj3dEgYiUIszqWdpZe+Z7/wB1oCYmIoboiwiLT2WjKl/jscrHfGg/pKdMkyklC5Zs2LEfHYpjcRoPzme9MWWmk3dWbK9ObkWkikOetJ554fWyoEsmdSlt+uR0pCJR34b6t/TVg1SY3sYvdf8vuiKrpyaDXDISiegp17p7579Gp3p++y7HPAiY9pmTibljrr85qSidtlg4+l25GLCaS8e6rRxNBmsnERunKbaOObRz7N72ju5vdAjYpBXHgJylOAVsMseDAPEP8LYoUHicY2BiAAEfhiAGJgZWBgZ7RnFRdnVJELCQlBSRlATJMoLV2DK4glSYs6ubq5vbKrJLSbGrgEmovDuDJVhe3VzcXFwNLCOILB/C4IuQ1xTn5FPilBTj5FPmBAB4WwoqAHicY2BkYGAA4sk1sR/j+W2+MnAzpDBgAyEMQUCSg4EJxAEAwUgFHgB4nGNgZGBgSGFggJMhDIwMqEAYAByHATJ4nGNgAIIUNEwmAABl3AGReJxjYAACIQYlBiMGJ3wQAEcQBEV4nGNgZGBgEGZgY2BiAAEQyQWEDAz/wXwGAAsPATIAAHicXdBNSsNAHAXwl35iA0UQXYnMShfS9GPZA7T7LgIu03SSpkwzYTIt1BN4Ak/gKTyAeCxfw39jZkjymzcvAwmAW/wgwHUEGDb36+jQQ3GXGot79L24jxCP4gHzF/EIr4jEIe7wxhOC3g2TMYy4Q7+Lu/SHuEd/ivt4wJd4wPxbPEKMX3GI5+DJFGaSn4qNzk8mcbKSR6xdXdhSzaOZJGtdapd4vVPbi6rP+cL7TGXOHtXKll4bY1Xl7EGnPtp7Xy2n00zyKLVHfkHBa4IcJ2oD3cgggWvt/V/FbDrUlEUJhTn/0azVWbNTNr0Ens8de1tceK9xZmfB1CPjOmPH4kitmvOubcNpmVTN3oFJyjzCvnmrwhJTzqzVj9jiSX911FjeAAB4nG3HMRKCMBBA0f0giiKi4DU8k0V2GWbIZDOh4PoWWvq6J5V8If9NVNQcaDhyouXMhY4rPTcG7jwYmXhKq8Wz+p762aNaeYXom2n3m2dLTVgsrCgFJ7OTmIkYbwIbC6vIB7WmFfAAAA==") format("woff");
+}`;
+
+function _injectStyles( cssContent ) {
+	const injected = document.createElement( 'style' );
+	injected.innerHTML = cssContent;
+	const before = document.querySelector( 'head link[rel=stylesheet], head style' );
+	if ( before ) {
+		document.head.insertBefore( injected, before );
+	} else {
+		document.head.appendChild( injected );
+	}
+}
+
+let stylesInjected = false;
+
+class GUI {
+
+	/**
+	 * Creates a panel that holds controllers.
+	 * @example
+	 * new GUI();
+	 * new GUI( { container: document.getElementById( 'custom' ) } );
+	 *
+	 * @param {object} [options]
+	 * @param {boolean} [options.autoPlace=true]
+	 * Adds the GUI to `document.body` and fixes it to the top right of the page.
+	 *
+	 * @param {HTMLElement} [options.container]
+	 * Adds the GUI to this DOM element. Overrides `autoPlace`.
+	 *
+	 * @param {number} [options.width=245]
+	 * Width of the GUI in pixels, usually set when name labels become too long. Note that you can make
+	 * name labels wider in CSS with `.lil‑gui { ‑‑name‑width: 55% }`
+	 *
+	 * @param {string} [options.title=Controls]
+	 * Name to display in the title bar.
+	 *
+	 * @param {boolean} [options.injectStyles=true]
+	 * Injects the default stylesheet into the page if this is the first GUI.
+	 * Pass `false` to use your own stylesheet.
+	 *
+	 * @param {number} [options.touchStyles=true]
+	 * Makes controllers larger on touch devices. Pass `false` to disable touch styles.
+	 *
+	 * @param {GUI} [options.parent]
+	 * Adds this GUI as a child in another GUI. Usually this is done for you by `addFolder()`.
+	 *
+	 */
+	constructor( {
+		parent,
+		autoPlace = parent === undefined,
+		container,
+		width,
+		title = 'Controls',
+		injectStyles = true,
+		touchStyles = true
+	} = {} ) {
+
+		/**
+		 * The GUI containing this folder, or `undefined` if this is the root GUI.
+		 * @type {GUI}
+		 */
+		this.parent = parent;
+
+		/**
+		 * The top level GUI containing this folder, or `this` if this is the root GUI.
+		 * @type {GUI}
+		 */
+		this.root = parent ? parent.root : this;
+
+		/**
+		 * The list of controllers and folders contained by this GUI.
+		 * @type {Array<GUI|Controller>}
+		 */
+		this.children = [];
+
+		/**
+		 * The list of controllers contained by this GUI.
+		 * @type {Array<Controller>}
+		 */
+		this.controllers = [];
+
+		/**
+		 * The list of folders contained by this GUI.
+		 * @type {Array<GUI>}
+		 */
+		this.folders = [];
+
+		/**
+		 * Used to determine if the GUI is closed. Use `gui.open()` or `gui.close()` to change this.
+		 * @type {boolean}
+		 */
+		this._closed = false;
+
+		/**
+		 * Used to determine if the GUI is hidden. Use `gui.show()` or `gui.hide()` to change this.
+		 * @type {boolean}
+		 */
+		this._hidden = false;
+
+		/**
+		 * The outermost container element.
+		 * @type {HTMLElement}
+		 */
+		this.domElement = document.createElement( 'div' );
+		this.domElement.classList.add( 'lil-gui' );
+
+		/**
+		 * The DOM element that contains the title.
+		 * @type {HTMLElement}
+		 */
+		this.$title = document.createElement( 'div' );
+		this.$title.classList.add( 'title' );
+		this.$title.setAttribute( 'role', 'button' );
+		this.$title.setAttribute( 'aria-expanded', true );
+		this.$title.setAttribute( 'tabindex', 0 );
+
+		this.$title.addEventListener( 'click', () => this.openAnimated( this._closed ) );
+		this.$title.addEventListener( 'keydown', e => {
+			if ( e.code === 'Enter' || e.code === 'Space' ) {
+				e.preventDefault();
+				this.$title.click();
+			}
+		} );
+
+		// enables :active pseudo class on mobile
+		this.$title.addEventListener( 'touchstart', () => {}, { passive: true } );
+
+		/**
+		 * The DOM element that contains children.
+		 * @type {HTMLElement}
+		 */
+		this.$children = document.createElement( 'div' );
+		this.$children.classList.add( 'children' );
+
+		this.domElement.appendChild( this.$title );
+		this.domElement.appendChild( this.$children );
+
+		this.title( title );
+
+		if ( touchStyles ) {
+			this.domElement.classList.add( 'allow-touch-styles' );
+		}
+
+		if ( this.parent ) {
+
+			this.parent.children.push( this );
+			this.parent.folders.push( this );
+
+			this.parent.$children.appendChild( this.domElement );
+
+			// Stop the constructor early, everything onward only applies to root GUI's
+			return;
+
+		}
+
+		this.domElement.classList.add( 'root' );
+
+		// Inject stylesheet if we haven't done that yet
+		if ( !stylesInjected && injectStyles ) {
+			_injectStyles( stylesheet );
+			stylesInjected = true;
+		}
+
+		if ( container ) {
+
+			container.appendChild( this.domElement );
+
+		} else if ( autoPlace ) {
+
+			this.domElement.classList.add( 'autoPlace' );
+			document.body.appendChild( this.domElement );
+
+		}
+
+		if ( width ) {
+			this.domElement.style.setProperty( '--width', width + 'px' );
+		}
+
+		// Don't fire global key events while typing in the GUI:
+		this.domElement.addEventListener( 'keydown', e => e.stopPropagation() );
+		this.domElement.addEventListener( 'keyup', e => e.stopPropagation() );
+
+	}
+
+	/**
+	 * Adds a controller to the GUI, inferring controller type using the `typeof` operator.
+	 * @example
+	 * gui.add( object, 'property' );
+	 * gui.add( object, 'number', 0, 100, 1 );
+	 * gui.add( object, 'options', [ 1, 2, 3 ] );
+	 *
+	 * @param {object} object The object the controller will modify.
+	 * @param {string} property Name of the property to control.
+	 * @param {number|object|Array} [$1] Minimum value for number controllers, or the set of
+	 * selectable values for a dropdown.
+	 * @param {number} [max] Maximum value for number controllers.
+	 * @param {number} [step] Step value for number controllers.
+	 * @returns {Controller}
+	 */
+	add( object, property, $1, max, step ) {
+
+		if ( Object( $1 ) === $1 ) {
+
+			return new OptionController( this, object, property, $1 );
+
+		}
+
+		const initialValue = object[ property ];
+
+		switch ( typeof initialValue ) {
+
+			case 'number':
+
+				return new NumberController( this, object, property, $1, max, step );
+
+			case 'boolean':
+
+				return new BooleanController( this, object, property );
+
+			case 'string':
+
+				return new StringController( this, object, property );
+
+			case 'function':
+
+				return new FunctionController( this, object, property );
+
+		}
+
+		console.error( `gui.add failed
+	property:`, property, `
+	object:`, object, `
+	value:`, initialValue );
+
+	}
+
+	/**
+	 * Adds a color controller to the GUI.
+	 * @example
+	 * params = {
+	 * 	cssColor: '#ff00ff',
+	 * 	rgbColor: { r: 0, g: 0.2, b: 0.4 },
+	 * 	customRange: [ 0, 127, 255 ],
+	 * };
+	 *
+	 * gui.addColor( params, 'cssColor' );
+	 * gui.addColor( params, 'rgbColor' );
+	 * gui.addColor( params, 'customRange', 255 );
+	 *
+	 * @param {object} object The object the controller will modify.
+	 * @param {string} property Name of the property to control.
+	 * @param {number} rgbScale Maximum value for a color channel when using an RGB color. You may
+	 * need to set this to 255 if your colors are too bright.
+	 * @returns {Controller}
+	 */
+	addColor( object, property, rgbScale = 1 ) {
+		return new ColorController( this, object, property, rgbScale );
+	}
+
+	/**
+	 * Adds a folder to the GUI, which is just another GUI. This method returns
+	 * the nested GUI so you can add controllers to it.
+	 * @example
+	 * const folder = gui.addFolder( 'Position' );
+	 * folder.add( position, 'x' );
+	 * folder.add( position, 'y' );
+	 * folder.add( position, 'z' );
+	 *
+	 * @param {string} title Name to display in the folder's title bar.
+	 * @returns {GUI}
+	 */
+	addFolder( title ) {
+		return new GUI( { parent: this, title } );
+	}
+
+	/**
+	 * Recalls values that were saved with `gui.save()`.
+	 * @param {object} obj
+	 * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+	 * @returns {this}
+	 */
+	load( obj, recursive = true ) {
+
+		if ( obj.controllers ) {
+
+			this.controllers.forEach( c => {
+
+				if ( c instanceof FunctionController ) return;
+
+				if ( c._name in obj.controllers ) {
+					c.load( obj.controllers[ c._name ] );
+				}
+
+			} );
+
+		}
+
+		if ( recursive && obj.folders ) {
+
+			this.folders.forEach( f => {
+
+				if ( f._title in obj.folders ) {
+					f.load( obj.folders[ f._title ] );
+				}
+
+			} );
+
+		}
+
+		return this;
+
+	}
+
+	/**
+	 * Returns an object mapping controller names to values. The object can be passed to `gui.load()` to
+	 * recall these values.
+	 * @example
+	 * {
+	 * 	controllers: {
+	 * 		prop1: 1,
+	 * 		prop2: 'value',
+	 * 		...
+	 * 	},
+	 * 	folders: {
+	 * 		folderName1: { controllers, folders },
+	 * 		folderName2: { controllers, folders }
+	 * 		...
+	 * 	}
+	 * }
+	 *
+	 * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+	 * @returns {object}
+	 */
+	save( recursive = true ) {
+
+		const obj = {
+			controllers: {},
+			folders: {}
+		};
+
+		this.controllers.forEach( c => {
+
+			if ( c instanceof FunctionController ) return;
+
+			if ( c._name in obj.controllers ) {
+				throw new Error( `Cannot save GUI with duplicate property "${c._name}"` );
+			}
+
+			obj.controllers[ c._name ] = c.save();
+
+		} );
+
+		if ( recursive ) {
+
+			this.folders.forEach( f => {
+
+				if ( f._title in obj.folders ) {
+					throw new Error( `Cannot save GUI with duplicate folder "${f._title}"` );
+				}
+
+				obj.folders[ f._title ] = f.save();
+
+			} );
+
+		}
+
+		return obj;
+
+	}
+
+	/**
+	 * Opens a GUI or folder. GUI and folders are open by default.
+	 * @param {boolean} open Pass false to close
+	 * @returns {this}
+	 * @example
+	 * gui.open(); // open
+	 * gui.open( false ); // close
+	 * gui.open( gui._closed ); // toggle
+	 */
+	open( open = true ) {
+
+		this._closed = !open;
+
+		this.$title.setAttribute( 'aria-expanded', !this._closed );
+		this.domElement.classList.toggle( 'closed', this._closed );
+
+		return this;
+
+	}
+
+	/**
+	 * Closes the GUI.
+	 * @returns {this}
+	 */
+	close() {
+		return this.open( false );
+	}
+
+	/**
+	 * Shows the GUI after it's been hidden.
+	 * @param {boolean} show
+	 * @returns {this}
+	 * @example
+	 * gui.show();
+	 * gui.show( false ); // hide
+	 * gui.show( gui._hidden ); // toggle
+	 */
+	show( show = true ) {
+
+		this._hidden = !show;
+
+		this.domElement.style.display = this._hidden ? 'none' : '';
+
+		return this;
+
+	}
+
+	/**
+	 * Hides the GUI.
+	 * @returns {this}
+	 */
+	hide() {
+		return this.show( false );
+	}
+
+	openAnimated( open = true ) {
+
+		// set state immediately
+		this._closed = !open;
+
+		this.$title.setAttribute( 'aria-expanded', !this._closed );
+
+		// wait for next frame to measure $children
+		requestAnimationFrame( () => {
+
+			// explicitly set initial height for transition
+			const initialHeight = this.$children.clientHeight;
+			this.$children.style.height = initialHeight + 'px';
+
+			this.domElement.classList.add( 'transition' );
+
+			const onTransitionEnd = e => {
+				if ( e.target !== this.$children ) return;
+				this.$children.style.height = '';
+				this.domElement.classList.remove( 'transition' );
+				this.$children.removeEventListener( 'transitionend', onTransitionEnd );
+			};
+
+			this.$children.addEventListener( 'transitionend', onTransitionEnd );
+
+			// todo: this is wrong if children's scrollHeight makes for a gui taller than maxHeight
+			const targetHeight = !open ? 0 : this.$children.scrollHeight;
+
+			this.domElement.classList.toggle( 'closed', !open );
+
+			requestAnimationFrame( () => {
+				this.$children.style.height = targetHeight + 'px';
+			} );
+
+		} );
+
+		return this;
+
+	}
+
+	/**
+	 * Change the title of this GUI.
+	 * @param {string} title
+	 * @returns {this}
+	 */
+	title( title ) {
+		/**
+		 * Current title of the GUI. Use `gui.title( 'Title' )` to modify this value.
+		 * @type {string}
+		 */
+		this._title = title;
+		this.$title.innerHTML = title;
+		return this;
+	}
+
+	/**
+	 * Resets all controllers to their initial values.
+	 * @param {boolean} recursive Pass false to exclude folders descending from this GUI.
+	 * @returns {this}
+	 */
+	reset( recursive = true ) {
+		const controllers = recursive ? this.controllersRecursive() : this.controllers;
+		controllers.forEach( c => c.reset() );
+		return this;
+	}
+
+	/**
+	 * Pass a function to be called whenever a controller in this GUI changes.
+	 * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+	 * @returns {this}
+	 * @example
+	 * gui.onChange( event => {
+	 * 	event.object     // object that was modified
+	 * 	event.property   // string, name of property
+	 * 	event.value      // new value of controller
+	 * 	event.controller // controller that was modified
+	 * } );
+	 */
+	onChange( callback ) {
+		/**
+		 * Used to access the function bound to `onChange` events. Don't modify this value
+		 * directly. Use the `gui.onChange( callback )` method instead.
+		 * @type {Function}
+		 */
+		this._onChange = callback;
+		return this;
+	}
+
+	_callOnChange( controller ) {
+
+		if ( this.parent ) {
+			this.parent._callOnChange( controller );
+		}
+
+		if ( this._onChange !== undefined ) {
+			this._onChange.call( this, {
+				object: controller.object,
+				property: controller.property,
+				value: controller.getValue(),
+				controller
+			} );
+		}
+	}
+
+	/**
+	 * Pass a function to be called whenever a controller in this GUI has finished changing.
+	 * @param {function({object:object, property:string, value:any, controller:Controller})} callback
+	 * @returns {this}
+	 * @example
+	 * gui.onFinishChange( event => {
+	 * 	event.object     // object that was modified
+	 * 	event.property   // string, name of property
+	 * 	event.value      // new value of controller
+	 * 	event.controller // controller that was modified
+	 * } );
+	 */
+	onFinishChange( callback ) {
+		/**
+		 * Used to access the function bound to `onFinishChange` events. Don't modify this value
+		 * directly. Use the `gui.onFinishChange( callback )` method instead.
+		 * @type {Function}
+		 */
+		this._onFinishChange = callback;
+		return this;
+	}
+
+	_callOnFinishChange( controller ) {
+
+		if ( this.parent ) {
+			this.parent._callOnFinishChange( controller );
+		}
+
+		if ( this._onFinishChange !== undefined ) {
+			this._onFinishChange.call( this, {
+				object: controller.object,
+				property: controller.property,
+				value: controller.getValue(),
+				controller
+			} );
+		}
+	}
+
+	/**
+	 * Destroys all DOM elements and event listeners associated with this GUI
+	 */
+	destroy() {
+
+		if ( this.parent ) {
+			this.parent.children.splice( this.parent.children.indexOf( this ), 1 );
+			this.parent.folders.splice( this.parent.folders.indexOf( this ), 1 );
+		}
+
+		if ( this.domElement.parentElement ) {
+			this.domElement.parentElement.removeChild( this.domElement );
+		}
+
+		Array.from( this.children ).forEach( c => c.destroy() );
+
+	}
+
+	/**
+	 * Returns an array of controllers contained by this GUI and its descendents.
+	 * @returns {Controller[]}
+	 */
+	controllersRecursive() {
+		let controllers = Array.from( this.controllers );
+		this.folders.forEach( f => {
+			controllers = controllers.concat( f.controllersRecursive() );
+		} );
+		return controllers;
+	}
+
+	/**
+	 * Returns an array of folders contained by this GUI and its descendents.
+	 * @returns {GUI[]}
+	 */
+	foldersRecursive() {
+		let folders = Array.from( this.folders );
+		this.folders.forEach( f => {
+			folders = folders.concat( f.foldersRecursive() );
+		} );
+		return folders;
+	}
+
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (GUI);
+
+
 
 /***/ }),
 
@@ -388,17 +3049,45 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/glsl/wave.frag":
-/*!****************************!*\
-  !*** ./src/glsl/wave.frag ***!
-  \****************************/
+/***/ "./src/glsl/simplexNoise.frag":
+/*!************************************!*\
+  !*** ./src/glsl/simplexNoise.frag ***!
+  \************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#include <common>\n\nuniform vec2 mousePos;\nuniform float mouseSize;\nuniform float viscosityConstant;\nuniform float heightCompensation;\nuniform float attenuation;\n\nvoid main()\t{\n\n\tvec2 cellSize = 1.0 / resolution.xy;\n\n\tvec2 uv = gl_FragCoord.xy * cellSize;\n\n\t// heightmapValue.x == height from previous frame\n\t// heightmapValue.y == height from penultimate frame\n\t// heightmapValue.z, heightmapValue.w not used\n\tvec4 heightmapValue = texture2D( heightmap, uv );//heightmap value\n\t//heightmapValue.x += heightmapValue.z;\n\n\t// Get neighbours\n\tvec4 north = texture2D( heightmap, uv + vec2( 0.0, cellSize.y ) );//top\n\tvec4 south = texture2D( heightmap, uv + vec2( 0.0, - cellSize.y ) );//botm\n\tvec4 east = texture2D( heightmap, uv + vec2( cellSize.x, 0.0 ) );//right\n\tvec4 west = texture2D( heightmap, uv + vec2( - cellSize.x, 0.0 ) );//left\n\n\tfloat newHeight = heightmapValue.x;//( ( north.x + south.x + east.x + west.x ) * 0.5 - heightmapValue.y ) * viscosityConstant;\n\n\tfloat accelX = west.x - heightmapValue.x * 2.0 + east.x;\n\tfloat accelY = north.x - heightmapValue.x * 2.0 + south.x;\n\tfloat aa = 0.9+0.1;//*sin(uv.x*3.1415*4.0);\n\tfloat bb = 0.9+0.1;//*sin(uv.y*3.1415*4.0);\n\tfloat accel = aa*accelX + bb*accelY;\n\t\n\taccel *= 0.1;//k;\n    heightmapValue.z = (heightmapValue.z + accel) * attenuation;//減衰\n\tnewHeight += heightmapValue.z;\n\t//vを計算\n\n\t// Mouse influence\n\t\n\tfloat mousePhase = clamp( length( ( uv - vec2( 0.5 ) ) * BOUNDS - vec2( mousePos.x, - mousePos.y ) ) * PI / mouseSize, 0.0, PI );\n\tnewHeight += ( cos( mousePhase ) + 1.0 ) * 1.28;\n\n\n\n\t\n\theightmapValue.y = heightmapValue.x;//old\n\theightmapValue.x = newHeight;//new\n\t\n\n\n/*\n\tvar aa = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\tvar bb = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\n\tvar accelX:number = this.positions[left] - this.positions[center] * 2 + this.positions[right];\n\tvar accelY:number = this.positions[bottom] - this.positions[center] * 2 + this.positions[top];\n\tvar accel:number = aa*accelX + bb* accelY;\n\t\n\taccel *= this._k;// * Math.abs( getNoise(i, j, _count * 0.5) ) * 0.1;\n\tthis.velocity[center] = (this.velocity[center] + accel) * this._attenuation;//減衰\n*/\n\n\n\n\tgl_FragColor = heightmapValue;\n\n}");
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("//\tSimplex 3D Noise \n//\tby Ian McEwan, Ashima Arts\n//\nvec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}\nvec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}\n\nfloat snoise(vec3 v){ \n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\n  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\n\n// First corner\n  vec3 i  = floor(v + dot(v, C.yyy) );\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\n\n// Other corners\n  vec3 g = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g;\n  vec3 i1 = min( g.xyz, l.zxy );\n  vec3 i2 = max( g.xyz, l.zxy );\n\n  //  x0 = x0 - 0. + 0.0 * C \n  vec3 x1 = x0 - i1 + 1.0 * C.xxx;\n  vec3 x2 = x0 - i2 + 2.0 * C.xxx;\n  vec3 x3 = x0 - 1. + 3.0 * C.xxx;\n\n// Permutations\n  i = mod(i, 289.0 ); \n  vec4 p = permute( permute( permute( \n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\n\n// Gradients\n// ( N*N points uniformly over a square, mapped onto an octahedron.)\n  float n_ = 1.0/7.0; // N=7\n  vec3  ns = n_ * D.wyz - D.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z *ns.z);  //  mod(p,N*N)\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\n\n  vec4 x = x_ *ns.x + ns.yyyy;\n  vec4 y = y_ *ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4( x.xy, y.xy );\n  vec4 b1 = vec4( x.zw, y.zw );\n\n  vec4 s0 = floor(b0)*2.0 + 1.0;\n  vec4 s1 = floor(b1)*2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\n  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\n\n  vec3 p0 = vec3(a0.xy,h.x);\n  vec3 p1 = vec3(a0.zw,h.y);\n  vec3 p2 = vec3(a1.xy,h.z);\n  vec3 p3 = vec3(a1.zw,h.w);\n\n//Normalise gradients\n  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n// Mix final noise value\n  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), \n                                dot(p2,x2), dot(p3,x3) ) );\n}\n");
+
+/***/ }),
+
+/***/ "./src/glsl/waveCalc.frag":
+/*!********************************!*\
+  !*** ./src/glsl/waveCalc.frag ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#include <common>\n\nuniform vec2 mousePos;\nuniform float mouseSize;\nuniform float viscosityConstant;\nuniform float heightCompensation;\nuniform float attenuation;\nuniform float amplitude;\n\nvoid main()\t{\n\n\tvec2 cellSize = 1.0 / resolution.xy;\n\n\tvec2 uv = gl_FragCoord.xy * cellSize;\n\n\t// heightmapValue.x == height from previous frame\n\t// heightmapValue.y == height from penultimate frame\n\t// heightmapValue.z, heightmapValue.w not used\n\tvec4 heightmapValue = texture2D( heightmap, uv );//heightmap value\n\t//heightmapValue.x += heightmapValue.z;\n\n\t// Get neighbours\n\tvec4 north = texture2D( heightmap, uv + vec2( 0.0, cellSize.y ) );//top\n\tvec4 south = texture2D( heightmap, uv + vec2( 0.0, - cellSize.y ) );//botm\n\tvec4 east = texture2D( heightmap, uv + vec2( cellSize.x, 0.0 ) );//right\n\tvec4 west = texture2D( heightmap, uv + vec2( - cellSize.x, 0.0 ) );//left\n\n\tfloat newHeight = heightmapValue.x;//( ( north.x + south.x + east.x + west.x ) * 0.5 - heightmapValue.y ) * viscosityConstant;\n\n\tfloat accelX = west.x - heightmapValue.x * 2.0 + east.x;\n\tfloat accelY = north.x - heightmapValue.x * 2.0 + south.x;\n\tfloat aa = 0.9+0.1;//*sin(uv.x*3.1415*4.0);\n\tfloat bb = 0.9+0.1;//*sin(uv.y*3.1415*4.0);\n\tfloat accel = aa*accelX + bb*accelY;\n\t\n\taccel *= 0.1;//k;\n    heightmapValue.z = (heightmapValue.z + accel) * attenuation;//減衰\n\tnewHeight += heightmapValue.z;\n\t//vを計算\n\n\t// Mouse influence\n\t\n\tfloat mousePhase = \n\tclamp( \n\t\tlength( ( uv - vec2( 0.5 ) ) * BOUNDS - vec2( mousePos.x, - mousePos.y ) ) * PI / mouseSize, \n\t\t0.0, \n\t\tPI \n\t);\n\tnewHeight += ( cos( mousePhase ) + 1.0 ) * amplitude;//1.28;\n\n\n\n\t\n\theightmapValue.y = heightmapValue.x;//old\n\theightmapValue.x = newHeight;//new\n\t\n\n\n/*\n\tvar aa = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\tvar bb = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\n\tvar accelX:number = this.positions[left] - this.positions[center] * 2 + this.positions[right];\n\tvar accelY:number = this.positions[bottom] - this.positions[center] * 2 + this.positions[top];\n\tvar accel:number = aa*accelX + bb* accelY;\n\t\n\taccel *= this._k;// * Math.abs( getNoise(i, j, _count * 0.5) ) * 0.1;\n\tthis.velocity[center] = (this.velocity[center] + accel) * this._attenuation;//減衰\n*/\n\n\n\n\tgl_FragColor = heightmapValue;\n\n}");
+
+/***/ }),
+
+/***/ "./src/glsl/waveRender.frag":
+/*!**********************************!*\
+  !*** ./src/glsl/waveRender.frag ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n#define USE_ENVMAP\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nuniform float offsetY;\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;// + \n\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n    vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n    vec4 aa = texture2D( map, (newUV+vNormal.xy*0.02) );\n    vec4 bb = texture2D( map, (newUV+vNormal.xy*0.03) );\n    vec4 cc = texture2D( map, (newUV+vNormal.xy*0.04) );\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\t\n\tfloat zz = 1.0-dot( vNormal.xyz, vec3(0.0,0.0,1.0) );\n\t//sampledDiffuseColor.x += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.6,0.5)) );\n\t//sampledDiffuseColor.y += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.9,1.8)) );\n\t//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );\n\n\n\t//sampledDiffuseColor.xyz += vNormal.xyz*0.4;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\t//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk\n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t\t\n\toutgoingLight.xyz += (0.24*(random(vUv.xy)-0.5));\n\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
 
 /***/ }),
 
@@ -412,7 +3101,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("uniform sampler2D heightmap;\n\n\t\t\t#define PHONG\n            #define USE_MAP\n            #define USE_UV\n            uniform float time;\n\n\t\t\tvarying vec3 vViewPosition;\n\n\t\t\t//#ifndef FLAT_SHADED\n\n\t\t\t\tvarying vec3 vNormal;\n\n\t\t\t//#endif\n\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <displacementmap_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\n\t\t\tvoid main() {\n\n\t\t\t\t//vec2 cellSize = vec2( 1.0 / WIDTH, 1.0 / WIDTH );\n                vec2 cellSize = vec2( 1.0 / WIDTH, 1.0 / WIDTH );\n\n\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\n\t\t\t\t// # include <beginnormal_vertex>\n\t\t\t\t// Compute normal from heightmap\n\t\t\t\tvec3 objectNormal = vec3(\n\t\t\t\t\t( texture2D( heightmap, uv + vec2( - cellSize.x, 0 ) ).x - texture2D( heightmap, uv + vec2( cellSize.x, 0 ) ).x ) * WIDTH / BOUNDS,\n\t\t\t\t\t( texture2D( heightmap, uv + vec2( 0, - cellSize.y ) ).x - texture2D( heightmap, uv + vec2( 0, cellSize.y ) ).x ) * WIDTH / BOUNDS,\n\t\t\t\t\t0.05 );\n                vNormal=objectNormal;\n\n\t\t\t\t//<beginnormal_vertex>\n\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\n\t\t\t#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED\n\n\t\t\t\tvNormal = normalize( transformedNormal );\n\n\t\t\t#endif\n\n\t\t\t\t//# include <begin_vertex>\n\t\t\t\tfloat heightValue = texture2D( heightmap, uv ).x;\n\t\t\t\tvec3 transformed = vec3( position.x, position.y, heightValue*180.0 );\n\t\t\t\t//<begin_vertex>\n\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <displacementmap_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\n\t\t\t\tvViewPosition = - mvPosition.xyz;\n\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\n\t\t\t}");
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("uniform sampler2D heightmap;\n\n\t\t\t#define PHONG\n            #define USE_MAP\n            #define USE_UV\n\t\t\t#define USE_ENVMAP\n\n            uniform float time;\n\n\t\t\tvarying vec3 vViewPosition;\n\n\t\t\t//#ifndef FLAT_SHADED\n\n\t\t\t\tvarying vec3 vNormal;\n\n\t\t\t//#endif\n\n\t\t\t#include <common>\n\t\t\t#include <uv_pars_vertex>\n\t\t\t#include <uv2_pars_vertex>\n\t\t\t#include <displacementmap_pars_vertex>\n\t\t\t#include <envmap_pars_vertex>\n\t\t\t#include <color_pars_vertex>\n\t\t\t#include <morphtarget_pars_vertex>\n\t\t\t#include <skinning_pars_vertex>\n\t\t\t#include <shadowmap_pars_vertex>\n\t\t\t#include <logdepthbuf_pars_vertex>\n\t\t\t#include <clipping_planes_pars_vertex>\n\n\t\t\tvoid main() {\n\n\t\t\t\t//vec2 cellSize = vec2( 1.0 / WIDTH, 1.0 / WIDTH );\n                vec2 cellSize = vec2( 1.0 / WIDTH, 1.0 / WIDTH );\n\n\n\t\t\t\t#include <uv_vertex>\n\t\t\t\t#include <uv2_vertex>\n\t\t\t\t#include <color_vertex>\n\n\t\t\t\t// # include <beginnormal_vertex>\n\t\t\t\t// Compute normal from heightmap\n\t\t\t\tvec3 objectNormal = vec3(\n\t\t\t\t\t( texture2D( heightmap, uv + vec2( - cellSize.x, 0 ) ).x - texture2D( heightmap, uv + vec2( cellSize.x, 0 ) ).x ) * WIDTH / BOUNDS,\n\t\t\t\t\t( texture2D( heightmap, uv + vec2( 0, - cellSize.y ) ).x - texture2D( heightmap, uv + vec2( 0, cellSize.y ) ).x ) * WIDTH / BOUNDS,\n\t\t\t\t\t0.05 );\n                vNormal=objectNormal;\n\n\t\t\t\t//<beginnormal_vertex>\n\n\t\t\t\t#include <morphnormal_vertex>\n\t\t\t\t#include <skinbase_vertex>\n\t\t\t\t#include <skinnormal_vertex>\n\t\t\t\t#include <defaultnormal_vertex>\n\n\t\t\t#ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED\n\n\t\t\t\tvNormal = normalize( transformedNormal );\n\n\t\t\t#endif\n\n\t\t\t\t//# include <begin_vertex>\n\t\t\t\tfloat heightValue = texture2D( heightmap, uv ).x;\n\t\t\t\tvec3 transformed = vec3( position.x, position.y, heightValue*180.0 );\n\t\t\t\t//<begin_vertex>\n\n\t\t\t\t#include <morphtarget_vertex>\n\t\t\t\t#include <skinning_vertex>\n\t\t\t\t#include <displacementmap_vertex>\n\t\t\t\t#include <project_vertex>\n\t\t\t\t#include <logdepthbuf_vertex>\n\t\t\t\t#include <clipping_planes_vertex>\n\n\t\t\t\tvViewPosition = - mvPosition.xyz;\n\n\t\t\t\t#include <worldpos_vertex>\n\t\t\t\t#include <envmap_vertex>\n\t\t\t\t#include <shadowmap_vertex>\n\n\t\t\t}");
 
 /***/ }),
 
@@ -50948,12 +53637,12 @@ var __webpack_exports__ = {};
   !*** ./src/index.ts ***!
   \**********************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _main_MyThreeMain__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./main/MyThreeMain */ "./src/main/MyThreeMain.ts");
+/* harmony import */ var _main_Main__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./main/Main */ "./src/main/Main.ts");
 
 window.addEventListener('DOMContentLoaded', function () {
     //
-    var hoge = new _main_MyThreeMain__WEBPACK_IMPORTED_MODULE_0__.MyThreeMain();
-    hoge.init();
+    var main = new _main_Main__WEBPACK_IMPORTED_MODULE_0__.Main();
+    main.init();
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
     function onWindowResize() {

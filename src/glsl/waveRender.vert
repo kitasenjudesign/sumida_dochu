@@ -3,6 +3,8 @@ uniform sampler2D heightmap;
 			#define PHONG
             #define USE_MAP
             #define USE_UV
+			#define USE_ENVMAP
+
             uniform float time;
 
 			varying vec3 vViewPosition;
