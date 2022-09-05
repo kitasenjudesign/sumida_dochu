@@ -2,6 +2,22 @@
     font-family: serif;
     color: #fff;
     text-align: center;
+    pointer-events: none;
+}
+
+#enterBtn{
+    width: 60px;
+    pointer-events: none;
+    
+    /*background-color: #f00;*/
+}
+
+#enterText{
+    width: 100%;
+    transform: scale(1,0.75);
+    text-align: center;
+    color: #fff;
+    /*background-color: #00f;*/
 }
 
 #enter .enterVertical{
@@ -15,11 +31,14 @@
 #enter .enterPlay{
     margin-top: 10px;
     font-size: 12px;
+    text-align: center;
+    color: #fff;
+    pointer-events: none;
 }
 
-#enter .play img{
-    width: 45px;
-    height: 45px;
+#enter .enterPlay img{
+    width: 65px;
+    height: 65px;
 }
 
 #webgl{

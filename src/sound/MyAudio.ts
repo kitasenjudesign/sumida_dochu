@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { DataManager } from '../data/DataManager';
+import { Params } from '../data/Params';
 
 class MyAudio{
 
@@ -17,7 +18,7 @@ class MyAudio{
     mOldFreqs:Uint8Array;
     times :Uint8Array;
 
-    volume:number=0;
+    waveVolume:number=0;
     bars:Array<THREE.Mesh>;
     isReady:boolean=false;
     callback:()=>void;
@@ -63,9 +64,14 @@ class MyAudio{
             this.isReady=true;
 
             let gui = DataManager.getInstance().gui;
-            gui.add(this.context,"currentTime").name("currentTime").listen();
-      
+            gui.add(this,"currentTime").name("currentTime").listen();
+            gui.add(this.source.buffer,"duration");
+            gui.add(this,'pause');
+            gui.add(this,'resume');
+            gui.add(Params,"SOUND_OFFSET",0,120);
+            
             this.callback();
+
           });
         };
 
@@ -74,18 +80,23 @@ class MyAudio{
         this.gain = this.context.createGain();   
         this.source.connect(this.gain);
         this.gain.connect(this.context.destination);        
-        this.gain.gain.value=0.1;
+        this.gain.gain.value=0;
+
+        this.context.suspend();
+
+
+        //////
 
         this.bars=new Array<THREE.Mesh>;
         for(let i=0;i<this.FFT_SIZE/this.FFT_MATOME;i++){
 
           this.bars[i]=new THREE.Mesh(
-            new THREE.BoxGeometry(1.5,100,1,1,1,1),
+            new THREE.BoxGeometry(3,100,1,1,1,1),
             new THREE.MeshBasicMaterial({color:0xff0000})
           );
 
           this.bars[i].position.set(
-            2*(i),
+            3*(i),
             0,
             300
           );
@@ -93,13 +104,20 @@ class MyAudio{
           scene.add(this.bars[i]);
 
         }
+        
+    }
+
+    play(){
+      this.source.start(0,Params.SOUND_OFFSET);
+      this.volume=0.2;
+      this.source.loop=true;
+      this.context.resume();
 
 
     }
 
-    play(){
-      this.source.start(0);
-      this.source.loop=true;
+    set volume(v:number){
+      this.gain.gain.value=v;
     }
 
     update(){
@@ -111,14 +129,14 @@ class MyAudio{
       this.analyser.getByteFrequencyData(this.freqs);
       //this.analyser.getByteTimeDomainData(this.times);
 
-      this.volume=0;
+      this.waveVolume=0;
       /*
       for(let i=0;i<this.FFT_SIZE;i++){
         this.volume += this.freqs[i]/this.FFT_SIZE;
         this.bars[i].scale.y = this.freqs[i]/300;
       }*/
       for(let i=0;i<this.FFT_MATOME;i++){
-        this.volume += this.mFreqs[i]/this.FFT_MATOME;
+        this.waveVolume += this.mFreqs[i]/this.FFT_MATOME;
         this.bars[i].scale.y = Math.abs(this.mSubFreqs[i])/300;
       }
 
@@ -135,35 +153,52 @@ class MyAudio{
 
       }
 
+    }
+
+    
+    pause(){
+      this.context.suspend();
+    }
+
+    resume(){
+      this.context.resume();
+    }
+
+
+    reset(){
       
-      //console.log(
-      //  this.mFreqs[3] + "/" + this.mSubFreqs[3] + "/" + this.mOldFreqs[3]
-      //);
+      this.source.loopEnd=0.01;
+      setTimeout(()=>{
+        this.source.loopEnd=this.source.buffer.duration;
+      },10);
 
-      //console.log( this.volume );
-
-    }
-
-    update2(){
-
-        /*
-        if(this.audio!=null){
-            let vol = 1-window.scrollY/500;
-            if(vol<0.02)vol=0.02;
-            this.audio.volume=vol*0.8;
-        }*/
+      
+      //this.context.resume();
 
     }
-
 
     get currentTime(): number {
-      return this.context.currentTime;
+
+      if(this.source==null)return 0;
+      if(this.source.buffer==null) return 0;
+      if(this.context==null)return 0;
+
+      let currentTime:number = this.context.currentTime+Params.SOUND_OFFSET;
+      let total:number = this.source.buffer.duration;// + Params.SOUND_OFFSET;
+
+      return currentTime % total;
+    }
+
+    get duration():number{
+
+
+      return this.source.buffer.duration;
     }
 
     getFFT():number{
 
       if(this.times==null) return 0;
-      return this.volume;
+      return this.waveVolume;
 
     }
 

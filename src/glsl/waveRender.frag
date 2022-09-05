@@ -10,6 +10,9 @@ uniform float shininess;
 uniform float opacity;
 uniform float counter;
 uniform float offsetY;
+uniform vec4 glitch;
+uniform vec3 offsetCol;
+uniform vec3 colDisplace;
 varying vec3 vPos;
 
 #include <common>
@@ -60,9 +63,29 @@ void main() {
     if(newUV.y>0.0)newUV.y=0.0;
 	newUV.y = fract( newUV.y );
 
-    vec4 aa = texture2D( map, (newUV+vNormal.xy*0.02) );
-    vec4 bb = texture2D( map, (newUV+vNormal.xy*0.03) );
-    vec4 cc = texture2D( map, (newUV+vNormal.xy*0.04) );
+	//glitch displacement
+	float gx = glitch.z;
+	vec2 displace = vec2(0.0,0.0);
+	float rad = -3.1415/4.0;
+
+	//ベクトルの回転
+	float nx = newUV.x * cos(rad) - newUV.y * sin(rad);
+	float ny = newUV.x * sin(rad) + newUV.y * cos(rad);
+
+	float amp = glitch.x * (random(vec2(floor((ny)*gx)/gx,0.0))-0.5);
+
+	displace.x = amp * cos(rad+3.1415/2.);
+	displace.y = amp * sin(rad+3.1415/2.);
+	//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );
+	//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );
+
+	newUV.xy += displace;
+	newUV.x = fract( newUV.x );
+	newUV.y = fract( newUV.y );
+
+    vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02
+    vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03
+    vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04
 
     vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);
     
@@ -74,6 +97,7 @@ void main() {
 
 
 	//sampledDiffuseColor.xyz += vNormal.xyz*0.4;
+	sampledDiffuseColor.xyz += offsetCol.xyz;
 
     diffuseColor *= sampledDiffuseColor;
     //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;

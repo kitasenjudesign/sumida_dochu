@@ -29,7 +29,7 @@ class MyGPU{
     
     isFirst:boolean=true;
     isMoriagari:boolean=false;
-
+    isImpulse:boolean=false;
 
     attenuation:number=0.99;
     uniforms:any;
@@ -126,37 +126,30 @@ class MyGPU{
 
     }
 
+    setMouseSize(a:number){
+        this.uniforms['mouseSize'].value = a;
+    }
+
     setAmplitude(a:number){
         this.uniforms['amplitude'].value = a;
+        //console.log("amp " + a);
     }
 
     setAttenuation(a:number){
         this.uniforms['attenuation'].value = a;
     }
 
+    addImpulse(px:number,py:number){
 
-    startMusic(){
-        
-        //this.attenuation=0.97;
-        //this.isFirst=false;
+        this.isImpulse=true;
 
-    }
-
-    startMoriagari(){
-        
-        /*
-        this.attenuation=0.99;
-
-        window.setTimeout(()=>{
-            this.isMoriagari = true;            
-        },100);
         const uniforms = this.heightmapVariable.material.uniforms;
-            uniforms[ 'mousePos' ].value.set(
-                1000*(Math.random()-0.5), 
-                1000*(Math.random()-0.5)
-            );*/
-        
+        uniforms[ 'mousePos' ].value.set(
+            px,py
+        );
+
     }
+
 
     update(audio:MyAudio){
 
@@ -165,34 +158,25 @@ class MyGPU{
         // Set uniforms: mouse interaction
         const uniforms = this.heightmapVariable.material.uniforms;
 
-        //uniforms['attenuation'].value=this.attenuation;
-
-        //if(this.isImpulse){
-
-        //if(this.isFirst || this.isMoriagari){
-        if(true){
+        if(this.isImpulse){
 
             let limit:number = this.isFirst ? 0.02 : 0;
-
-
-            //console.log(audio.isReady);
-            //if(audio.isReady) console.log(audio.mSubFreqs[3]>0);
-
-
             if(audio.isReady && audio.mSubFreqs[3]>0){
                 //uniforms['amplitude'].value = audio.mSubFreqs[3]/10;//1.28;//20*Math.random();//ここの大きさが小さすぎる
                 //uniforms['mouseSize'].value = 20;//ここの大きさが小さすぎる
-                uniforms[ 'mousePos' ].value.set(
-                    1000*(Math.random()-0.5), 
-                    1000*(Math.random()-0.5)
-                );    
-            }else{
-                uniforms[ 'mousePos' ].value.set(
-                    10000,
-                    10000
-                );    
+                   
             }
+            this.isImpulse=false;
+
+        }else{
+            uniforms[ 'mousePos' ].value.set(
+                99999,
+                99999
+            );
         }
+
+        
+            
 
         this.testMat.map=
         this.gpuCompute.getCurrentRenderTarget( this.heightmapVariable ).texture;
@@ -207,6 +191,8 @@ class MyGPU{
 
     }
     
+
+
     
 
 
