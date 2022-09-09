@@ -33,6 +33,7 @@ class MyGPU{
 
     attenuation:number=0.99;
     uniforms:any;
+    pastPosY:number=0;
 
 
     init(){
@@ -81,6 +82,7 @@ class MyGPU{
         this.uniforms[ 'heightCompensation' ] = { value: 0.5 };
         this.uniforms[ 'attenuation' ] = { value: this.attenuation };
         this.uniforms[ 'amplitude' ] = { value: 0 };//1.28 };
+        this.uniforms[ 'deltaPos' ] = { value: new THREE.Vector2(0,0) };
         this.heightmapVariable.material.defines.BOUNDS = this.BOUNDS.toFixed( 1 );
 
         const error = this.gpuCompute.init();
@@ -153,10 +155,16 @@ class MyGPU{
 
     update(audio:MyAudio){
 
-        //console.log(this.attenuation);
+
 
         // Set uniforms: mouse interaction
         const uniforms = this.heightmapVariable.material.uniforms;
+
+
+
+        uniforms[ 'deltaPos' ].value.y = -(window.scrollY-this.pastPosY)/2000;
+        this.pastPosY = window.scrollY;
+
 
         if(this.isImpulse){
 
@@ -164,7 +172,6 @@ class MyGPU{
             if(audio.isReady && audio.mSubFreqs[3]>0){
                 //uniforms['amplitude'].value = audio.mSubFreqs[3]/10;//1.28;//20*Math.random();//ここの大きさが小さすぎる
                 //uniforms['mouseSize'].value = 20;//ここの大きさが小さすぎる
-                   
             }
             this.isImpulse=false;
 

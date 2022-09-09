@@ -1,34 +1,60 @@
-#enter{
+/*** WEBGL ***/
+#webgl{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+
+
+/****** センターの文字部分 ******/
+#enterTitle{
     font-family: serif;
+    display: block;
     color: #fff;
+    width: 200px;
     text-align: center;
     pointer-events: none;
 }
 
-#enterBtn{
-    width: 60px;
-    pointer-events: none;
+#enterTitle .enterVertical{
+    text-align: center;
     
-    /*background-color: #f00;*/
+    writing-mode: vertical-rl;
+    transform: scale(1,0.75);
+    font-size: 22px;
+    color: #fff;
+    
 }
 
-#enterText{
+#enterTitleLoading{
+    display: inline-block;
+    animation: blink 0.1s infinite alternate;
+}
+
+#enterTitleText{
+    display: none;
+}
+
+
+
+/****** ボタン部分 ******/
+#enterBtn{
+    width: 60px;
+    display: none;
+    pointer-events: none;
+}
+
+#enterBtnText{
+    font-family: serif;
     width: 100%;
     transform: scale(1,0.75);
     text-align: center;
     color: #fff;
-    /*background-color: #00f;*/
 }
 
-#enter .enterVertical{
-    text-align: center;
-    display: inline-block;
-    writing-mode: vertical-rl;
-    transform: scale(1,0.75);
-    font-size: 22px;
-}
-
-#enter .enterPlay{
+#enterPlay .enterPlay{
     margin-top: 10px;
     font-size: 12px;
     text-align: center;
@@ -36,14 +62,15 @@
     pointer-events: none;
 }
 
-#enter .enterPlay img{
+#enterPlay .enterPlay img{
     width: 65px;
     height: 65px;
 }
 
-#webgl{
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 0;
+
+/**** animation ****/
+@keyframes blink{
+  0% { color: rgba(255,255,255,0.7) }
+ 50% { color: rgba(255,255,255,1.0); }
+100% { color: rgba(255,255,255,0.7); }
 }

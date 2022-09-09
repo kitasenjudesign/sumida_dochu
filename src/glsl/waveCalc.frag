@@ -1,5 +1,6 @@
 #include <common>
 
+uniform vec2 deltaPos;
 uniform vec2 mousePos;
 uniform float mouseSize;
 uniform float viscosityConstant;
@@ -12,6 +13,8 @@ void main()	{
 	vec2 cellSize = 1.0 / resolution.xy;
 
 	vec2 uv = gl_FragCoord.xy * cellSize;
+	uv+=deltaPos;
+	uv=fract(uv);
 
 	// heightmapValue.x == height from previous frame
 	// heightmapValue.y == height from penultimate frame
@@ -48,9 +51,6 @@ void main()	{
 	);
 	newHeight += ( cos( mousePhase ) + 1.0 ) * amplitude;//1.28;
 
-
-
-	
 	heightmapValue.y = heightmapValue.x;//old
 	heightmapValue.x = newHeight;//new
 	

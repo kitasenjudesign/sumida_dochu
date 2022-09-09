@@ -10,9 +10,13 @@ uniform float shininess;
 uniform float opacity;
 uniform float counter;
 uniform float offsetY;
+uniform float noise;
 uniform vec4 glitch;
 uniform vec3 offsetCol;
 uniform vec3 colDisplace;
+uniform sampler2D map2;
+//uniform samplerCube envMap2;
+
 varying vec3 vPos;
 
 #include <common>
@@ -59,23 +63,30 @@ void main() {
     /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/
     //vUv.y=vUv.y+counter;
     //vUv.y=fract(vUv.y);
+	vec2 newUV0 = vUv.xy+vec2(0.0,-offsetY-counter*0.01); 
     vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);
     if(newUV.y>0.0)newUV.y=0.0;
 	newUV.y = fract( newUV.y );
 
 	//glitch displacement
-	float gx = glitch.z;
+	float gx = glitch.z;//分割数
 	vec2 displace = vec2(0.0,0.0);
-	float rad = -3.1415/4.0;
+	float rad = glitch.y;//;
 
-	//ベクトルの回転
-	float nx = newUV.x * cos(rad) - newUV.y * sin(rad);
-	float ny = newUV.x * sin(rad) + newUV.y * cos(rad);
+	//座標を回転
+	//float nx = newUV.x * cos(-rad) - newUV.y * sin(-rad);
+	//float ny = newUV.x * sin(-rad) + newUV.y * cos(-rad);
+	float nx = newUV0.x * cos(-rad) - newUV0.y * sin(-rad);
+	float ny = newUV0.x * sin(-rad) + newUV0.y * cos(-rad);
 
-	float amp = glitch.x * (random(vec2(floor((ny)*gx)/gx,0.0))-0.5);
+	//開店した座標に応じて、短冊を切る
+	float nn = floor((ny)*gx);
+	//float amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);
+	float amp = glitch.x * mod(nn,3.0);
 
-	displace.x = amp * cos(rad+3.1415/2.);
-	displace.y = amp * sin(rad+3.1415/2.);
+
+	displace.x = amp * cos(rad);//-3.1415/2.);
+	displace.y = amp * sin(rad);//-3.1415/2.);
 	//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );
 	//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );
 
@@ -83,9 +94,23 @@ void main() {
 	newUV.x = fract( newUV.x );
 	newUV.y = fract( newUV.y );
 
+
     vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02
     vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03
     vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04
+
+	//色を変えている
+	if( mod(nn,2.0) == 0.0 ){
+		float ratio =smoothstep(0.1,0.2,abs(amp)*10.0);//,0.0,1.0);
+		//aa = mix(aa,texture2D( map2,(newUV+vNormal.xy*colDisplace.x)),ratio);//0.02
+		//bb = mix(bb,texture2D( map2,(newUV+vNormal.xy*colDisplace.y)),ratio);
+		//cc = mix(cc,texture2D( map2,(newUV+vNormal.xy*colDisplace.z)),ratio);
+		aa = mix(aa,aa+0.02,ratio);//0.02
+		bb = mix(bb,bb+0.04,ratio);
+		cc = mix(cc,cc+0.09,ratio);
+	}
+
+
 
     vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);
     
@@ -96,13 +121,27 @@ void main() {
 	//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );
 
 
-	//sampledDiffuseColor.xyz += vNormal.xyz*0.4;
+//	sampledDiffuseColor.xyz += vNormal.xyz*0.8;
+	sampledDiffuseColor.xy+=vNormal.xy*0.1;
+	
+	
+
 	sampledDiffuseColor.xyz += offsetCol.xyz;
 
     diffuseColor *= sampledDiffuseColor;
     //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;
     
 	//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk
+
+
+	//env
+
+	//vec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );
+	//vec3 reflectVec1 = vNormal;//, 0.99 );
+	//vec4 envColor1 = textureCube( envMap2, vec3( 0.2,0.1,1.0 ) );
+	//diffuseColor.xyz += envColor1.xyz;
+
+
 
 	#include <color_fragment>
 	#include <alphamap_fragment>
@@ -118,7 +157,7 @@ void main() {
 	#include <aomap_fragment>
 	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 		
-	outgoingLight.xyz += (0.24*(random(vUv.xy)-0.5));
+	outgoingLight.xyz += (noise*(random(vUv.xy)-0.5));
 
 	#include <envmap_fragment>
 	#include <output_fragment>

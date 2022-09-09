@@ -16,6 +16,8 @@ class ImageManager {
 
     public static imgPC1:string = "./topimg/imgPC1.png";
     public static imgPC2:string = "./topimg/imgPC2.png";
+    public static imgEnv:string = "./topimg/env.jpg";
+    
     public static imgSP1:string = "./topimg/imgSP1.png";
     public static imgSP2:string = "./topimg/imgSP2.png";
     
@@ -26,8 +28,6 @@ class ImageManager {
 
         return ImageManager.instance;
     }
-
-
 
     public loadImages(callback:()=>void){
 
@@ -45,7 +45,11 @@ class ImageManager {
                 {
                     url:ImageManager.imgPC2,
                     texture:null
-                }
+                }/*,
+                {
+                    url:ImageManager.imgEnv,
+                    texture:null
+                }*/
             ];
         }else{
 
@@ -73,7 +77,7 @@ class ImageManager {
             this.images[this.index].url as string, (texture:THREE.Texture)=>{
                 
                 console.log("load img " + this.index);
-                console.log(texture);
+                //console.log(texture);
                 this.images[this.index].texture=texture;
                 this.images[this.index].texture.magFilter = THREE.LinearFilter;
                 this.images[this.index].texture.minFilter = THREE.NearestFilter;
@@ -93,21 +97,6 @@ class ImageManager {
             this.loadImg1();
         }
     }
-
-
-    /*
-        const loader = new THREE.TextureLoader();
-        const filename = window.innerWidth > window.innerHeight ? './topimg/img.png' : './topimg/img2.png';
-        this.texture = loader.load(filename);
-
-        const loader2 = new THREE.TextureLoader();
-        this.texture2=loader2.load("./topimg/img3.png");
-
-        this.texture.magFilter = THREE.LinearFilter;
-        this.texture.minFilter = THREE.NearestFilter;
-        this.texture2.magFilter = THREE.LinearFilter;
-        this.texture2.minFilter = THREE.NearestFilter;
-        */
 
 }
 

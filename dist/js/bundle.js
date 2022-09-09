@@ -13,6 +13,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "DataManager": () => (/* binding */ DataManager)
 /* harmony export */ });
 /* harmony import */ var lil_gui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lil-gui */ "./node_modules/lil-gui/dist/lil-gui.esm.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _Params__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Params */ "./src/data/Params.ts");
+
+
 
 var DataManager = /** @class */ (function () {
     /**
@@ -22,20 +26,59 @@ var DataManager = /** @class */ (function () {
     function DataManager() {
         this.mouseX = 0;
         this.mouseY = 0;
+        this.isTouch = false;
         this.isInit = false;
     }
-    DataManager.prototype.init = function () {
+    DataManager.prototype.init = function (m) {
         var _this = this;
         if (this.isInit)
             return;
         this.isInit = true;
+        this.main = m;
         this.gui = new lil_gui__WEBPACK_IMPORTED_MODULE_0__.GUI();
-        //this.gui.domElement.style.display="none";
+        this.gui.close();
+        this.domElement = this.main.renderer.domElement;
+        this.gui.add(window, "innerHeight").listen();
+        this.gui.add(this, "mouseX").listen();
+        this.gui.add(this, "mouseY").listen();
+        this.gui.add(this, "isTouch").listen();
+        //隠す
+        this.gui.domElement.style.display = "none";
         this.isSp = this.isSmartPhone();
-        window.onmousemove = function (event) {
-            _this.mouseX = event.clientX;
-            _this.mouseY = event.clientY;
-        };
+        if (!this.isSp) {
+            //PC
+            window.onmousemove = function (event) {
+                _this.mouseX = event.clientX;
+                _this.mouseY = event.clientY;
+            };
+            document.addEventListener('keydown', function (event) {
+                var keyName = event.key;
+                if (keyName == "d") {
+                    if (_this.gui.domElement.style.display == "none") {
+                        _this.gui.domElement.style.display = "block";
+                    }
+                    else {
+                        _this.gui.domElement.style.display = "none";
+                    }
+                }
+            });
+        }
+        else {
+            window.addEventListener("touchstart", function (event) {
+                _this.isTouch = true;
+                _this.mouseX = event.touches[0].clientX;
+                _this.mouseY = event.touches[0].clientY; //-window.scrollY;
+            });
+            /*
+            window.addEventListener("touchend",
+                (event)=>{
+                    this.isTouch=false;
+                    this.mouseX = event.touches[0].clientX;
+                    this.mouseY = event.touches[0].clientY;//-window.scrollY;
+                }
+            )*/
+        }
+        //ここ
     };
     DataManager.prototype.isSmartPhone = function () {
         if (navigator.userAgent.match(/iPhone|Android.+Mobile/)) {
@@ -44,6 +87,23 @@ var DataManager = /** @class */ (function () {
         else {
             return false;
         }
+    };
+    DataManager.prototype.getMouseOnWaveMesh = function () {
+        //if(window.innerWidth/window.innerHeight){
+        var rx = 2 * (this.mouseX / window.innerWidth - 0.5);
+        var ry = 2 * (this.mouseY / window.innerHeight - 0.5);
+        var aspect = window.innerHeight / window.innerWidth;
+        //横
+        var xx = rx * (512 / 2) / _Params__WEBPACK_IMPORTED_MODULE_1__.Params.ZOOM;
+        var yy = ry * (512 / 2) * aspect / _Params__WEBPACK_IMPORTED_MODULE_1__.Params.ZOOM;
+        ;
+        if (window.innerWidth < window.innerHeight) {
+            aspect = 1 / aspect;
+            xx = rx * (512 / 2) * aspect / _Params__WEBPACK_IMPORTED_MODULE_1__.Params.ZOOM;
+            yy = ry * (512 / 2) / _Params__WEBPACK_IMPORTED_MODULE_1__.Params.ZOOM;
+            ;
+        }
+        return new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(xx, yy, 0);
     };
     /**
      * The static method that controls the access to the singleton instance.
@@ -54,7 +114,7 @@ var DataManager = /** @class */ (function () {
     DataManager.getInstance = function () {
         if (!DataManager.instance) {
             DataManager.instance = new DataManager();
-            DataManager.instance.init();
+            //DataManager.instance.init();
         }
         return DataManager.instance;
     };
@@ -82,19 +142,6 @@ __webpack_require__.r(__webpack_exports__);
 var ImageManager = /** @class */ (function () {
     function ImageManager() {
         this.index = 0;
-        /*
-            const loader = new THREE.TextureLoader();
-            const filename = window.innerWidth > window.innerHeight ? './topimg/img.png' : './topimg/img2.png';
-            this.texture = loader.load(filename);
-    
-            const loader2 = new THREE.TextureLoader();
-            this.texture2=loader2.load("./topimg/img3.png");
-    
-            this.texture.magFilter = THREE.LinearFilter;
-            this.texture.minFilter = THREE.NearestFilter;
-            this.texture2.magFilter = THREE.LinearFilter;
-            this.texture2.minFilter = THREE.NearestFilter;
-            */
     }
     ImageManager.getInstance = function () {
         if (!ImageManager.instance) {
@@ -114,7 +161,11 @@ var ImageManager = /** @class */ (function () {
                 {
                     url: ImageManager.imgPC2,
                     texture: null
-                }
+                } /*,
+                {
+                    url:ImageManager.imgEnv,
+                    texture:null
+                }*/
             ];
         }
         else {
@@ -137,7 +188,7 @@ var ImageManager = /** @class */ (function () {
         var loader = new three__WEBPACK_IMPORTED_MODULE_1__.TextureLoader();
         loader.load(this.images[this.index].url, function (texture) {
             console.log("load img " + _this.index);
-            console.log(texture);
+            //console.log(texture);
             _this.images[_this.index].texture = texture;
             _this.images[_this.index].texture.magFilter = three__WEBPACK_IMPORTED_MODULE_1__.LinearFilter;
             _this.images[_this.index].texture.minFilter = three__WEBPACK_IMPORTED_MODULE_1__.NearestFilter;
@@ -155,6 +206,7 @@ var ImageManager = /** @class */ (function () {
     };
     ImageManager.imgPC1 = "./topimg/imgPC1.png";
     ImageManager.imgPC2 = "./topimg/imgPC2.png";
+    ImageManager.imgEnv = "./topimg/env.jpg";
     ImageManager.imgSP1 = "./topimg/imgSP1.png";
     ImageManager.imgSP2 = "./topimg/imgSP2.png";
     return ImageManager;
@@ -174,12 +226,76 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "Params": () => (/* binding */ Params)
 /* harmony export */ });
+/* harmony import */ var _DataManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DataManager */ "./src/data/DataManager.ts");
+
 var Params = /** @class */ (function () {
     function Params() {
     }
-    Params.SOUND_OFFSET = 70;
-    Params.ZOOM = 1.2;
+    Object.defineProperty(Params, "ZOOM", {
+        get: function () {
+            if (_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().isSp) {
+                return 1.3;
+                //512/1024が良い感じ
+                //scaleが１のとき
+                //
+            }
+            return 1.2;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    //DOM開始
+    Params.ENTER_TITLE = "enterTitle";
+    Params.ENTER_TITLE_TEXT = "enterTitleText";
+    Params.ENTER_TITLE_LOADING = "enterTitleLoading";
+    Params.ENTER_BTN_IMG = "enterBtnImg";
+    Params.ENTER_BTN_TEXT = "enterBtnText";
+    Params.ENTER_BTN = "enterBtn";
+    Params.CONTENTS = "contents";
+    Params.FOOTER = "footer";
+    //DOM終わり
+    Params.SOUND_OFFSET = 0;
+    Params.MAX_VOLUME = 0.16;
+    Params.MIN_VOLUME = 0.02;
     return Params;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/main/DOMResizer.ts":
+/*!********************************!*\
+  !*** ./src/main/DOMResizer.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DOMResizer": () => (/* binding */ DOMResizer)
+/* harmony export */ });
+/* harmony import */ var _data_Params__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../data/Params */ "./src/data/Params.ts");
+
+var DOMResizer = /** @class */ (function () {
+    function DOMResizer() {
+        this.pastHeight = 0;
+    }
+    DOMResizer.prototype.init = function () {
+        this.contents = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_0__.Params.CONTENTS);
+        this.footer = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_0__.Params.FOOTER);
+    };
+    DOMResizer.prototype.checkHeight = function () {
+        if (window.innerHeight != this.pastHeight)
+            return true;
+        this.pastHeight = window.innerHeight;
+        return false;
+    };
+    DOMResizer.prototype.resize = function () {
+        this.contents.style.top = window.innerHeight + "px";
+        this.footer.style.height = window.innerHeight + "px";
+        //console.log(this.footer.style.height + " / " + window.innerHeight);
+    };
+    return DOMResizer;
 }());
 
 
@@ -197,65 +313,126 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "EnterPanel": () => (/* binding */ EnterPanel)
 /* harmony export */ });
 /* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+/* harmony import */ var _data_Params__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../data/Params */ "./src/data/Params.ts");
+
 
 var EnterPanel = /** @class */ (function () {
     function EnterPanel() {
+        this.enterImgScale = 1;
         this.enterOffsetY = 0;
         this.isEnter = false;
         this.currentMouseX = 0;
         this.currentMouseY = 0;
+        this.isSp = true;
+        this.isInit = false;
     }
     EnterPanel.prototype.init = function (callback) {
         var _this = this;
         this.callback = callback;
-        this.enter = document.getElementById("enter");
-        this.enterBtn = document.getElementById("enterBtn");
+        this.initDoms();
+        //ローディング終了時に呼ばれるため
+        this.enterTitleLoading.style.display = "none";
+        this.enterTitleLoading.innerText = "";
+        this.enterTitleText.style.display = "inline-block";
+        this.isSp = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().isSp;
+        this.enterBtn.style.display = "block";
         this.enterBtn.style.position = "absolute";
-        var sp = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().isSp;
-        if (sp) {
-            //this.callback();
-        }
-        else {
-            _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().domElement.addEventListener('click', function () {
-                _this.isEnter = true;
-                _this.enterBtn.style.display = "none";
-                if (_this.callback != null)
-                    _this.callback();
-                _this.callback = null;
-            });
-            /*
-            this.enter.onclick = ()=>{
-                //this.playSound();
-            };*/
-        }
+        //画面クリック
+        _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().domElement.addEventListener('click', function () {
+            _this.isEnter = true;
+            _this.enterBtnText.style.visibility = "hidden";
+            if (_this.callback != null)
+                _this.callback();
+            _this.callback = null;
+        });
+    };
+    EnterPanel.prototype.initDoms = function () {
+        if (this.isInit)
+            return;
+        this.isInit = true;
+        this.enterTitle = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_TITLE);
+        this.enterBtnImg = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_BTN_IMG);
+        this.enterBtnText = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_BTN_TEXT);
+        this.enterBtn = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_BTN);
+        this.enterTitleText = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_TITLE_TEXT);
+        this.enterTitleLoading = document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.ENTER_TITLE_LOADING);
     };
     EnterPanel.prototype.update = function () {
         if (this.isEnter) {
-            this.enterOffsetY += -0.6;
+            this.enterOffsetY += -0.8;
         }
+        if (!this.isSp) {
+            this.moveBtn();
+        }
+        else {
+            this.updateBtnImgScale(this.isEnter ? 0 : 1);
+        }
+        this.resize();
+    };
+    EnterPanel.prototype.moveTitle = function () {
+        if (this.enterTitle) {
+            var yy = (window.innerHeight / 2 - this.enterTitle.clientHeight / 2 + this.enterOffsetY);
+            if (yy > -window.innerHeight / 2) {
+                this.enterTitle.style.top = yy + "px";
+            }
+        }
+    };
+    EnterPanel.prototype.moveBtn = function () {
         if (this.enterBtn) {
-            this.currentMouseX += (_data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().mouseX - this.currentMouseX) / 10;
-            this.currentMouseY += (_data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().mouseY - this.currentMouseY) / 10;
+            var dx = (_data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().mouseX - this.currentMouseX);
+            var dy = (_data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().mouseY - this.currentMouseY);
+            this.currentMouseX += dx / 20;
+            this.currentMouseY += dy / 20;
             var ww = this.enterBtn.clientWidth;
-            this.enterBtn.style.left = (this.currentMouseX - ww / 2) + "px";
-            this.enterBtn.style.top = (this.currentMouseY - 50) + "px";
+            if (!this.isEnter) {
+                this.enterBtn.style.left = (this.currentMouseX - ww / 2) + "px";
+                this.enterBtn.style.top = (this.currentMouseY - 50) + "px";
+            }
+            //console.log(this.enterOffsetY);
+            var scale = 0.7;
+            if (Math.sqrt(dx * dx + dy * dy) < 50 && !this.isEnter) {
+                scale = 1.1;
+                this.enterBtnText.style.visibility = "visible";
+            }
+            else {
+                this.enterBtnText.style.visibility = "hidden";
+            }
+            if (this.isEnter) {
+                scale = 0;
+            }
+            this.updateBtnImgScale(scale);
         }
-        //console.log(this.enterOffsetY);
-        if (this.enter) {
-            this.enter.style.top =
-                (window.innerHeight / 2 - this.enter.clientHeight / 2 + this.enterOffsetY) + "px";
+    };
+    EnterPanel.prototype.updateBtnImgScale = function (s) {
+        if (this.enterBtnImg && this.enterBtn.style.display != "none") {
+            this.enterImgScale += (s - this.enterImgScale) / 10;
+            this.enterBtnImg.style.transform = "scale(" + this.enterImgScale + "," + this.enterImgScale + ")";
+            if (this.enterImgScale < 0.001) {
+                this.enterBtn.style.display = "none";
+            }
         }
     };
     EnterPanel.prototype.resize = function () {
-        if (!this.enter) {
-            this.enter = document.getElementById("enter");
+        this.initDoms();
+        if (this.enterTitle) {
+            var yy = (window.innerHeight / 2 - this.enterTitle.clientHeight / 2 + this.enterOffsetY);
+            var xx = (window.innerWidth / 2 - this.enterTitle.clientWidth / 2);
+            this.enterTitle.style.position = "absolute";
+            this.enterTitle.style.zIndex = "999";
+            if (!this.isSp) {
+                //PC
+                this.enterTitle.style.left = xx + "px";
+                this.enterTitle.style.top = yy + "px";
+            }
+            else {
+                //SP
+                this.enterTitle.style.left = xx + "px";
+                this.enterTitle.style.top = (yy - 40) + "px";
+                xx = (window.innerWidth / 2 - this.enterBtn.clientWidth / 2);
+                this.enterBtn.style.left = xx + "px";
+                this.enterBtn.style.top = (yy + 240) + "px";
+            }
         }
-        this.enter.style.cursor = 'pointer';
-        this.enter.style.position = "absolute";
-        this.enter.style.zIndex = "999";
-        this.enter.style.top =
-            (window.innerHeight / 2 - this.enter.clientHeight / 2 + this.enterOffsetY) + "px";
-        this.enter.style.left = (window.innerWidth / 2 - this.enter.clientWidth / 2) + "px";
     };
     return EnterPanel;
 }());
@@ -308,7 +485,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "Main": () => (/* binding */ Main)
 /* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
 /* harmony import */ var _wave_MyGPU__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../wave/MyGPU */ "./src/wave/MyGPU.ts");
 /* harmony import */ var _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../sound/MyAudio */ "./src/sound/MyAudio.ts");
 /* harmony import */ var _wave_MyWaveMesh__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../wave/MyWaveMesh */ "./src/wave/MyWaveMesh.ts");
@@ -318,6 +495,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
 /* harmony import */ var _data_ImageManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../data/ImageManager */ "./src/data/ImageManager.ts");
 /* harmony import */ var _data_Params__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../data/Params */ "./src/data/Params.ts");
+/* harmony import */ var _wave_MyLight__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../wave/MyLight */ "./src/wave/MyLight.ts");
+/* harmony import */ var _DOMResizer__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DOMResizer */ "./src/main/DOMResizer.ts");
+
+
 
 
 
@@ -332,83 +513,93 @@ var Main = /** @class */ (function () {
     function Main() {
         this.enterOffsetY = 0;
         this.isStart = false;
+        this.isSP = false;
     }
     Main.prototype.init = function () {
         var _this = this;
+        this.domResizer = new _DOMResizer__WEBPACK_IMPORTED_MODULE_10__.DOMResizer();
+        this.domResizer.init();
         this.enterPanel = new _EnterPanel__WEBPACK_IMPORTED_MODULE_5__.EnterPanel();
         this.stats = (0,three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_4__["default"])();
-        document.body.appendChild(this.stats.dom);
-        this.renderer = new three__WEBPACK_IMPORTED_MODULE_9__.WebGLRenderer({
+        //document.body.appendChild(this.stats.dom);
+        this.renderer = new three__WEBPACK_IMPORTED_MODULE_11__.WebGLRenderer({
             canvas: document.querySelector('#webgl')
         });
-        _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().init();
-        _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().domElement = this.renderer.domElement;
-        this.renderer.setClearColor(new three__WEBPACK_IMPORTED_MODULE_9__.Color(0x00469b));
+        //DataManager.getInstance().domElement=
+        _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().init(this);
+        this.isSP = _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().isSp;
+        console.log("pixelRatio " + window.devicePixelRatio);
+        this.renderer.setPixelRatio(1);
+        this.renderer.setClearColor(new three__WEBPACK_IMPORTED_MODULE_11__.Color(0x00469b));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.scene = new three__WEBPACK_IMPORTED_MODULE_9__.Scene();
-        this.camera = new three__WEBPACK_IMPORTED_MODULE_9__.PerspectiveCamera(20, 640 / 480, 1, 10000);
+        this.scene = new three__WEBPACK_IMPORTED_MODULE_11__.Scene();
+        this.camera = new three__WEBPACK_IMPORTED_MODULE_11__.PerspectiveCamera(20, 640 / 480, 1, 10000);
         this.camera.position.set(0, 0, 700);
-        //const myMesh = new MyMesh();
-        //scene.add( myMesh.mesh );
         this.myGPU = new _wave_MyGPU__WEBPACK_IMPORTED_MODULE_0__.MyGPU();
         this.myGPU.init();
         this.myGPU.initWater(this.renderer);
         //scene.add(myGPU.testMesh);
         //光
-        var light = new three__WEBPACK_IMPORTED_MODULE_9__.DirectionalLight(0xffffff);
-        light.position.set(5, -10, 10);
-        this.scene.add(light);
-        var light2 = new three__WEBPACK_IMPORTED_MODULE_9__.AmbientLight(0x555555);
-        this.scene.add(light2);
+        this.myLight = new _wave_MyLight__WEBPACK_IMPORTED_MODULE_9__.MyLight();
+        this.myLight.init(this.scene);
         //const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        if (document.getElementById("contents") != null) {
-            document.getElementById("contents").style.display = "none";
+        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS) != null) {
+            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS).style.display = "none";
         }
-        this.audio = new _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__.MyAudio();
-        this.audio.init(this.scene, function () {
-            _this.onLoadSound();
-        });
         // 毎フレーム更新関数を実行
         this.tick();
+        this.loadImages();
         window.addEventListener('resize', function () {
             _this.onWindowResize();
         }, false);
         this.onWindowResize();
     };
-    Main.prototype.onLoadSound = function () {
+    //画像をロードする
+    Main.prototype.loadImages = function () {
         var _this = this;
-        console.log("ON_LOAD!!!! ");
         _data_ImageManager__WEBPACK_IMPORTED_MODULE_7__.ImageManager.getInstance().loadImages(function () {
             _this.onLoadImages();
         });
         this.onWindowResize();
     };
+    //画像をロードした
     Main.prototype.onLoadImages = function () {
         var _this = this;
-        this.enterPanel.init(function () {
-            _this.playSound();
-        });
-        var t = document.getElementById("enterText");
-        if (t) {
-            t.innerText = "見る";
-        }
-        this.onWindowResize();
-    };
-    Main.prototype.playSound = function () {
+        console.log("onLoadImg");
         this.myWaveMesh = new _wave_MyWaveMesh__WEBPACK_IMPORTED_MODULE_2__.MyWaveMesh();
         this.myWaveMesh.init();
         this.scene.add(this.myWaveMesh.waterMesh);
+        this.audio = new _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__.MyAudio();
+        this.audio.init(this.scene, function () {
+            _this.onLoadSound();
+        });
         this.timeline = new _MyTimeline__WEBPACK_IMPORTED_MODULE_3__.MyTimeline();
         this.timeline.init(this);
+        this.onWindowResize();
+    };
+    //サウンドロード
+    Main.prototype.onLoadSound = function () {
+        var _this = this;
+        console.log("onLoadSound");
+        this.enterPanel.init(function () {
+            _this.playSound();
+        });
+        this.onWindowResize();
+    };
+    Main.prototype.playSound = function () {
         this.timeline.start();
-        if (document.getElementById("contents") != null) {
-            document.getElementById("contents").style.display = "block";
+        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS) != null) {
+            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS).style.display = "block";
         }
         this.onWindowResize();
     };
     Main.prototype.tick = function () {
+        //resizeチェック
         var _this = this;
         var _a, _b, _c;
+        if (this.domResizer.checkHeight()) {
+            this.onWindowResize();
+        }
         (_a = this.enterPanel) === null || _a === void 0 ? void 0 : _a.update();
         if (this.audio != null) {
             this.audio.update();
@@ -418,8 +609,6 @@ var Main = /** @class */ (function () {
         // 描画
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
-        //
-        //console.log("update");
         (_c = this.timeline) === null || _c === void 0 ? void 0 : _c.update();
         //loop
         window.requestAnimationFrame(function () {
@@ -428,6 +617,7 @@ var Main = /** @class */ (function () {
     };
     Main.prototype.onWindowResize = function () {
         var _a;
+        (_a = this.domResizer) === null || _a === void 0 ? void 0 : _a.resize();
         var fovRad = (this.camera.fov / 2) * (Math.PI / 180); //角度
         var distance = (window.innerHeight / 2) / Math.tan(fovRad); //距離
         this.camera.position.set(0, 0, distance); //距離を指定
@@ -436,14 +626,17 @@ var Main = /** @class */ (function () {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         if (this.myWaveMesh) {
+            //左右に合うようなスケール
             var scale = window.innerWidth / this.myWaveMesh.BOUNDS; //大きさ指定
+            //上下に合うようなスケール
             if (window.innerWidth < window.innerHeight) {
                 scale = window.innerHeight / this.myWaveMesh.BOUNDS;
             }
+            //少し大きくする
             scale *= _data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.ZOOM; //1.2;
             this.myWaveMesh.waterMesh.scale.set(scale, scale, 1);
         }
-        (_a = this.enterPanel) === null || _a === void 0 ? void 0 : _a.resize();
+        this.enterPanel.resize();
     };
     return Main;
 }());
@@ -471,11 +664,11 @@ __webpack_require__.r(__webpack_exports__);
 var MyTimeline = /** @class */ (function () {
     function MyTimeline() {
         this.past = 0;
+        this.rotN = -Math.PI / 4;
+        this.rotV = Math.PI / 2;
+        this.rotH = 0; //Math.PI/4;
     }
     MyTimeline.prototype.init = function (main) {
-        //20 てんてけ
-        //43 てぃんてぃんー
-        //65 いっせーのっせ
         var _this = this;
         this.waveCon = new _wave_WaveController__WEBPACK_IMPORTED_MODULE_2__.WaveController();
         this.waveCon.init(main);
@@ -484,44 +677,47 @@ var MyTimeline = /** @class */ (function () {
         this.myGPU = main.myGPU;
         _data_DataManager__WEBPACK_IMPORTED_MODULE_1__.DataManager.getInstance().gui.add(this, "reset");
         this.frames = [];
-        this.frames.push(new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(0.2, function () { _this.first(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(1, function () { _this.firstDon(); }), //ドン４
+        this.frames.push(new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(0.2, function () { _this.first(); }), 
+        //最初のドン、どどん
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(1, function () { _this.firstDon(); }), //ドン４
         new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(3.8, function () { _this.firstDon(); }), //ドン４
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(6.5, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(9, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(11.5, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(14.5, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(17, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(20, function () { _this.firstDon(); }), 
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(6.64, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(9.13, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(11.9, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(14.4, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(17.3, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(19.7, function () { _this.firstDon(); }), 
         //チンチンチチチン
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.2, function () { _this.firstGlitch(0.1, 4); _this.myWaveMesh.blink(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.5, function () { _this.firstGlitch(0.1, 8); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.8, function () { _this.firstGlitch(0.2, 16); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.0, function () { _this.firstGlitch(0.3, 32); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.2, function () { _this.firstGlitch(0.4, 64); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.4, function () { _this.moriagariA(); }), 
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.2, function () { _this.firstGlitch(0.2, 3, _this.rotN); _this.myWaveMesh.blink(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.5, function () { _this.firstGlitch(0.3, 6, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.8, function () { _this.firstGlitch(0.4, 12, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.0, function () { _this.firstGlitch(0.5, 24, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.2, function () { _this.firstGlitch(0.6, 48, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.3, function () { _this.moriagariA(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.4, function () { _this.moriagariForceImpulse(20, 5); }), 
         //            new KeyFrame(30.0,()=>{this.moriagariForceImpulse(20,5)}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(33.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(35.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(43.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(47.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(49.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(51.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(53.0, function () { _this.moriagariForceImpulse(20, 5); }), 
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(33.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(35.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(46.12, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(48.74, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(51.29, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(53.86, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(56.71, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(59.38, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(61.92, function () { _this.moriagariForceImpulse(20, 5); }), 
         //いっせーのっせ
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.0, function () { _this.firstGlitch(0.10, 3); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.4, function () { _this.firstGlitch(0.25, 6); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.8, function () { _this.firstGlitch(0.50, 32); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(64.2, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
-        //            new KeyFrame(65.0,()=>{this.moriagariB()}),
-        //            new KeyFrame(65.5,()=>{this.firstDon()}),
-        //            new KeyFrame(66.0,()=>{this.firstDon()}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(75.1, function () { _this.firstGlitch(0.1, 3); _this.myWaveMesh.changeTex(); }), 
-        //new KeyFrame(75.4,()=>{this.firstGlitch(0.3,6);}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(75.7, function () { _this.firstGlitch(0.5, 12); }), 
-        //new KeyFrame(76.0,()=>{this.firstGlitch(1,24);}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(76.4, function () { _this.firstGlitch(2, 48); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(77.4, function () { _this.firstGlitch(2, 48); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79, function () { _this.firstGlitch(1, 24); }), 
-        //new KeyFrame(79.4,()=>{this.firstGlitch(0.5,12);}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.8, function () { _this.firstGlitch(0.5, 36); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(80.4, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
-        //new KeyFrame(80.0,()=>{this.moriagariForceImpulse(20,5)}),
-        //new KeyFrame(83.0,()=>{this.moriagariForceImpulse(20,5)}),
-        //new KeyFrame(120.0,()=>{this.moriagariForceImpulse(20,5)}),
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(130, function () { _this.reset(); }));
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.1, function () { _this.firstGlitch(0.2, 4, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.6, function () { _this.firstGlitch(0.4, 8, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.95, function () { _this.firstGlitch(0.8, 16, -_this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(64.2, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
+        //トリッキー
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(75.09, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.1, function () { _this.firstGlitch(1, 24, 20); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.5, function () { _this.firstGlitch(0.5, 36, 20); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.8, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
+        //おい
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(80.26, function () { _this.moriagariForceImpulse(20, 5); }), 
+        //トリッキー
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(90.59, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(94.7, function () { _this.firstGlitch(1, 24, 80); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(95.0, function () { _this.firstGlitch(0.5, 36, 80); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(95.3, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
+        //おい
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(95.8, function () { _this.moriagariForceImpulse(20, 5); }), 
+        //トリッキー
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(105.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(110.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(110.2, function () { _this.firstGlitch(1, 24, 0); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(110.5, function () { _this.firstGlitch(0.5, 36, 0); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(110.8, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
+        //おい
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(111.25, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(116.71, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(116.4, function () { _this.startFinal(); _this.firstGlitch(1, 24, Math.PI / 3); }));
     };
     MyTimeline.prototype.first = function () {
         //強さはどうにかする
         console.log("first");
+        this.myWaveMesh.glitchTween();
         this.myGPU.setAmplitude(0);
+        this.waveCon.setAutoImpulse(1);
         this.waveCon.setMode(_wave_WaveController__WEBPACK_IMPORTED_MODULE_2__.WaveController.MODE_MANUAL);
     };
     MyTimeline.prototype.firstDon = function () {
         //this.myGPU.setMouseSize(30);
         //this.myGPU.setAmplitude(1);
-        this.waveCon.addImpuse(200 * (Math.random() - 0.5), 200 * (Math.random() - 0.5), 30, 1);
+        this.waveCon.setMode(_wave_WaveController__WEBPACK_IMPORTED_MODULE_2__.WaveController.MODE_MANUAL);
+        this.waveCon.addImpuse(200 * (Math.random() - 0.5), 200 * (Math.random() - 0.5), 30, 1.5);
     };
     //
-    MyTimeline.prototype.firstGlitch = function (n, s) {
-        this.myWaveMesh.glitch(n, s);
+    MyTimeline.prototype.firstGlitch = function (n, s, rad) {
+        this.myWaveMesh.glitch(n, s, rad);
     };
     MyTimeline.prototype.resetGlitch = function () {
         this.myWaveMesh.blink();
@@ -537,8 +733,9 @@ var MyTimeline = /** @class */ (function () {
     MyTimeline.prototype.moriagariForceImpulse = function (size, amplitude) {
         this.waveCon.addForceImpulse(200 * (Math.random() - 0.5), 200 * (Math.random() - 0.5), size, amplitude);
     };
-    MyTimeline.prototype.moriagariB = function () {
-        this.myWaveMesh.blink();
+    MyTimeline.prototype.startFinal = function () {
+        this.waveCon.setAutoImpulse(3);
+        this.myWaveMesh.glitchTweenFinal(20);
     };
     MyTimeline.prototype.hoge1 = function (index) {
         console.log(">>>>>>" + index);
@@ -550,6 +747,7 @@ var MyTimeline = /** @class */ (function () {
         this.myWaveMesh.startScroll();
     };
     MyTimeline.prototype.reset = function () {
+        console.log("RESET");
         for (var i = 0; i < this.frames.length; i++) {
             this.frames[i].reset();
         }
@@ -558,8 +756,14 @@ var MyTimeline = /** @class */ (function () {
     MyTimeline.prototype.update = function () {
         this.waveCon.update();
         var currentTime = this.audio.currentTime;
-        if (currentTime == 0)
-            return;
+        //すごく大きい値が変化してたら、曲が頭に戻ったということなのでリセット
+        if (this.past - currentTime > this.audio.duration * 0.9) {
+            this.reset();
+        }
+        else {
+            if (currentTime == 0)
+                return;
+        }
         for (var i = 0; i < this.frames.length; i++) {
             var t = this.frames[i].time;
             if (this.past < t && t <= currentTime) {
@@ -600,6 +804,7 @@ var MyAudio = /** @class */ (function () {
         this.FFT_MATOME = 8;
         this.waveVolume = 0;
         this.isReady = false;
+        this.volumeTarget = 0;
     }
     //fftする
     MyAudio.prototype.init = function (scene, callback) {
@@ -651,14 +856,14 @@ var MyAudio = /** @class */ (function () {
         //////
         this.bars = new Array;
         for (var i = 0; i < this.FFT_SIZE / this.FFT_MATOME; i++) {
-            this.bars[i] = new three__WEBPACK_IMPORTED_MODULE_2__.Mesh(new three__WEBPACK_IMPORTED_MODULE_2__.BoxGeometry(3, 100, 1, 1, 1, 1), new three__WEBPACK_IMPORTED_MODULE_2__.MeshBasicMaterial({ color: 0xff0000 }));
-            this.bars[i].position.set(3 * (i), 0, 300);
-            scene.add(this.bars[i]);
+            this.bars[i] = new three__WEBPACK_IMPORTED_MODULE_2__.Mesh(new three__WEBPACK_IMPORTED_MODULE_2__.BoxGeometry(13, 300, 1, 1, 1, 1), new three__WEBPACK_IMPORTED_MODULE_2__.MeshBasicMaterial({ color: 0xff0000 }));
+            this.bars[i].position.set(14 * (i), 0, 300);
+            //scene.add(this.bars[i]);
         }
     };
     MyAudio.prototype.play = function () {
         this.source.start(0, _data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.SOUND_OFFSET);
-        this.volume = 0.2;
+        this.volume = _data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.MAX_VOLUME;
         this.source.loop = true;
         this.context.resume();
     };
@@ -669,9 +874,19 @@ var MyAudio = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    MyAudio.prototype.updateVolumeByScroll = function () {
+        if (window.scrollY < 200) {
+            this.volumeTarget += (_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.MAX_VOLUME - this.volumeTarget) / 10;
+        }
+        else {
+            this.volumeTarget += (_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params.MIN_VOLUME - this.volumeTarget) / 10;
+        }
+        this.volume = this.volumeTarget;
+    };
     MyAudio.prototype.update = function () {
         if (this.freqs == null)
             return;
+        this.updateVolumeByScroll();
         this.analyser.smoothingTimeConstant = this.SMOOTHING;
         this.analyser.fftSize = this.FFT_SIZE;
         this.analyser.getByteFrequencyData(this.freqs);
@@ -709,7 +924,6 @@ var MyAudio = /** @class */ (function () {
         setTimeout(function () {
             _this.source.loopEnd = _this.source.buffer.duration;
         }, 10);
-        //this.context.resume();
     };
     Object.defineProperty(MyAudio.prototype, "currentTime", {
         get: function () {
@@ -728,6 +942,12 @@ var MyAudio = /** @class */ (function () {
     });
     Object.defineProperty(MyAudio.prototype, "duration", {
         get: function () {
+            if (this.source == null)
+                return 0;
+            if (this.source.buffer == null)
+                return 0;
+            if (this.context == null)
+                return 0;
             return this.source.buffer.duration;
         },
         enumerable: false,
@@ -777,6 +997,7 @@ var MyGPU = /** @class */ (function () {
         this.isMoriagari = false;
         this.isImpulse = false;
         this.attenuation = 0.99;
+        this.pastPosY = 0;
     }
     MyGPU.prototype.init = function () {
         this.testMat = new three__WEBPACK_IMPORTED_MODULE_4__.MeshPhongMaterial();
@@ -801,6 +1022,7 @@ var MyGPU = /** @class */ (function () {
         this.uniforms['heightCompensation'] = { value: 0.5 };
         this.uniforms['attenuation'] = { value: this.attenuation };
         this.uniforms['amplitude'] = { value: 0 }; //1.28 };
+        this.uniforms['deltaPos'] = { value: new three__WEBPACK_IMPORTED_MODULE_4__.Vector2(0, 0) };
         this.heightmapVariable.material.defines.BOUNDS = this.BOUNDS.toFixed(1);
         var error = this.gpuCompute.init();
         if (error !== null) {
@@ -847,9 +1069,10 @@ var MyGPU = /** @class */ (function () {
         uniforms['mousePos'].value.set(px, py);
     };
     MyGPU.prototype.update = function (audio) {
-        //console.log(this.attenuation);
         // Set uniforms: mouse interaction
         var uniforms = this.heightmapVariable.material.uniforms;
+        uniforms['deltaPos'].value.y = -(window.scrollY - this.pastPosY) / 2000;
+        this.pastPosY = window.scrollY;
         if (this.isImpulse) {
             var limit = this.isFirst ? 0.02 : 0;
             if (audio.isReady && audio.mSubFreqs[3] > 0) {
@@ -870,6 +1093,51 @@ var MyGPU = /** @class */ (function () {
         // this.gpuCompute.getCurrentRenderTarget( this.heightmapVariable ).texture;
     };
     return MyGPU;
+}());
+
+
+
+/***/ }),
+
+/***/ "./src/wave/MyLight.ts":
+/*!*****************************!*\
+  !*** ./src/wave/MyLight.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MyLight": () => (/* binding */ MyLight)
+/* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+
+
+var MyLight = /** @class */ (function () {
+    function MyLight() {
+    }
+    MyLight.prototype.init = function (s) {
+        var _this = this;
+        this.light = new three__WEBPACK_IMPORTED_MODULE_1__.DirectionalLight(0xffffff);
+        this.light.position.set(5, -10, 10);
+        s.add(this.light);
+        var light2 = new three__WEBPACK_IMPORTED_MODULE_1__.AmbientLight(0x555555);
+        s.add(light2);
+        if (_data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().isSp) {
+            window.addEventListener("deviceorientation", function (event) {
+                var absolute = event.absolute;
+                var alpha = event.alpha;
+                var beta = event.beta;
+                var gamma = event.gamma;
+                //beta	x軸を中心にしたデバイスの動きを表す	値：-180～180の範囲の値による度数
+                //gamma	y軸を中心にしたデバイスの動きを表す	値：-90～90の範囲の値による度数
+                _this.light.position.x = 5 + gamma;
+                _this.light.position.y = -10 + beta;
+                _this.light.position.z = 10;
+            }, true);
+        }
+    };
+    return MyLight;
 }());
 
 
@@ -912,21 +1180,23 @@ var MyWaveMesh = /** @class */ (function () {
         this.counter = 0;
         this.isStart = false;
         this.texFlag = false;
+        this.isSP = false;
     }
     MyWaveMesh.prototype.init = function () {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        this.isSP = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().isSp;
         var materialColor = 0x0040C0;
         var geometry = new three__WEBPACK_IMPORTED_MODULE_6__.PlaneGeometry(this.BOUNDS, this.BOUNDS, this.WIDTH - 1, this.WIDTH - 1);
         var imgManager = _data_ImageManager__WEBPACK_IMPORTED_MODULE_5__.ImageManager.getInstance();
         this.texture = imgManager.images[0].texture;
         this.texture2 = imgManager.images[1].texture;
-        /*
-        const loader3 = new THREE.TextureLoader();
-        this.envMap = loader3.load( './topimg/img3.png' );
-        this.envMap.mapping = THREE.EquirectangularReflectionMapping;
-        this.envMap.encoding = THREE.sRGBEncoding;
-        */
-        //console.log(THREE.ShaderLib[ 'phong' ].uniforms);
+        //const loader = new THREE.CubeTextureLoader();
+        //loader.setPath( './topimg/' );
+        //this.envMap = loader.load( [ 'imgSP2.png', 'imgSP2.png', 'imgSP2.png', 'w2.png', 'w2.png', 'w2.png' ] );
+        //this.envMap.encoding = THREE.sRGBEncoding;
+        //this.envMap.mapping = THREE.CubeReflectionMapping;
+        //this.envMap = imgManager.images[2].texture;
+        //this.envMap.mapping = THREE.EquirectangularReflectionMapping;
+        //this.envMap.encoding = THREE.sRGBEncoding;
         // material: make a THREE.ShaderMaterial clone of THREE.MeshPhongMaterial, with customized vertex shader
         this.material = new three__WEBPACK_IMPORTED_MODULE_6__.ShaderMaterial({
             uniforms: three__WEBPACK_IMPORTED_MODULE_6__.UniformsUtils.merge([
@@ -938,10 +1208,14 @@ var MyWaveMesh = /** @class */ (function () {
                     'emissive': { value: new three__WEBPACK_IMPORTED_MODULE_6__.Color(0x000000) },
                     'shininess': { value: 30 },
                     'map': { value: this.texture },
-                    //'envMap':{value: this.envMap},
+                    'map2': { value: this.texture2 },
+                    'noise': { value: this.isSP ? 0.08 : 0.24 },
+                    //'envMap2':{value: this.envMap},
+                    //'reflectivity':{value: 1.0},
+                    //'refractionRatio':{value: 0.98},
                     'counter': { value: 0 },
                     'offsetY': { value: this.getOffsetY() },
-                    'glitch': { value: new three__WEBPACK_IMPORTED_MODULE_6__.Vector4(0, 0, 10, 10) },
+                    'glitch': { value: new three__WEBPACK_IMPORTED_MODULE_6__.Vector4(0, -3.1415 / 4, 10, 10) },
                     'offsetCol': { value: new three__WEBPACK_IMPORTED_MODULE_6__.Color(0x000000) },
                     'colDisplace': { value: new three__WEBPACK_IMPORTED_MODULE_6__.Vector3(0.02, 0.03, 0.04) }
                 }
@@ -953,15 +1227,7 @@ var MyWaveMesh = /** @class */ (function () {
         //let m:MyMat = new MyMat();
         //m.init();
         //this.material = m.material;
-        var uniform = this.material.uniforms;
-        (_a = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _a === void 0 ? void 0 : _a.add(uniform["offsetY"], "value", 0, 1).name("offsetY");
-        (_b = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _b === void 0 ? void 0 : _b.addColor(uniform["offsetCol"], "value").name("color").listen();
-        (_c = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _c === void 0 ? void 0 : _c.add(this, "blink");
-        (_d = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _d === void 0 ? void 0 : _d.add(uniform["glitch"].value, "x", 0, 5).name("glitchX");
-        (_e = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _e === void 0 ? void 0 : _e.add(uniform["glitch"].value, "z", 1, 100).name("glitchZ");
-        (_f = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _f === void 0 ? void 0 : _f.add(uniform["colDisplace"].value, "x", 0, 0.2).name("colDispX");
-        (_g = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _g === void 0 ? void 0 : _g.add(uniform["colDisplace"].value, "y", 0, 0.2).name("colDispY");
-        (_h = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _h === void 0 ? void 0 : _h.add(uniform["colDisplace"].value, "z", 0, 0.2).name("colDispZ");
+        this.initGUI();
         this.material.defines.WIDTH = this.WIDTH.toFixed(1);
         this.material.defines.BOUNDS = this.BOUNDS.toFixed(1);
         this.waterMesh = new three__WEBPACK_IMPORTED_MODULE_6__.Mesh(geometry, this.material);
@@ -969,9 +1235,24 @@ var MyWaveMesh = /** @class */ (function () {
         this.waterMesh.receiveShadow = true;
         this.waterMesh.castShadow = true;
     };
-    MyWaveMesh.prototype.glitch = function (dx, split) {
+    MyWaveMesh.prototype.initGUI = function () {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var uniform = this.material.uniforms;
+        (_a = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _a === void 0 ? void 0 : _a.add(uniform["offsetY"], "value", 0, 1).name("offsetY");
+        (_b = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _b === void 0 ? void 0 : _b.addColor(uniform["offsetCol"], "value").name("color").listen();
+        (_c = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _c === void 0 ? void 0 : _c.add(this, "blink");
+        (_d = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _d === void 0 ? void 0 : _d.add(uniform["glitch"].value, "x", 0, 5).name("glitchX");
+        (_e = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _e === void 0 ? void 0 : _e.add(uniform["glitch"].value, "y", 0, 5).name("glitchY");
+        (_f = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _f === void 0 ? void 0 : _f.add(uniform["glitch"].value, "z", 1, 100).name("glitchZ");
+        (_g = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _g === void 0 ? void 0 : _g.add(uniform["colDisplace"].value, "x", 0, 0.2).name("colDispX");
+        (_h = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _h === void 0 ? void 0 : _h.add(uniform["colDisplace"].value, "y", 0, 0.2).name("colDispY");
+        (_j = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui) === null || _j === void 0 ? void 0 : _j.add(uniform["colDisplace"].value, "z", 0, 0.2).name("colDispZ");
+    };
+    MyWaveMesh.prototype.glitch = function (dx, split, rad) {
+        if (rad === void 0) { rad = -3.1415 / 4; }
         var uniform = this.material.uniforms;
         uniform["glitch"].value.x = dx; //2 * (Math.random()-0.5);
+        uniform["glitch"].value.y = rad;
         uniform["glitch"].value.z = split; //Math.floor( 10+20*(Math.random()) );        
     };
     MyWaveMesh.prototype.glitchTween = function () {
@@ -979,6 +1260,14 @@ var MyWaveMesh = /** @class */ (function () {
         uniform["glitch"].value.x = uniform["glitch"].value.x / 8;
         gsap__WEBPACK_IMPORTED_MODULE_7__["default"].to(uniform["glitch"].value, {
             duration: 1,
+            x: 0
+        });
+    };
+    MyWaveMesh.prototype.glitchTweenFinal = function (d) {
+        var uniform = this.material.uniforms;
+        //uniform["glitch"].value.x = uniform["glitch"].value.x/8;
+        gsap__WEBPACK_IMPORTED_MODULE_7__["default"].to(uniform["glitch"].value, {
+            duration: d,
             x: 0
         });
     };
@@ -1000,6 +1289,7 @@ var MyWaveMesh = /** @class */ (function () {
     MyWaveMesh.prototype.changeTex = function () {
         this.texFlag = !this.texFlag;
         this.material.uniforms['map'].value = this.texFlag ? this.texture2 : this.texture;
+        this.material.uniforms['map2'].value = !this.texFlag ? this.texture2 : this.texture;
     };
     MyWaveMesh.prototype.update = function (tex) {
         if (this.isStart)
@@ -1010,8 +1300,14 @@ var MyWaveMesh = /** @class */ (function () {
     };
     MyWaveMesh.prototype.getOffsetY = function () {
         //スケールも加味する
-        var w = window.innerHeight / window.innerWidth;
-        return (1 - w) / 2 * _data_Params__WEBPACK_IMPORTED_MODULE_4__.Params.ZOOM;
+        if (window.innerHeight < window.innerWidth) {
+            var w = window.innerHeight / window.innerWidth; //横長
+            return (1 - w) / 2 * _data_Params__WEBPACK_IMPORTED_MODULE_4__.Params.ZOOM;
+        }
+        else {
+            return 0;
+        }
+        return 0;
     };
     return MyWaveMesh;
 }());
@@ -1030,6 +1326,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "WaveController": () => (/* binding */ WaveController)
 /* harmony export */ });
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+
 var WaveController = /** @class */ (function () {
     function WaveController() {
         this.minInterval = 100;
@@ -1037,16 +1335,44 @@ var WaveController = /** @class */ (function () {
         this.hasForceImpulse = false;
         this.autoImpulseAmplitude = 1.0;
         this.autoImpulseSize = 20;
+        this.mouseCount = 0;
     }
     WaveController.prototype.init = function (main) {
         this.myGPU = main.myGPU;
         this.myAudio = main.audio;
         this.mode = WaveController.MODE_INTRO;
+        this.dataManager = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance();
+        var gui = this.dataManager.gui;
+        gui.add(this, "mode").listen();
     };
+    /*
+*/
     WaveController.prototype.setMode = function (m) {
         this.mode = m;
     };
+    WaveController.prototype.setAutoImpulse = function (a) {
+        if (a === void 0) { a = 1.0; }
+        this.autoImpulseAmplitude = a;
+    };
+    WaveController.prototype.updateTouch = function () {
+        //もしタッチしてたら
+        if (this.dataManager.isTouch) {
+            this.mouseCount++;
+            if (this.mouseCount <= 1) {
+                var p = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().getMouseOnWaveMesh();
+                this.addForceImpulse(p.x, p.y, 12, 0.5);
+            }
+            else {
+                this.mouseCount = 0;
+                this.dataManager.isTouch = false;
+            }
+        }
+        else {
+            this.mouseCount = 0;
+        }
+    };
     WaveController.prototype.update = function () {
+        this.updateTouch();
         //console.log(this.mode);
         if (this.hasForceImpulse) {
             this.hasForceImpulse = false;
@@ -1074,13 +1400,15 @@ var WaveController = /** @class */ (function () {
         this.myGPU.addImpulse(px, py);
     };
     WaveController.prototype.updateIntro = function () {
-        this.myGPU.setAmplitude(1);
-        if (Math.random() < 0.02) {
-            if (Math.random() < 0.5) {
-                this.myGPU.addImpulse(Math.random() < 0.5 ? -256 : 256, 256 * (Math.random() - 0.5));
+        var dir = Math.random() < 0.5 ? -1 : 1;
+        this.myGPU.setAmplitude(dir * (3 * Math.random()));
+        if (Math.random() < 0.01) {
+            if (Math.random() < 0.1) {
+                this.myGPU.addImpulse(Math.random() < 0.5 ? -256 + 10 * Math.random() : 256 - 10 * Math.random(), 256 * (Math.random() - 0.5));
             }
             else {
-                this.myGPU.addImpulse(256 * (Math.random() - 0.5), Math.random() < 0.5 ? -256 : 256);
+                this.myGPU.addImpulse(0.6 * 256 * (Math.random() - 0.5), 256 //Math.random()<0.5 ? -256 : 256
+                );
             }
         }
     };
@@ -1091,7 +1419,14 @@ var WaveController = /** @class */ (function () {
             if (Date.now() - this.pastTime > this.minInterval) {
                 this.myGPU.setMouseSize(this.autoImpulseSize);
                 this.myGPU.setAmplitude(this.autoImpulseAmplitude);
-                this.myGPU.addImpulse(0.9 * 512 * (Math.random() - 0.5), 0.9 * 512 * (Math.random() - 0.5) * window.innerHeight / window.innerWidth);
+                var ww = window.innerWidth;
+                var hh = window.innerHeight;
+                if (ww > hh) {
+                    this.myGPU.addImpulse(0.9 * 512 * (Math.random() - 0.5), 0.9 * 512 * (Math.random() - 0.5) * hh / ww);
+                }
+                else {
+                    this.myGPU.addImpulse(0.9 * 512 * (Math.random() - 0.5) * hh / ww, 0.9 * 512 * (Math.random() - 0.5));
+                }
                 this.pastTime = Date.now();
                 //console.log(this.pastTime);
             }
@@ -9577,7 +9912,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#include <common>\n\nuniform vec2 mousePos;\nuniform float mouseSize;\nuniform float viscosityConstant;\nuniform float heightCompensation;\nuniform float attenuation;\nuniform float amplitude;\n\nvoid main()\t{\n\n\tvec2 cellSize = 1.0 / resolution.xy;\n\n\tvec2 uv = gl_FragCoord.xy * cellSize;\n\n\t// heightmapValue.x == height from previous frame\n\t// heightmapValue.y == height from penultimate frame\n\t// heightmapValue.z, heightmapValue.w not used\n\tvec4 heightmapValue = texture2D( heightmap, uv );//heightmap value\n\t//heightmapValue.x += heightmapValue.z;\n\n\t// Get neighbours\n\tvec4 north = texture2D( heightmap, uv + vec2( 0.0, cellSize.y ) );//top\n\tvec4 south = texture2D( heightmap, uv + vec2( 0.0, - cellSize.y ) );//botm\n\tvec4 east = texture2D( heightmap, uv + vec2( cellSize.x, 0.0 ) );//right\n\tvec4 west = texture2D( heightmap, uv + vec2( - cellSize.x, 0.0 ) );//left\n\n\tfloat newHeight = heightmapValue.x;//( ( north.x + south.x + east.x + west.x ) * 0.5 - heightmapValue.y ) * viscosityConstant;\n\n\tfloat accelX = west.x - heightmapValue.x * 2.0 + east.x;\n\tfloat accelY = north.x - heightmapValue.x * 2.0 + south.x;\n\tfloat aa = 0.9+0.1;//*sin(uv.x*3.1415*4.0);\n\tfloat bb = 0.9+0.1;//*sin(uv.y*3.1415*4.0);\n\tfloat accel = aa*accelX + bb*accelY;\n\t\n\taccel *= 0.1;//k;\n    heightmapValue.z = (heightmapValue.z + accel) * attenuation;//減衰\n\tnewHeight += heightmapValue.z;\n\t//vを計算\n\n\t// Mouse influence\n\t\n\tfloat mousePhase = \n\tclamp( \n\t\tlength( ( uv - vec2( 0.5 ) ) * BOUNDS - vec2( mousePos.x, - mousePos.y ) ) * PI / mouseSize, \n\t\t0.0, \n\t\tPI \n\t);\n\tnewHeight += ( cos( mousePhase ) + 1.0 ) * amplitude;//1.28;\n\n\n\n\t\n\theightmapValue.y = heightmapValue.x;//old\n\theightmapValue.x = newHeight;//new\n\t\n\n\n/*\n\tvar aa = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\tvar bb = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\n\tvar accelX:number = this.positions[left] - this.positions[center] * 2 + this.positions[right];\n\tvar accelY:number = this.positions[bottom] - this.positions[center] * 2 + this.positions[top];\n\tvar accel:number = aa*accelX + bb* accelY;\n\t\n\taccel *= this._k;// * Math.abs( getNoise(i, j, _count * 0.5) ) * 0.1;\n\tthis.velocity[center] = (this.velocity[center] + accel) * this._attenuation;//減衰\n*/\n\n\n\n\tgl_FragColor = heightmapValue;\n\n}");
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#include <common>\n\nuniform vec2 deltaPos;\nuniform vec2 mousePos;\nuniform float mouseSize;\nuniform float viscosityConstant;\nuniform float heightCompensation;\nuniform float attenuation;\nuniform float amplitude;\n\nvoid main()\t{\n\n\tvec2 cellSize = 1.0 / resolution.xy;\n\n\tvec2 uv = gl_FragCoord.xy * cellSize;\n\tuv+=deltaPos;\n\tuv=fract(uv);\n\n\t// heightmapValue.x == height from previous frame\n\t// heightmapValue.y == height from penultimate frame\n\t// heightmapValue.z, heightmapValue.w not used\n\tvec4 heightmapValue = texture2D( heightmap, uv );//heightmap value\n\t//heightmapValue.x += heightmapValue.z;\n\n\t// Get neighbours\n\tvec4 north = texture2D( heightmap, uv + vec2( 0.0, cellSize.y ) );//top\n\tvec4 south = texture2D( heightmap, uv + vec2( 0.0, - cellSize.y ) );//botm\n\tvec4 east = texture2D( heightmap, uv + vec2( cellSize.x, 0.0 ) );//right\n\tvec4 west = texture2D( heightmap, uv + vec2( - cellSize.x, 0.0 ) );//left\n\n\tfloat newHeight = heightmapValue.x;//( ( north.x + south.x + east.x + west.x ) * 0.5 - heightmapValue.y ) * viscosityConstant;\n\n\tfloat accelX = west.x - heightmapValue.x * 2.0 + east.x;\n\tfloat accelY = north.x - heightmapValue.x * 2.0 + south.x;\n\tfloat aa = 0.9+0.1;//*sin(uv.x*3.1415*4.0);\n\tfloat bb = 0.9+0.1;//*sin(uv.y*3.1415*4.0);\n\tfloat accel = aa*accelX + bb*accelY;\n\t\n\taccel *= 0.1;//k;\n    heightmapValue.z = (heightmapValue.z + accel) * attenuation;//減衰\n\tnewHeight += heightmapValue.z;\n\t//vを計算\n\n\t// Mouse influence\n\t\n\tfloat mousePhase = \n\tclamp( \n\t\tlength( ( uv - vec2( 0.5 ) ) * BOUNDS - vec2( mousePos.x, - mousePos.y ) ) * PI / mouseSize, \n\t\t0.0, \n\t\tPI \n\t);\n\tnewHeight += ( cos( mousePhase ) + 1.0 ) * amplitude;//1.28;\n\n\theightmapValue.y = heightmapValue.x;//old\n\theightmapValue.x = newHeight;//new\n\t\n\n\n/*\n\tvar aa = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\tvar bb = 0.9 + 0.1 * Math.cos(i * 0.15 + j * 0.15);\n\n\tvar accelX:number = this.positions[left] - this.positions[center] * 2 + this.positions[right];\n\tvar accelY:number = this.positions[bottom] - this.positions[center] * 2 + this.positions[top];\n\tvar accel:number = aa*accelX + bb* accelY;\n\t\n\taccel *= this._k;// * Math.abs( getNoise(i, j, _count * 0.5) ) * 0.1;\n\tthis.velocity[center] = (this.velocity[center] + accel) * this._attenuation;//減衰\n*/\n\n\n\n\tgl_FragColor = heightmapValue;\n\n}");
 
 /***/ }),
 
@@ -9591,7 +9926,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n#define USE_ENVMAP\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nuniform float offsetY;\nuniform vec4 glitch;\nuniform vec3 offsetCol;\nuniform vec3 colDisplace;\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;// + \n\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n    vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n\t//glitch displacement\n\tfloat gx = glitch.z;\n\tvec2 displace = vec2(0.0,0.0);\n\tfloat rad = -3.1415/4.0;\n\n\t//ベクトルの回転\n\tfloat nx = newUV.x * cos(rad) - newUV.y * sin(rad);\n\tfloat ny = newUV.x * sin(rad) + newUV.y * cos(rad);\n\n\tfloat amp = glitch.x * (random(vec2(floor((ny)*gx)/gx,0.0))-0.5);\n\n\tdisplace.x = amp * cos(rad+3.1415/2.);\n\tdisplace.y = amp * sin(rad+3.1415/2.);\n\t//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );\n\t//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );\n\n\tnewUV.xy += displace;\n\tnewUV.x = fract( newUV.x );\n\tnewUV.y = fract( newUV.y );\n\n    vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02\n    vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03\n    vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\t\n\tfloat zz = 1.0-dot( vNormal.xyz, vec3(0.0,0.0,1.0) );\n\t//sampledDiffuseColor.x += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.6,0.5)) );\n\t//sampledDiffuseColor.y += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.9,1.8)) );\n\t//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );\n\n\n\t//sampledDiffuseColor.xyz += vNormal.xyz*0.4;\n\tsampledDiffuseColor.xyz += offsetCol.xyz;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\t//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk\n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t\t\n\toutgoingLight.xyz += (0.24*(random(vUv.xy)-0.5));\n\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n#define USE_ENVMAP\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nuniform float offsetY;\nuniform float noise;\nuniform vec4 glitch;\nuniform vec3 offsetCol;\nuniform vec3 colDisplace;\nuniform sampler2D map2;\n//uniform samplerCube envMap2;\n\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;// + \n\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n\tvec2 newUV0 = vUv.xy+vec2(0.0,-offsetY-counter*0.01); \n    vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n\t//glitch displacement\n\tfloat gx = glitch.z;//分割数\n\tvec2 displace = vec2(0.0,0.0);\n\tfloat rad = glitch.y;//;\n\n\t//座標を回転\n\t//float nx = newUV.x * cos(-rad) - newUV.y * sin(-rad);\n\t//float ny = newUV.x * sin(-rad) + newUV.y * cos(-rad);\n\tfloat nx = newUV0.x * cos(-rad) - newUV0.y * sin(-rad);\n\tfloat ny = newUV0.x * sin(-rad) + newUV0.y * cos(-rad);\n\n\t//開店した座標に応じて、短冊を切る\n\tfloat nn = floor((ny)*gx);\n\t//float amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);\n\tfloat amp = glitch.x * mod(nn,3.0);\n\n\n\tdisplace.x = amp * cos(rad);//-3.1415/2.);\n\tdisplace.y = amp * sin(rad);//-3.1415/2.);\n\t//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );\n\t//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );\n\n\tnewUV.xy += displace;\n\tnewUV.x = fract( newUV.x );\n\tnewUV.y = fract( newUV.y );\n\n\n    vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02\n    vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03\n    vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04\n\n\t//色を変えている\n\tif( mod(nn,2.0) == 0.0 ){\n\t\tfloat ratio =smoothstep(0.1,0.2,abs(amp)*10.0);//,0.0,1.0);\n\t\t//aa = mix(aa,texture2D( map2,(newUV+vNormal.xy*colDisplace.x)),ratio);//0.02\n\t\t//bb = mix(bb,texture2D( map2,(newUV+vNormal.xy*colDisplace.y)),ratio);\n\t\t//cc = mix(cc,texture2D( map2,(newUV+vNormal.xy*colDisplace.z)),ratio);\n\t\taa = mix(aa,aa+0.02,ratio);//0.02\n\t\tbb = mix(bb,bb+0.04,ratio);\n\t\tcc = mix(cc,cc+0.09,ratio);\n\t}\n\n\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\t\n\tfloat zz = 1.0-dot( vNormal.xyz, vec3(0.0,0.0,1.0) );\n\t//sampledDiffuseColor.x += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.6,0.5)) );\n\t//sampledDiffuseColor.y += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.9,1.8)) );\n\t//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );\n\n\n//\tsampledDiffuseColor.xyz += vNormal.xyz*0.8;\n\tsampledDiffuseColor.xy+=vNormal.xy*0.1;\n\t\n\t\n\n\tsampledDiffuseColor.xyz += offsetCol.xyz;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\t//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk\n\n\n\t//env\n\n\t//vec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );\n\t//vec3 reflectVec1 = vNormal;//, 0.99 );\n\t//vec4 envColor1 = textureCube( envMap2, vec3( 0.2,0.1,1.0 ) );\n\t//diffuseColor.xyz += envColor1.xyz;\n\n\n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t\t\n\toutgoingLight.xyz += (noise*(random(vUv.xy)-0.5));\n\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
 
 /***/ }),
 
@@ -60147,12 +60482,12 @@ window.addEventListener('DOMContentLoaded', function () {
     //
     var main = new _main_Main__WEBPACK_IMPORTED_MODULE_0__.Main();
     main.init();
-    window.addEventListener('resize', onWindowResize, false);
+    /*
+    window.addEventListener('resize', onWindowResize, false)
     onWindowResize();
     function onWindowResize() {
-        document.getElementById("contents").style.top = window.innerHeight + "px";
-        document.getElementById("footer").style.top = window.innerHeight + "px";
     }
+    */
 });
 
 })();

@@ -13,12 +13,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const main = new Main();
     main.init();
 
+    /*
     window.addEventListener('resize', onWindowResize, false)
     onWindowResize();
     function onWindowResize() {
-        document.getElementById("contents").style.top=window.innerHeight+"px";
-        document.getElementById("footer").style.top=window.innerHeight+"px";
     }
+    */
 
 });
 

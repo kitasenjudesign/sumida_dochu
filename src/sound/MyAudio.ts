@@ -7,6 +7,8 @@ class MyAudio{
     SMOOTHING:number = 0.5;
     FFT_SIZE:number = 128;
     FFT_MATOME:number=8;
+
+    //maxValue:number=0.1;
     context:AudioContext;
     analyser:AnalyserNode;
     gain:GainNode;
@@ -21,6 +23,9 @@ class MyAudio{
     waveVolume:number=0;
     bars:Array<THREE.Mesh>;
     isReady:boolean=false;
+
+    volumeTarget:number=0;
+
     callback:()=>void;
 
     //fftする
@@ -91,17 +96,17 @@ class MyAudio{
         for(let i=0;i<this.FFT_SIZE/this.FFT_MATOME;i++){
 
           this.bars[i]=new THREE.Mesh(
-            new THREE.BoxGeometry(3,100,1,1,1,1),
+            new THREE.BoxGeometry(13,300,1,1,1,1),
             new THREE.MeshBasicMaterial({color:0xff0000})
           );
 
           this.bars[i].position.set(
-            3*(i),
+            14*(i),
             0,
             300
           );
           
-          scene.add(this.bars[i]);
+          //scene.add(this.bars[i]);
 
         }
         
@@ -109,20 +114,34 @@ class MyAudio{
 
     play(){
       this.source.start(0,Params.SOUND_OFFSET);
-      this.volume=0.2;
-      this.source.loop=true;
+      this.volume = Params.MAX_VOLUME;
+      this.source.loop = true;
       this.context.resume();
-
-
     }
 
     set volume(v:number){
       this.gain.gain.value=v;
     }
 
+    updateVolumeByScroll(){
+
+      if( window.scrollY < 200 ){
+        this.volumeTarget+=(Params.MAX_VOLUME-this.volumeTarget)/10;
+        
+      }else{
+        this.volumeTarget+=(Params.MIN_VOLUME-this.volumeTarget)/10;
+
+      }
+
+      this.volume=this.volumeTarget;
+
+    }
+
     update(){
 
       if(this.freqs==null) return;
+
+      this.updateVolumeByScroll();
 
       this.analyser.smoothingTimeConstant = this.SMOOTHING;
       this.analyser.fftSize = this.FFT_SIZE;
@@ -172,9 +191,6 @@ class MyAudio{
         this.source.loopEnd=this.source.buffer.duration;
       },10);
 
-      
-      //this.context.resume();
-
     }
 
     get currentTime(): number {
@@ -190,16 +206,15 @@ class MyAudio{
     }
 
     get duration():number{
-
-
+      if(this.source==null)return 0;
+      if(this.source.buffer==null) return 0;
+      if(this.context==null)return 0;      
       return this.source.buffer.duration;
     }
 
     getFFT():number{
-
       if(this.times==null) return 0;
       return this.waveVolume;
-
     }
 
 }

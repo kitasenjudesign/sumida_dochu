@@ -26,8 +26,12 @@ class MyWaveMesh{
     texture2:THREE.Texture;
     envMap:THREE.Texture;
     texFlag:boolean=false;
+    isSP:boolean=false;
 
     init(){
+
+
+        this.isSP = DataManager.getInstance().isSp;
 
         const materialColor = 0x0040C0;
 
@@ -44,15 +48,15 @@ class MyWaveMesh{
         this.texture = imgManager.images[0].texture;
         this.texture2= imgManager.images[1].texture;
 
-        /*
-        const loader3 = new THREE.TextureLoader();
-        this.envMap = loader3.load( './topimg/img3.png' );
-        this.envMap.mapping = THREE.EquirectangularReflectionMapping;
-        this.envMap.encoding = THREE.sRGBEncoding;        
-        */
-        
-        //console.log(THREE.ShaderLib[ 'phong' ].uniforms);
+        //const loader = new THREE.CubeTextureLoader();
+        //loader.setPath( './topimg/' );
+        //this.envMap = loader.load( [ 'imgSP2.png', 'imgSP2.png', 'imgSP2.png', 'w2.png', 'w2.png', 'w2.png' ] );
+        //this.envMap.encoding = THREE.sRGBEncoding;
+        //this.envMap.mapping = THREE.CubeReflectionMapping;
 
+        //this.envMap = imgManager.images[2].texture;
+        //this.envMap.mapping = THREE.EquirectangularReflectionMapping;
+        //this.envMap.encoding = THREE.sRGBEncoding;
 
         // material: make a THREE.ShaderMaterial clone of THREE.MeshPhongMaterial, with customized vertex shader
         this.material = new THREE.ShaderMaterial( {
@@ -65,10 +69,15 @@ class MyWaveMesh{
                     'emissive':{value: new THREE.Color( 0x000000 ) },
                     'shininess':{value: 30},
                     'map':{value: this.texture},
-                    //'envMap':{value: this.envMap},
+                    'map2':{value: this.texture2},
+                    'noise':{value: this.isSP ? 0.08 : 0.24},
+                    //'envMap2':{value: this.envMap},
+                    //'reflectivity':{value: 1.0},
+                    //'refractionRatio':{value: 0.98},
+
                     'counter':{value: 0},
                     'offsetY':{value: this.getOffsetY()},
-                    'glitch':{value: new THREE.Vector4(0,0,10,10)},
+                    'glitch':{value: new THREE.Vector4(0,-3.1415/4,10,10)},
                     'offsetCol':{value: new THREE.Color(0x000000)},
                     'colDisplace':{value: new THREE.Vector3(0.02,0.03,0.04)}
                 }
@@ -83,7 +92,21 @@ class MyWaveMesh{
         //m.init();
         //this.material = m.material;
 
+        this.initGUI();
+
+        this.material.defines.WIDTH = this.WIDTH.toFixed( 1 );
+        this.material.defines.BOUNDS = this.BOUNDS.toFixed( 1 );
+
+        this.waterMesh = new THREE.Mesh( geometry, this.material );
+        this.waterMesh.visible          =true;
+        this.waterMesh.receiveShadow    =true;
+        this.waterMesh.castShadow       =true;
+
+    }
+
+    initGUI(){
         let uniform = this.material.uniforms;
+
         DataManager.getInstance().gui?.add(
             uniform["offsetY"],"value",0,1
         ).name("offsetY");
@@ -97,6 +120,9 @@ class MyWaveMesh{
             uniform["glitch"].value,"x",0,5
         ).name("glitchX");
         DataManager.getInstance().gui?.add(
+            uniform["glitch"].value,"y",0,5
+        ).name("glitchY");
+        DataManager.getInstance().gui?.add(
             uniform["glitch"].value,"z",1,100
         ).name("glitchZ");
 
@@ -109,23 +135,13 @@ class MyWaveMesh{
         DataManager.getInstance().gui?.add(
             uniform["colDisplace"].value,"z",0,0.2
         ).name("colDispZ");
-
-
-    
-        this.material.defines.WIDTH = this.WIDTH.toFixed( 1 );
-        this.material.defines.BOUNDS = this.BOUNDS.toFixed( 1 );
-
-        this.waterMesh = new THREE.Mesh( geometry, this.material );
-        this.waterMesh.visible          =true;
-        this.waterMesh.receiveShadow    =true;
-        this.waterMesh.castShadow       =true;
-
     }
 
 
-    glitch(dx:number,split:number){
+    glitch(dx:number,split:number,rad:number=-3.1415/4){
         let uniform = this.material.uniforms;
         uniform["glitch"].value.x = dx;//2 * (Math.random()-0.5);
+        uniform["glitch"].value.y = rad;
         uniform["glitch"].value.z = split;//Math.floor( 10+20*(Math.random()) );        
     }
 
@@ -134,6 +150,15 @@ class MyWaveMesh{
         uniform["glitch"].value.x = uniform["glitch"].value.x/8;
         gsap.to(uniform["glitch"].value, {
             duration: 1,
+            x: 0
+        });
+    }
+
+    glitchTweenFinal(d:number){
+        let uniform = this.material.uniforms;
+        //uniform["glitch"].value.x = uniform["glitch"].value.x/8;
+        gsap.to(uniform["glitch"].value, {
+            duration: d,
             x: 0
         });
     }
@@ -158,7 +183,10 @@ class MyWaveMesh{
 
     changeTex(){
         this.texFlag=!this.texFlag;
+
         this.material.uniforms['map'].value = this.texFlag ? this.texture2 : this.texture;
+        this.material.uniforms['map2'].value = !this.texFlag ? this.texture2 : this.texture;
+        
     }
 
 
@@ -174,8 +202,17 @@ class MyWaveMesh{
     getOffsetY():number{
         //スケールも加味する
 
-        let w = window.innerHeight/window.innerWidth;
-        return (1-w)/2*Params.ZOOM;
+
+        if(window.innerHeight<window.innerWidth){
+            let w = window.innerHeight/window.innerWidth;//横長
+            return (1-w)/2*Params.ZOOM;
+        }else{
+            return 0;
+
+        }
+        return 0;
+
+        
     }
 
 

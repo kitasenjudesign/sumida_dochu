@@ -12,6 +12,8 @@ import { EnterPanel } from './EnterPanel';
 import { DataManager } from '../data/DataManager';
 import { ImageManager } from '../data/ImageManager';
 import { Params } from '../data/Params';
+import { MyLight } from '../wave/MyLight';
+import { DOMResizer } from './DOMResizer';
 
 
 class Main{
@@ -21,6 +23,8 @@ class Main{
     camera:THREE.PerspectiveCamera;
     myGPU:MyGPU;
     myWaveMesh:MyWaveMesh;
+    myLight:MyLight;
+    domResizer:DOMResizer;
 
     enter:HTMLElement;
     enterOffsetY:number=0;
@@ -32,55 +36,54 @@ class Main{
     audio:MyAudio;
     timeline:MyTimeline;
     enterPanel:EnterPanel;
+    isSP:boolean=false;
 
     init(){
+        
+        this.domResizer=new DOMResizer();
+        this.domResizer.init();
+
         this.enterPanel = new EnterPanel();
         this.stats = Stats();
-        document.body.appendChild(this.stats.dom);
+        //document.body.appendChild(this.stats.dom);
        
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector('#webgl')
         });
 
-         DataManager.getInstance().init();
-         DataManager.getInstance().domElement=this.renderer.domElement;
+         //DataManager.getInstance().domElement=
+         DataManager.getInstance().init(this);
 
-         this.renderer.setClearColor(new THREE.Color(0x00469b));
-         this.renderer.setSize(window.innerWidth,window.innerHeight);
-         this.scene = new THREE.Scene();
-         this.camera = new THREE.PerspectiveCamera(20, 640/480, 1, 10000);
-         this.camera.position.set(0,0,700); 
+        this.isSP = DataManager.getInstance().isSp;
+
+        console.log("pixelRatio "+window.devicePixelRatio);
+        this.renderer.setPixelRatio(1);
+        this.renderer.setClearColor(new THREE.Color(0x00469b));
+        this.renderer.setSize(window.innerWidth,window.innerHeight);
+         
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(20, 640/480, 1, 10000);
+        this.camera.position.set(0,0,700); 
        
-         //const myMesh = new MyMesh();
-         //scene.add( myMesh.mesh );
          this.myGPU = new MyGPU();
          this.myGPU.init();
          this.myGPU.initWater(this.renderer);
          //scene.add(myGPU.testMesh);
          
          //光
-         const light:THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff);
-         light.position.set(5,-10,10);
-         this.scene.add(light); 
-         const light2:THREE.AmbientLight = new THREE.AmbientLight(0x555555);
-         this.scene.add(light2);
+         this.myLight = new MyLight();
+         this.myLight.init(this.scene);
        
        
          //const controls = new OrbitControls(this.camera, this.renderer.domElement);
-         if(document.getElementById("contents")!=null){
-            document.getElementById("contents").style.display = "none";
+         if(document.getElementById(Params.CONTENTS)!=null){
+            document.getElementById(Params.CONTENTS).style.display = "none";
          }
-
-         
-         
-         this.audio = new MyAudio();
-         this.audio.init(this.scene,()=>{
-             this.onLoadSound();
-         });
 
          
          // 毎フレーム更新関数を実行
          this.tick();
+         this.loadImages();
        
          window.addEventListener('resize', ()=>{
             this.onWindowResize();
@@ -88,10 +91,8 @@ class Main{
          this.onWindowResize();
     }
 
-    onLoadSound(){
-        
-        console.log("ON_LOAD!!!! ");
-
+    //画像をロードする
+    loadImages(){
         ImageManager.getInstance().loadImages(
             ()=>{
                 this.onLoadImages();
@@ -100,40 +101,57 @@ class Main{
         this.onWindowResize();
     }
 
+    //画像をロードした
     onLoadImages(){
-        
-        this.enterPanel.init(()=>{
-            this.playSound();
-        });
-        
-        let t = document.getElementById("enterText");
-        if(t){
-            t.innerText="見る";
-        }
-        this.onWindowResize();
-
-    }
-
-    playSound(){
-
+        console.log("onLoadImg");
         this.myWaveMesh = new MyWaveMesh();
         this.myWaveMesh.init();
         this.scene.add( this.myWaveMesh.waterMesh );
-    
+
+        this.audio = new MyAudio();
+        this.audio.init(this.scene,()=>{
+            this.onLoadSound();
+        });
+
         this.timeline = new MyTimeline();
         this.timeline.init(this);
-        this.timeline.start();
-        
-        if(document.getElementById("contents")!=null){
-            document.getElementById("contents").style.display = "block";
-        }
 
+        this.onWindowResize();
+    }
+
+    //サウンドロード
+    onLoadSound(){
+        
+        console.log("onLoadSound");
+        this.enterPanel.init(()=>{
+            this.playSound();
+        });
+
+        this.onWindowResize();
+        
+    }
+
+    
+
+    playSound(){
+
+        this.timeline.start();        
+        if(document.getElementById(Params.CONTENTS)!=null){
+            document.getElementById(Params.CONTENTS).style.display = "block";
+        }
         this.onWindowResize();
 
     }
 
 
     tick(){
+
+//resizeチェック
+
+        if( this.domResizer.checkHeight() ){
+            this.onWindowResize();
+        }
+
 
         this.enterPanel?.update();
 
@@ -147,9 +165,6 @@ class Main{
         // 描画
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
-
-        //
-        //console.log("update");
         this.timeline?.update();
 
         //loop
@@ -157,11 +172,12 @@ class Main{
             this.tick();
         });        
 
-        
     }
 
 
     onWindowResize(){
+
+        this.domResizer?.resize();
 
         const fovRad = (this.camera.fov / 2) * (Math.PI / 180);//角度
         let distance = (window.innerHeight / 2) / Math.tan(fovRad);//距離
@@ -173,11 +189,15 @@ class Main{
 
         if(this.myWaveMesh){
 
+            //左右に合うようなスケール
             let scale:number = window.innerWidth/this.myWaveMesh.BOUNDS;//大きさ指定
         
+            //上下に合うようなスケール
             if(window.innerWidth<window.innerHeight){
                 scale = window.innerHeight/this.myWaveMesh.BOUNDS;
             }
+
+            //少し大きくする
             scale *= Params.ZOOM;//1.2;
     
             this.myWaveMesh.waterMesh.scale.set(
@@ -186,9 +206,7 @@ class Main{
     
         }
 
-        
-
-        this.enterPanel?.resize();
+        this.enterPanel.resize();
         
     }
 
