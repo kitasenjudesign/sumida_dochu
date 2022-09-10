@@ -14,8 +14,8 @@ body{
 }
 
 .content{
-    background-color: rgba(255,255,0,0.8);
-    backdrop-filter: blur(8px);
+    background-color: rgba(255,255,255,0.9);
+    /*backdrop-filter: blur(8px);*/
     border: 1px solid #000;
     margin-bottom: 100px;
     padding: 50px;
@@ -34,13 +34,11 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color:rgba(200,0,0, 0.3);
 }
 
 .footer .footerCenter{
     font-size: 22px;
     writing-mode: vertical-rl;
     transform: scale(1,0.75);    
-    color: #fff;  
-    background-color: rgba(200,0,0, 0.8);
+    color: #fff;
 }

@@ -34,9 +34,11 @@ class MyGPU{
     attenuation:number=0.99;
     uniforms:any;
     pastPosY:number=0;
+    isSP:boolean=false;
 
 
     init(){
+        this.isSP=DataManager.getInstance().isSp;
         this.testMat = new THREE.MeshPhongMaterial();
         this.testMesh = new THREE.Mesh(
             new THREE.PlaneGeometry(100,100,1,1),
@@ -92,13 +94,13 @@ class MyGPU{
 
         
         let gui = DataManager.getInstance().gui;
-        gui.add(
+        gui?.add(
             this.uniforms[ 'attenuation' ],"value",0.901,0.999
         ).name("attenuation").listen();
-        gui.add(
+        gui?.add(
             this.uniforms[ 'mouseSize' ],"value",2,100.0
         ).name("mouseSize").listen();
-        gui.add(
+        gui?.add(
             this.uniforms[ 'amplitude' ],"value",0,20.0
         ).name("amplitude").listen();
         // Create compute shader to smooth the water surface and velocity
@@ -161,9 +163,10 @@ class MyGPU{
         const uniforms = this.heightmapVariable.material.uniforms;
 
 
-
-        uniforms[ 'deltaPos' ].value.y = -(window.scrollY-this.pastPosY)/2000;
-        this.pastPosY = window.scrollY;
+        if(this.isSP){
+            uniforms[ 'deltaPos' ].value.y = -(window.scrollY-this.pastPosY)/2000;
+            this.pastPosY = window.scrollY;    
+        }
 
 
         if(this.isImpulse){

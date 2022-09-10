@@ -14,6 +14,7 @@ import { ImageManager } from '../data/ImageManager';
 import { Params } from '../data/Params';
 import { MyLight } from '../wave/MyLight';
 import { DOMResizer } from './DOMResizer';
+import { EnvTestMesh } from '../wave/EnvTestMesh';
 
 
 class Main{
@@ -25,6 +26,7 @@ class Main{
     myWaveMesh:MyWaveMesh;
     myLight:MyLight;
     domResizer:DOMResizer;
+    dataManager:DataManager;
 
     enter:HTMLElement;
     enterOffsetY:number=0;
@@ -44,17 +46,19 @@ class Main{
         this.domResizer.init();
 
         this.enterPanel = new EnterPanel();
-        this.stats = Stats();
+        //this.stats = Stats();
         //document.body.appendChild(this.stats.dom);
        
         this.renderer = new THREE.WebGLRenderer({
-            canvas: document.querySelector('#webgl')
+            canvas: document.querySelector('#webgl'),
+            antialias: false
         });
 
          //DataManager.getInstance().domElement=
-         DataManager.getInstance().init(this);
+        this.dataManager = DataManager.getInstance();
+        this.dataManager.init(this);
 
-        this.isSP = DataManager.getInstance().isSp;
+        this.isSP = this.dataManager.isSp;
 
         console.log("pixelRatio "+window.devicePixelRatio);
         this.renderer.setPixelRatio(1);
@@ -80,7 +84,10 @@ class Main{
             document.getElementById(Params.CONTENTS).style.display = "none";
          }
 
-         
+        let m = new EnvTestMesh();
+        m.init(this.scene);
+
+
          // 毎フレーム更新関数を実行
          this.tick();
          this.loadImages();
@@ -89,6 +96,7 @@ class Main{
             this.onWindowResize();
          }, false)
          this.onWindowResize();
+
     }
 
     //画像をロードする
@@ -104,6 +112,7 @@ class Main{
     //画像をロードした
     onLoadImages(){
         console.log("onLoadImg");
+        
         this.myWaveMesh = new MyWaveMesh();
         this.myWaveMesh.init();
         this.scene.add( this.myWaveMesh.waterMesh );
@@ -114,7 +123,7 @@ class Main{
         });
 
         this.timeline = new MyTimeline();
-        this.timeline.init(this);
+        this.timeline.init(this);//開始する
 
         this.onWindowResize();
     }
@@ -148,6 +157,8 @@ class Main{
 
 //resizeチェック
 
+        this.dataManager.update();
+
         if( this.domResizer.checkHeight() ){
             this.onWindowResize();
         }
@@ -164,7 +175,7 @@ class Main{
     
         // 描画
         this.renderer.render(this.scene, this.camera);
-        this.stats.update();
+        this.stats?.update();
         this.timeline?.update();
 
         //loop

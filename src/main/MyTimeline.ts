@@ -26,7 +26,7 @@ class MyTimeline{
         this.myWaveMesh = main.myWaveMesh;
         this.myGPU      = main.myGPU;
 
-        DataManager.getInstance().gui.add(
+        DataManager.getInstance().gui?.add(
             this,"reset"
         );
 
@@ -46,11 +46,11 @@ class MyTimeline{
             new KeyFrame(19.7,()=>{this.firstDon()}),
 
             //チンチンチチチン
-            new KeyFrame(21.2,()=>{this.firstGlitch(0.2,3,this.rotN);this.myWaveMesh.blink();}),
-            new KeyFrame(21.5,()=>{this.firstGlitch(0.3,6,this.rotN)}),
-            new KeyFrame(21.8,()=>{this.firstGlitch(0.4,12,this.rotN)}),
-            new KeyFrame(22.0,()=>{this.firstGlitch(0.5,24,this.rotN)}),
-            new KeyFrame(22.2,()=>{this.firstGlitch(0.6,48,this.rotN);}),
+            new KeyFrame(21.2,()=>{this.firstGlitch(0.3,3,this.rotN);this.myWaveMesh.blink();}),
+            new KeyFrame(21.5,()=>{this.firstGlitch(0.4,6,this.rotN)}),
+            new KeyFrame(21.8,()=>{this.firstGlitch(0.5,12,this.rotN)}),
+            new KeyFrame(22.0,()=>{this.firstGlitch(0.6,24,this.rotN)}),
+            new KeyFrame(22.2,()=>{this.firstGlitch(0.7,48,this.rotN);}),
 
 
             new KeyFrame(22.3,()=>{this.moriagariA()}),
@@ -69,8 +69,8 @@ class MyTimeline{
             new KeyFrame(61.92,()=>{this.moriagariForceImpulse(20,5)}),
 
             //いっせーのっせ
-            new KeyFrame(63.1,()=>{this.firstGlitch(0.2,4,-this.rotN);this.myWaveMesh.changeTex();}),
-            new KeyFrame(63.6,()=>{this.firstGlitch(0.4,8,-this.rotN);this.myWaveMesh.changeTex();}),
+            new KeyFrame(63.1,()=>{this.firstGlitch(0.1,4,-this.rotN);this.myWaveMesh.changeTex();}),
+            new KeyFrame(63.6,()=>{this.firstGlitch(0.3,8,-this.rotN);this.myWaveMesh.changeTex();}),
             new KeyFrame(63.95,()=>{this.firstGlitch(0.8,16,-this.rotN);}),
             new KeyFrame(64.2,()=>{this.resetGlitch();this.myWaveMesh.changeTex();}),
             
@@ -209,7 +209,9 @@ class MyTimeline{
         for(let i=0;i<this.frames.length;i++){
             let t = this.frames[i].time;
             if( this.past<t && t<=currentTime){
-                this.frames[i].doCallback();
+                if(!this.frames[i].flag){
+                    this.frames[i].doCallback();
+                }
             }
         }
         //keyframeチェック

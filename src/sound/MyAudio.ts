@@ -69,11 +69,11 @@ class MyAudio{
             this.isReady=true;
 
             let gui = DataManager.getInstance().gui;
-            gui.add(this,"currentTime").name("currentTime").listen();
-            gui.add(this.source.buffer,"duration");
-            gui.add(this,'pause');
-            gui.add(this,'resume');
-            gui.add(Params,"SOUND_OFFSET",0,120);
+            gui?.add(this,"currentTime").name("currentTime").listen();
+            gui?.add(this.source.buffer,"duration");
+            gui?.add(this,'pause');
+            gui?.add(this,'resume');
+            gui?.add(Params,"SOUND_OFFSET",0,120);
             
             this.callback();
 

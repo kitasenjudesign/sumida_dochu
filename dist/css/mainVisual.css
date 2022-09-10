@@ -13,9 +13,12 @@
     font-family: serif;
     display: block;
     color: #fff;
-    width: 200px;
+    width: 600px;
     text-align: center;
     pointer-events: none;
+    /*background-image: url("../topimg/a.png");
+    background-size: cover;
+    mix-blend-mode: hard-light; */
 }
 
 #enterTitle .enterVertical{

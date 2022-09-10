@@ -15,7 +15,7 @@ uniform vec4 glitch;
 uniform vec3 offsetCol;
 uniform vec3 colDisplace;
 uniform sampler2D map2;
-//uniform samplerCube envMap2;
+uniform samplerCube envMap2;
 
 varying vec3 vPos;
 
@@ -81,8 +81,8 @@ void main() {
 
 	//開店した座標に応じて、短冊を切る
 	float nn = floor((ny)*gx);
-	//float amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);
-	float amp = glitch.x * mod(nn,3.0);
+	float amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);
+	//float amp = glitch.x * mod(nn,3.0);
 
 
 	displace.x = amp * cos(rad);//-3.1415/2.);
@@ -94,14 +94,17 @@ void main() {
 	newUV.x = fract( newUV.x );
 	newUV.y = fract( newUV.y );
 
-
-    vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02
-    vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03
-    vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04
+	float dd = 1.0;//+1.6*random(newUV.xy);
+	vec2 aaUV = (newUV+dd*vNormal.xy*colDisplace.x);
+	vec2 bbUV = (newUV+dd*vNormal.xy*colDisplace.y);
+	vec2 ccUV = (newUV+dd*vNormal.xy*colDisplace.y);
+    vec4 aa = texture2D( map, aaUV );//0.02
+    vec4 bb = texture2D( map, bbUV );//0.03
+    vec4 cc = texture2D( map, ccUV );//0.04
 
 	//色を変えている
 	if( mod(nn,2.0) == 0.0 ){
-		float ratio =smoothstep(0.1,0.2,abs(amp)*10.0);//,0.0,1.0);
+		float ratio =smoothstep(0.1,0.2,abs(amp)*15.0);//,0.0,1.0);
 		//aa = mix(aa,texture2D( map2,(newUV+vNormal.xy*colDisplace.x)),ratio);//0.02
 		//bb = mix(bb,texture2D( map2,(newUV+vNormal.xy*colDisplace.y)),ratio);
 		//cc = mix(cc,texture2D( map2,(newUV+vNormal.xy*colDisplace.z)),ratio);
@@ -122,7 +125,7 @@ void main() {
 
 
 //	sampledDiffuseColor.xyz += vNormal.xyz*0.8;
-	sampledDiffuseColor.xy+=vNormal.xy*0.1;
+	sampledDiffuseColor.xy+=vNormal.xy*0.2;
 	
 	
 
@@ -135,12 +138,12 @@ void main() {
 
 
 	//env
-
-	//vec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );
-	//vec3 reflectVec1 = vNormal;//, 0.99 );
-	//vec4 envColor1 = textureCube( envMap2, vec3( 0.2,0.1,1.0 ) );
-	//diffuseColor.xyz += envColor1.xyz;
-
+	/*
+	vec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );
+	vec3 reflectVec1 = vNormal;//, 0.99 );
+	vec4 envColor1 = textureCube( envMap2, reflectVec1 );
+	diffuseColor.xyz += 0.3*envColor1.xyz;
+	*/
 
 
 	#include <color_fragment>

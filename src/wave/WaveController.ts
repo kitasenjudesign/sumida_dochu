@@ -24,20 +24,18 @@ class WaveController{
     mouseCount:number=0;
 
     init(main:Main){
+
         this.myGPU      =main.myGPU;
         this.myAudio    =main.audio;
         this.mode       =WaveController.MODE_INTRO;
         this.dataManager =DataManager.getInstance();
 
         let gui = this.dataManager.gui;
-        gui.add(this,"mode").listen();
+        gui?.add(this,"mode").listen();
+
+        this.addForceImpulse(0,0,20,2);
 
     }
-
-    /*
-*/
-
-
 
     setMode(m:string){
         this.mode=m;
@@ -109,7 +107,7 @@ class WaveController{
 
     updateIntro(){
         let dir:number = Math.random()<0.5 ? -1 : 1;
-        this.myGPU.setAmplitude( dir*(3*Math.random()) );
+        this.myGPU.setAmplitude( dir*(1+1*Math.random()) );
 
         if(Math.random()<0.01){
             if(Math.random()<0.1){

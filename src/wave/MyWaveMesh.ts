@@ -48,12 +48,13 @@ class MyWaveMesh{
         this.texture = imgManager.images[0].texture;
         this.texture2= imgManager.images[1].texture;
 
-        //const loader = new THREE.CubeTextureLoader();
-        //loader.setPath( './topimg/' );
-        //this.envMap = loader.load( [ 'imgSP2.png', 'imgSP2.png', 'imgSP2.png', 'w2.png', 'w2.png', 'w2.png' ] );
+        /*
+        const loader = new THREE.CubeTextureLoader();
+        loader.setPath( './topimg/' );
+        this.envMap = loader.load( [ 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg' ] );
         //this.envMap.encoding = THREE.sRGBEncoding;
-        //this.envMap.mapping = THREE.CubeReflectionMapping;
-
+        this.envMap.mapping = THREE.CubeReflectionMapping;
+            */
         //this.envMap = imgManager.images[2].texture;
         //this.envMap.mapping = THREE.EquirectangularReflectionMapping;
         //this.envMap.encoding = THREE.sRGBEncoding;
@@ -71,7 +72,7 @@ class MyWaveMesh{
                     'map':{value: this.texture},
                     'map2':{value: this.texture2},
                     'noise':{value: this.isSP ? 0.08 : 0.24},
-                    //'envMap2':{value: this.envMap},
+                    //'envMap':{value: this.envMap},
                     //'reflectivity':{value: 1.0},
                     //'refractionRatio':{value: 0.98},
 

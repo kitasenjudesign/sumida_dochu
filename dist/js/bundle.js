@@ -13,8 +13,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "DataManager": () => (/* binding */ DataManager)
 /* harmony export */ });
 /* harmony import */ var lil_gui__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lil-gui */ "./node_modules/lil-gui/dist/lil-gui.esm.js");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
 /* harmony import */ var _Params__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Params */ "./src/data/Params.ts");
+/* harmony import */ var three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/libs/stats.module */ "../../../../../node_modules/three/examples/jsm/libs/stats.module.js");
+
 
 
 
@@ -31,19 +33,26 @@ var DataManager = /** @class */ (function () {
     }
     DataManager.prototype.init = function (m) {
         var _this = this;
+        var _a, _b, _c, _d, _e;
         if (this.isInit)
             return;
         this.isInit = true;
         this.main = m;
-        this.gui = new lil_gui__WEBPACK_IMPORTED_MODULE_0__.GUI();
-        this.gui.close();
+        if (window.location.search == "?debug") {
+            this.gui = new lil_gui__WEBPACK_IMPORTED_MODULE_0__.GUI();
+            this.stats = (0,three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_2__["default"])();
+            document.body.appendChild(this.stats.domElement);
+        }
+        (_a = this.gui) === null || _a === void 0 ? void 0 : _a.close();
         this.domElement = this.main.renderer.domElement;
-        this.gui.add(window, "innerHeight").listen();
-        this.gui.add(this, "mouseX").listen();
-        this.gui.add(this, "mouseY").listen();
-        this.gui.add(this, "isTouch").listen();
+        (_b = this.gui) === null || _b === void 0 ? void 0 : _b.add(window, "innerHeight").listen();
+        (_c = this.gui) === null || _c === void 0 ? void 0 : _c.add(this, "mouseX").listen();
+        (_d = this.gui) === null || _d === void 0 ? void 0 : _d.add(this, "mouseY").listen();
+        (_e = this.gui) === null || _e === void 0 ? void 0 : _e.add(this, "isTouch").listen();
         //隠す
-        this.gui.domElement.style.display = "none";
+        if (this.gui) {
+            this.gui.domElement.style.display = "none";
+        }
         this.isSp = this.isSmartPhone();
         if (!this.isSp) {
             //PC
@@ -54,11 +63,13 @@ var DataManager = /** @class */ (function () {
             document.addEventListener('keydown', function (event) {
                 var keyName = event.key;
                 if (keyName == "d") {
-                    if (_this.gui.domElement.style.display == "none") {
-                        _this.gui.domElement.style.display = "block";
-                    }
-                    else {
-                        _this.gui.domElement.style.display = "none";
+                    if (_this.gui) {
+                        if (_this.gui.domElement.style.display == "none") {
+                            _this.gui.domElement.style.display = "block";
+                        }
+                        else {
+                            _this.gui.domElement.style.display = "none";
+                        }
                     }
                 }
             });
@@ -79,6 +90,18 @@ var DataManager = /** @class */ (function () {
             )*/
         }
         //ここ
+        // ウィンドウをフォーカスしたら指定した関数を実行
+        window.addEventListener('focus', function () {
+            console.log('onFOCUS');
+            _this.main.audio.resume();
+        }, false);
+        // ウィンドウからフォーカスが外れたら指定した関数を実行
+        window.addEventListener('blur', function () {
+            console.log("onBlur");
+            _this.main.audio.pause();
+        }, false);
+    };
+    DataManager.prototype.startCheckFocus = function () {
     };
     DataManager.prototype.isSmartPhone = function () {
         if (navigator.userAgent.match(/iPhone|Android.+Mobile/)) {
@@ -103,7 +126,11 @@ var DataManager = /** @class */ (function () {
             yy = ry * (512 / 2) / _Params__WEBPACK_IMPORTED_MODULE_1__.Params.ZOOM;
             ;
         }
-        return new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(xx, yy, 0);
+        return new three__WEBPACK_IMPORTED_MODULE_3__.Vector3(xx, yy, 0);
+    };
+    DataManager.prototype.update = function () {
+        var _a;
+        (_a = this.stats) === null || _a === void 0 ? void 0 : _a.update();
     };
     /**
      * The static method that controls the access to the singleton instance.
@@ -490,13 +517,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _sound_MyAudio__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../sound/MyAudio */ "./src/sound/MyAudio.ts");
 /* harmony import */ var _wave_MyWaveMesh__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../wave/MyWaveMesh */ "./src/wave/MyWaveMesh.ts");
 /* harmony import */ var _MyTimeline__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MyTimeline */ "./src/main/MyTimeline.ts");
-/* harmony import */ var three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three/examples/jsm/libs/stats.module */ "../../../../../node_modules/three/examples/jsm/libs/stats.module.js");
-/* harmony import */ var _EnterPanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EnterPanel */ "./src/main/EnterPanel.ts");
-/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
-/* harmony import */ var _data_ImageManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../data/ImageManager */ "./src/data/ImageManager.ts");
-/* harmony import */ var _data_Params__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../data/Params */ "./src/data/Params.ts");
-/* harmony import */ var _wave_MyLight__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../wave/MyLight */ "./src/wave/MyLight.ts");
-/* harmony import */ var _DOMResizer__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DOMResizer */ "./src/main/DOMResizer.ts");
+/* harmony import */ var _EnterPanel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EnterPanel */ "./src/main/EnterPanel.ts");
+/* harmony import */ var _data_DataManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../data/DataManager */ "./src/data/DataManager.ts");
+/* harmony import */ var _data_ImageManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../data/ImageManager */ "./src/data/ImageManager.ts");
+/* harmony import */ var _data_Params__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../data/Params */ "./src/data/Params.ts");
+/* harmony import */ var _wave_MyLight__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../wave/MyLight */ "./src/wave/MyLight.ts");
+/* harmony import */ var _DOMResizer__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DOMResizer */ "./src/main/DOMResizer.ts");
+/* harmony import */ var _wave_EnvTestMesh__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../wave/EnvTestMesh */ "./src/wave/EnvTestMesh.ts");
 
 
 
@@ -517,17 +544,19 @@ var Main = /** @class */ (function () {
     }
     Main.prototype.init = function () {
         var _this = this;
-        this.domResizer = new _DOMResizer__WEBPACK_IMPORTED_MODULE_10__.DOMResizer();
+        this.domResizer = new _DOMResizer__WEBPACK_IMPORTED_MODULE_9__.DOMResizer();
         this.domResizer.init();
-        this.enterPanel = new _EnterPanel__WEBPACK_IMPORTED_MODULE_5__.EnterPanel();
-        this.stats = (0,three_examples_jsm_libs_stats_module__WEBPACK_IMPORTED_MODULE_4__["default"])();
+        this.enterPanel = new _EnterPanel__WEBPACK_IMPORTED_MODULE_4__.EnterPanel();
+        //this.stats = Stats();
         //document.body.appendChild(this.stats.dom);
         this.renderer = new three__WEBPACK_IMPORTED_MODULE_11__.WebGLRenderer({
-            canvas: document.querySelector('#webgl')
+            canvas: document.querySelector('#webgl'),
+            antialias: false
         });
         //DataManager.getInstance().domElement=
-        _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().init(this);
-        this.isSP = _data_DataManager__WEBPACK_IMPORTED_MODULE_6__.DataManager.getInstance().isSp;
+        this.dataManager = _data_DataManager__WEBPACK_IMPORTED_MODULE_5__.DataManager.getInstance();
+        this.dataManager.init(this);
+        this.isSP = this.dataManager.isSp;
         console.log("pixelRatio " + window.devicePixelRatio);
         this.renderer.setPixelRatio(1);
         this.renderer.setClearColor(new three__WEBPACK_IMPORTED_MODULE_11__.Color(0x00469b));
@@ -540,12 +569,14 @@ var Main = /** @class */ (function () {
         this.myGPU.initWater(this.renderer);
         //scene.add(myGPU.testMesh);
         //光
-        this.myLight = new _wave_MyLight__WEBPACK_IMPORTED_MODULE_9__.MyLight();
+        this.myLight = new _wave_MyLight__WEBPACK_IMPORTED_MODULE_8__.MyLight();
         this.myLight.init(this.scene);
         //const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS) != null) {
-            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS).style.display = "none";
+        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_7__.Params.CONTENTS) != null) {
+            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_7__.Params.CONTENTS).style.display = "none";
         }
+        var m = new _wave_EnvTestMesh__WEBPACK_IMPORTED_MODULE_10__.EnvTestMesh();
+        m.init(this.scene);
         // 毎フレーム更新関数を実行
         this.tick();
         this.loadImages();
@@ -557,7 +588,7 @@ var Main = /** @class */ (function () {
     //画像をロードする
     Main.prototype.loadImages = function () {
         var _this = this;
-        _data_ImageManager__WEBPACK_IMPORTED_MODULE_7__.ImageManager.getInstance().loadImages(function () {
+        _data_ImageManager__WEBPACK_IMPORTED_MODULE_6__.ImageManager.getInstance().loadImages(function () {
             _this.onLoadImages();
         });
         this.onWindowResize();
@@ -574,7 +605,7 @@ var Main = /** @class */ (function () {
             _this.onLoadSound();
         });
         this.timeline = new _MyTimeline__WEBPACK_IMPORTED_MODULE_3__.MyTimeline();
-        this.timeline.init(this);
+        this.timeline.init(this); //開始する
         this.onWindowResize();
     };
     //サウンドロード
@@ -588,15 +619,16 @@ var Main = /** @class */ (function () {
     };
     Main.prototype.playSound = function () {
         this.timeline.start();
-        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS) != null) {
-            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.CONTENTS).style.display = "block";
+        if (document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_7__.Params.CONTENTS) != null) {
+            document.getElementById(_data_Params__WEBPACK_IMPORTED_MODULE_7__.Params.CONTENTS).style.display = "block";
         }
         this.onWindowResize();
     };
     Main.prototype.tick = function () {
         //resizeチェック
         var _this = this;
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
+        this.dataManager.update();
         if (this.domResizer.checkHeight()) {
             this.onWindowResize();
         }
@@ -608,8 +640,8 @@ var Main = /** @class */ (function () {
         (_b = this.myWaveMesh) === null || _b === void 0 ? void 0 : _b.update(this.myGPU.testMat.map);
         // 描画
         this.renderer.render(this.scene, this.camera);
-        this.stats.update();
-        (_c = this.timeline) === null || _c === void 0 ? void 0 : _c.update();
+        (_c = this.stats) === null || _c === void 0 ? void 0 : _c.update();
+        (_d = this.timeline) === null || _d === void 0 ? void 0 : _d.update();
         //loop
         window.requestAnimationFrame(function () {
             _this.tick();
@@ -633,7 +665,7 @@ var Main = /** @class */ (function () {
                 scale = window.innerHeight / this.myWaveMesh.BOUNDS;
             }
             //少し大きくする
-            scale *= _data_Params__WEBPACK_IMPORTED_MODULE_8__.Params.ZOOM; //1.2;
+            scale *= _data_Params__WEBPACK_IMPORTED_MODULE_7__.Params.ZOOM; //1.2;
             this.myWaveMesh.waterMesh.scale.set(scale, scale, 1);
         }
         this.enterPanel.resize();
@@ -670,12 +702,13 @@ var MyTimeline = /** @class */ (function () {
     }
     MyTimeline.prototype.init = function (main) {
         var _this = this;
+        var _a;
         this.waveCon = new _wave_WaveController__WEBPACK_IMPORTED_MODULE_2__.WaveController();
         this.waveCon.init(main);
         this.audio = main.audio;
         this.myWaveMesh = main.myWaveMesh;
         this.myGPU = main.myGPU;
-        _data_DataManager__WEBPACK_IMPORTED_MODULE_1__.DataManager.getInstance().gui.add(this, "reset");
+        (_a = _data_DataManager__WEBPACK_IMPORTED_MODULE_1__.DataManager.getInstance().gui) === null || _a === void 0 ? void 0 : _a.add(this, "reset");
         this.frames = [];
         this.frames.push(new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(0.2, function () { _this.first(); }), 
         //最初のドン、どどん
@@ -683,11 +716,11 @@ var MyTimeline = /** @class */ (function () {
         new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(3.8, function () { _this.firstDon(); }), //ドン４
         new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(6.64, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(9.13, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(11.9, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(14.4, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(17.3, function () { _this.firstDon(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(19.7, function () { _this.firstDon(); }), 
         //チンチンチチチン
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.2, function () { _this.firstGlitch(0.2, 3, _this.rotN); _this.myWaveMesh.blink(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.5, function () { _this.firstGlitch(0.3, 6, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.8, function () { _this.firstGlitch(0.4, 12, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.0, function () { _this.firstGlitch(0.5, 24, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.2, function () { _this.firstGlitch(0.6, 48, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.3, function () { _this.moriagariA(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.4, function () { _this.moriagariForceImpulse(20, 5); }), 
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.2, function () { _this.firstGlitch(0.3, 3, _this.rotN); _this.myWaveMesh.blink(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.5, function () { _this.firstGlitch(0.4, 6, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(21.8, function () { _this.firstGlitch(0.5, 12, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.0, function () { _this.firstGlitch(0.6, 24, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.2, function () { _this.firstGlitch(0.7, 48, _this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.3, function () { _this.moriagariA(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(22.4, function () { _this.moriagariForceImpulse(20, 5); }), 
         //            new KeyFrame(30.0,()=>{this.moriagariForceImpulse(20,5)}),
         new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(33.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(35.0, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(46.12, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(48.74, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(51.29, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(53.86, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(56.71, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(59.38, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(61.92, function () { _this.moriagariForceImpulse(20, 5); }), 
         //いっせーのっせ
-        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.1, function () { _this.firstGlitch(0.2, 4, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.6, function () { _this.firstGlitch(0.4, 8, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.95, function () { _this.firstGlitch(0.8, 16, -_this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(64.2, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
+        new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.1, function () { _this.firstGlitch(0.1, 4, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.6, function () { _this.firstGlitch(0.3, 8, -_this.rotN); _this.myWaveMesh.changeTex(); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(63.95, function () { _this.firstGlitch(0.8, 16, -_this.rotN); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(64.2, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
         //トリッキー
         new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(75.09, function () { _this.moriagariForceImpulse(20, 5); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.1, function () { _this.firstGlitch(1, 24, 20); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.5, function () { _this.firstGlitch(0.5, 36, 20); }), new _KeyFrame__WEBPACK_IMPORTED_MODULE_0__.KeyFrame(79.8, function () { _this.resetGlitch(); _this.myWaveMesh.changeTex(); }), 
         //おい
@@ -767,7 +800,9 @@ var MyTimeline = /** @class */ (function () {
         for (var i = 0; i < this.frames.length; i++) {
             var t = this.frames[i].time;
             if (this.past < t && t <= currentTime) {
-                this.frames[i].doCallback();
+                if (!this.frames[i].flag) {
+                    this.frames[i].doCallback();
+                }
             }
         }
         //keyframeチェック
@@ -839,11 +874,11 @@ var MyAudio = /** @class */ (function () {
                 }
                 _this.isReady = true;
                 var gui = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance().gui;
-                gui.add(_this, "currentTime").name("currentTime").listen();
-                gui.add(_this.source.buffer, "duration");
-                gui.add(_this, 'pause');
-                gui.add(_this, 'resume');
-                gui.add(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params, "SOUND_OFFSET", 0, 120);
+                gui === null || gui === void 0 ? void 0 : gui.add(_this, "currentTime").name("currentTime").listen();
+                gui === null || gui === void 0 ? void 0 : gui.add(_this.source.buffer, "duration");
+                gui === null || gui === void 0 ? void 0 : gui.add(_this, 'pause');
+                gui === null || gui === void 0 ? void 0 : gui.add(_this, 'resume');
+                gui === null || gui === void 0 ? void 0 : gui.add(_data_Params__WEBPACK_IMPORTED_MODULE_1__.Params, "SOUND_OFFSET", 0, 120);
                 _this.callback();
             });
         };
@@ -966,6 +1001,40 @@ var MyAudio = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "./src/wave/EnvTestMesh.ts":
+/*!*********************************!*\
+  !*** ./src/wave/EnvTestMesh.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "EnvTestMesh": () => (/* binding */ EnvTestMesh)
+/* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "../../../../../node_modules/three/build/three.module.js");
+
+
+var EnvTestMesh = /** @class */ (function () {
+    function EnvTestMesh() {
+    }
+    EnvTestMesh.prototype.init = function (scene) {
+        return;
+        var loader = new three__WEBPACK_IMPORTED_MODULE_0__.CubeTextureLoader();
+        loader.setPath('./topimg/');
+        var envMap = loader.load(['a.png', 'a.png', 'a.png', 'a.png', 'a.png', 'a.png']);
+        envMap.encoding = three__WEBPACK_IMPORTED_MODULE_0__.sRGBEncoding;
+        envMap.mapping = three__WEBPACK_IMPORTED_MODULE_0__.CubeReflectionMapping;
+        this.material = new three__WEBPACK_IMPORTED_MODULE_0__.MeshPhongMaterial({ color: 0x888888, envMap: envMap });
+        this.mesh = new three__WEBPACK_IMPORTED_MODULE_0__.Mesh(new three__WEBPACK_IMPORTED_MODULE_0__.SphereGeometry(100, 128, 128), this.material);
+        scene.add(this.mesh);
+    };
+    return EnvTestMesh;
+}());
+
+
+
+/***/ }),
+
 /***/ "./src/wave/MyGPU.ts":
 /*!***************************!*\
   !*** ./src/wave/MyGPU.ts ***!
@@ -998,8 +1067,10 @@ var MyGPU = /** @class */ (function () {
         this.isImpulse = false;
         this.attenuation = 0.99;
         this.pastPosY = 0;
+        this.isSP = false;
     }
     MyGPU.prototype.init = function () {
+        this.isSP = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().isSp;
         this.testMat = new three__WEBPACK_IMPORTED_MODULE_4__.MeshPhongMaterial();
         this.testMesh = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(new three__WEBPACK_IMPORTED_MODULE_4__.PlaneGeometry(100, 100, 1, 1), this.testMat);
     };
@@ -1029,9 +1100,9 @@ var MyGPU = /** @class */ (function () {
             console.error(error);
         }
         var gui = _data_DataManager__WEBPACK_IMPORTED_MODULE_3__.DataManager.getInstance().gui;
-        gui.add(this.uniforms['attenuation'], "value", 0.901, 0.999).name("attenuation").listen();
-        gui.add(this.uniforms['mouseSize'], "value", 2, 100.0).name("mouseSize").listen();
-        gui.add(this.uniforms['amplitude'], "value", 0, 20.0).name("amplitude").listen();
+        gui === null || gui === void 0 ? void 0 : gui.add(this.uniforms['attenuation'], "value", 0.901, 0.999).name("attenuation").listen();
+        gui === null || gui === void 0 ? void 0 : gui.add(this.uniforms['mouseSize'], "value", 2, 100.0).name("mouseSize").listen();
+        gui === null || gui === void 0 ? void 0 : gui.add(this.uniforms['amplitude'], "value", 0, 20.0).name("amplitude").listen();
         // Create compute shader to smooth the water surface and velocity
         //smoothShader = gpuCompute.createShaderMaterial( document.getElementById( 'smoothFragmentShader' ).textContent, { smoothTexture: { value: null } } );
         // Create compute shader to read water level
@@ -1071,8 +1142,10 @@ var MyGPU = /** @class */ (function () {
     MyGPU.prototype.update = function (audio) {
         // Set uniforms: mouse interaction
         var uniforms = this.heightmapVariable.material.uniforms;
-        uniforms['deltaPos'].value.y = -(window.scrollY - this.pastPosY) / 2000;
-        this.pastPosY = window.scrollY;
+        if (this.isSP) {
+            uniforms['deltaPos'].value.y = -(window.scrollY - this.pastPosY) / 2000;
+            this.pastPosY = window.scrollY;
+        }
         if (this.isImpulse) {
             var limit = this.isFirst ? 0.02 : 0;
             if (audio.isReady && audio.mSubFreqs[3] > 0) {
@@ -1189,11 +1262,13 @@ var MyWaveMesh = /** @class */ (function () {
         var imgManager = _data_ImageManager__WEBPACK_IMPORTED_MODULE_5__.ImageManager.getInstance();
         this.texture = imgManager.images[0].texture;
         this.texture2 = imgManager.images[1].texture;
-        //const loader = new THREE.CubeTextureLoader();
-        //loader.setPath( './topimg/' );
-        //this.envMap = loader.load( [ 'imgSP2.png', 'imgSP2.png', 'imgSP2.png', 'w2.png', 'w2.png', 'w2.png' ] );
+        /*
+        const loader = new THREE.CubeTextureLoader();
+        loader.setPath( './topimg/' );
+        this.envMap = loader.load( [ 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg', 'a.jpg' ] );
         //this.envMap.encoding = THREE.sRGBEncoding;
-        //this.envMap.mapping = THREE.CubeReflectionMapping;
+        this.envMap.mapping = THREE.CubeReflectionMapping;
+            */
         //this.envMap = imgManager.images[2].texture;
         //this.envMap.mapping = THREE.EquirectangularReflectionMapping;
         //this.envMap.encoding = THREE.sRGBEncoding;
@@ -1210,7 +1285,7 @@ var MyWaveMesh = /** @class */ (function () {
                     'map': { value: this.texture },
                     'map2': { value: this.texture2 },
                     'noise': { value: this.isSP ? 0.08 : 0.24 },
-                    //'envMap2':{value: this.envMap},
+                    //'envMap':{value: this.envMap},
                     //'reflectivity':{value: 1.0},
                     //'refractionRatio':{value: 0.98},
                     'counter': { value: 0 },
@@ -1343,10 +1418,9 @@ var WaveController = /** @class */ (function () {
         this.mode = WaveController.MODE_INTRO;
         this.dataManager = _data_DataManager__WEBPACK_IMPORTED_MODULE_0__.DataManager.getInstance();
         var gui = this.dataManager.gui;
-        gui.add(this, "mode").listen();
+        gui === null || gui === void 0 ? void 0 : gui.add(this, "mode").listen();
+        this.addForceImpulse(0, 0, 20, 2);
     };
-    /*
-*/
     WaveController.prototype.setMode = function (m) {
         this.mode = m;
     };
@@ -1401,7 +1475,7 @@ var WaveController = /** @class */ (function () {
     };
     WaveController.prototype.updateIntro = function () {
         var dir = Math.random() < 0.5 ? -1 : 1;
-        this.myGPU.setAmplitude(dir * (3 * Math.random()));
+        this.myGPU.setAmplitude(dir * (1 + 1 * Math.random()));
         if (Math.random() < 0.01) {
             if (Math.random() < 0.1) {
                 this.myGPU.addImpulse(Math.random() < 0.5 ? -256 + 10 * Math.random() : 256 - 10 * Math.random(), 256 * (Math.random() - 0.5));
@@ -9926,7 +10000,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n#define USE_ENVMAP\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nuniform float offsetY;\nuniform float noise;\nuniform vec4 glitch;\nuniform vec3 offsetCol;\nuniform vec3 colDisplace;\nuniform sampler2D map2;\n//uniform samplerCube envMap2;\n\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;// + \n\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n\tvec2 newUV0 = vUv.xy+vec2(0.0,-offsetY-counter*0.01); \n    vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n\t//glitch displacement\n\tfloat gx = glitch.z;//分割数\n\tvec2 displace = vec2(0.0,0.0);\n\tfloat rad = glitch.y;//;\n\n\t//座標を回転\n\t//float nx = newUV.x * cos(-rad) - newUV.y * sin(-rad);\n\t//float ny = newUV.x * sin(-rad) + newUV.y * cos(-rad);\n\tfloat nx = newUV0.x * cos(-rad) - newUV0.y * sin(-rad);\n\tfloat ny = newUV0.x * sin(-rad) + newUV0.y * cos(-rad);\n\n\t//開店した座標に応じて、短冊を切る\n\tfloat nn = floor((ny)*gx);\n\t//float amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);\n\tfloat amp = glitch.x * mod(nn,3.0);\n\n\n\tdisplace.x = amp * cos(rad);//-3.1415/2.);\n\tdisplace.y = amp * sin(rad);//-3.1415/2.);\n\t//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );\n\t//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );\n\n\tnewUV.xy += displace;\n\tnewUV.x = fract( newUV.x );\n\tnewUV.y = fract( newUV.y );\n\n\n    vec4 aa = texture2D( map, (newUV+vNormal.xy*colDisplace.x) );//0.02\n    vec4 bb = texture2D( map, (newUV+vNormal.xy*colDisplace.y) );//0.03\n    vec4 cc = texture2D( map, (newUV+vNormal.xy*colDisplace.z) );//0.04\n\n\t//色を変えている\n\tif( mod(nn,2.0) == 0.0 ){\n\t\tfloat ratio =smoothstep(0.1,0.2,abs(amp)*10.0);//,0.0,1.0);\n\t\t//aa = mix(aa,texture2D( map2,(newUV+vNormal.xy*colDisplace.x)),ratio);//0.02\n\t\t//bb = mix(bb,texture2D( map2,(newUV+vNormal.xy*colDisplace.y)),ratio);\n\t\t//cc = mix(cc,texture2D( map2,(newUV+vNormal.xy*colDisplace.z)),ratio);\n\t\taa = mix(aa,aa+0.02,ratio);//0.02\n\t\tbb = mix(bb,bb+0.04,ratio);\n\t\tcc = mix(cc,cc+0.09,ratio);\n\t}\n\n\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\t\n\tfloat zz = 1.0-dot( vNormal.xyz, vec3(0.0,0.0,1.0) );\n\t//sampledDiffuseColor.x += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.6,0.5)) );\n\t//sampledDiffuseColor.y += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.9,1.8)) );\n\t//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );\n\n\n//\tsampledDiffuseColor.xyz += vNormal.xyz*0.8;\n\tsampledDiffuseColor.xy+=vNormal.xy*0.1;\n\t\n\t\n\n\tsampledDiffuseColor.xyz += offsetCol.xyz;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\t//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk\n\n\n\t//env\n\n\t//vec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );\n\t//vec3 reflectVec1 = vNormal;//, 0.99 );\n\t//vec4 envColor1 = textureCube( envMap2, vec3( 0.2,0.1,1.0 ) );\n\t//diffuseColor.xyz += envColor1.xyz;\n\n\n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t\t\n\toutgoingLight.xyz += (noise*(random(vUv.xy)-0.5));\n\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ("#define PHONG\n#define USE_MAP\n#define USE_UV\n#define USE_ENVMAP\n\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform vec3 specular;\nuniform float shininess;\nuniform float opacity;\nuniform float counter;\nuniform float offsetY;\nuniform float noise;\nuniform vec4 glitch;\nuniform vec3 offsetCol;\nuniform vec3 colDisplace;\nuniform sampler2D map2;\nuniform samplerCube envMap2;\n\nvarying vec3 vPos;\n\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <alphatest_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_pars_fragment>\n#include <cube_uv_reflection_fragment>\n#include <fog_pars_fragment>\n#include <bsdfs>\n#include <lights_pars_begin>\n#include <normal_pars_fragment>\n#include <lights_phong_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <specularmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\n\nfloat random(vec2 co){\n    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\n\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;// + \n\n\t#include <logdepthbuf_fragment>\n\n\t/*#include <map_fragment>*/\n    \n    /*vec4 sampledDiffuseColor = texture2D( map, vUv+vec2(0,vPos.z*0.001) );*/\n    //vUv.y=vUv.y+counter;\n    //vUv.y=fract(vUv.y);\n\tvec2 newUV0 = vUv.xy+vec2(0.0,-offsetY-counter*0.01); \n    vec2 newUV = vUv.xy+vec2(0.0,-offsetY-counter*0.01);\n    if(newUV.y>0.0)newUV.y=0.0;\n\tnewUV.y = fract( newUV.y );\n\n\t//glitch displacement\n\tfloat gx = glitch.z;//分割数\n\tvec2 displace = vec2(0.0,0.0);\n\tfloat rad = glitch.y;//;\n\n\t//座標を回転\n\t//float nx = newUV.x * cos(-rad) - newUV.y * sin(-rad);\n\t//float ny = newUV.x * sin(-rad) + newUV.y * cos(-rad);\n\tfloat nx = newUV0.x * cos(-rad) - newUV0.y * sin(-rad);\n\tfloat ny = newUV0.x * sin(-rad) + newUV0.y * cos(-rad);\n\n\t//開店した座標に応じて、短冊を切る\n\tfloat nn = floor((ny)*gx);\n\tfloat amp = glitch.x * (random(vec2(nn/gx,0.0))-0.5);\n\t//float amp = glitch.x * mod(nn,3.0);\n\n\n\tdisplace.x = amp * cos(rad);//-3.1415/2.);\n\tdisplace.y = amp * sin(rad);//-3.1415/2.);\n\t//displace.x += ( (random( vec2(floor(newUV.y*gx)/gx,0.0) )-0.5) * glitch.x );\n\t//displace.y += ( -random( vec2(floor((newUV.x+newUV.y)*gx)/gx,0.0) ) * glitch.x );\n\n\tnewUV.xy += displace;\n\tnewUV.x = fract( newUV.x );\n\tnewUV.y = fract( newUV.y );\n\n\tfloat dd = 1.0;//+1.6*random(newUV.xy);\n\tvec2 aaUV = (newUV+dd*vNormal.xy*colDisplace.x);\n\tvec2 bbUV = (newUV+dd*vNormal.xy*colDisplace.y);\n\tvec2 ccUV = (newUV+dd*vNormal.xy*colDisplace.y);\n    vec4 aa = texture2D( map, aaUV );//0.02\n    vec4 bb = texture2D( map, bbUV );//0.03\n    vec4 cc = texture2D( map, ccUV );//0.04\n\n\t//色を変えている\n\tif( mod(nn,2.0) == 0.0 ){\n\t\tfloat ratio =smoothstep(0.1,0.2,abs(amp)*15.0);//,0.0,1.0);\n\t\t//aa = mix(aa,texture2D( map2,(newUV+vNormal.xy*colDisplace.x)),ratio);//0.02\n\t\t//bb = mix(bb,texture2D( map2,(newUV+vNormal.xy*colDisplace.y)),ratio);\n\t\t//cc = mix(cc,texture2D( map2,(newUV+vNormal.xy*colDisplace.z)),ratio);\n\t\taa = mix(aa,aa+0.02,ratio);//0.02\n\t\tbb = mix(bb,bb+0.04,ratio);\n\t\tcc = mix(cc,cc+0.09,ratio);\n\t}\n\n\n\n    vec4 sampledDiffuseColor = vec4(aa.r,bb.g,cc.b,1.0);\n    \n\t\n\tfloat zz = 1.0-dot( vNormal.xyz, vec3(0.0,0.0,1.0) );\n\t//sampledDiffuseColor.x += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.6,0.5)) );\n\t//sampledDiffuseColor.y += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.9,1.8)) );\n\t//sampledDiffuseColor.z += zz*abs( snoise(vec3(vUv.xy+vNormal.xy*1.8,0.9)) );\n\n\n//\tsampledDiffuseColor.xyz += vNormal.xyz*0.8;\n\tsampledDiffuseColor.xy+=vNormal.xy*0.2;\n\t\n\t\n\n\tsampledDiffuseColor.xyz += offsetCol.xyz;\n\n    diffuseColor *= sampledDiffuseColor;\n    //diffuseColor += random(vUv.xy+vec2(counter*0.1,counter))*0.1;\n    \n\t//https://github.com/mrdoob/three.js/tree/dev/src/renderers/shaders/ShaderChunk\n\n\n\t//env\n\t/*\n\tvec3 cameraToFrag1 = normalize( vWorldPosition - cameraPosition );\n\tvec3 reflectVec1 = vNormal;//, 0.99 );\n\tvec4 envColor1 = textureCube( envMap2, reflectVec1 );\n\tdiffuseColor.xyz += 0.3*envColor1.xyz;\n\t*/\n\n\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <specularmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_phong_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t\t\n\toutgoingLight.xyz += (noise*(random(vUv.xy)-0.5));\n\n\t#include <envmap_fragment>\n\t#include <output_fragment>\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}");
 
 /***/ }),
 
@@ -60482,12 +60556,6 @@ window.addEventListener('DOMContentLoaded', function () {
     //
     var main = new _main_Main__WEBPACK_IMPORTED_MODULE_0__.Main();
     main.init();
-    /*
-    window.addEventListener('resize', onWindowResize, false)
-    onWindowResize();
-    function onWindowResize() {
-    }
-    */
 });
 
 })();

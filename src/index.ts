@@ -13,13 +13,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const main = new Main();
     main.init();
 
-    /*
-    window.addEventListener('resize', onWindowResize, false)
-    onWindowResize();
-    function onWindowResize() {
-    }
-    */
-
 });
 
 

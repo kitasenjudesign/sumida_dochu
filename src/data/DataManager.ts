@@ -2,6 +2,7 @@ import { GUI } from 'lil-gui'
 import * as THREE from 'three';
 import { Main } from '../main/Main';
 import { Params } from './Params';
+import Stats from 'three/examples/jsm/libs/stats.module'
 
  class DataManager {
 
@@ -14,6 +15,7 @@ import { Params } from './Params';
     public isTouch:boolean=false;
     public domElement:HTMLElement;
     public main:Main;
+    public stats:Stats;
     private isInit:boolean=false;
 
     /**
@@ -29,18 +31,25 @@ import { Params } from './Params';
 
         this.main = m;
 
-        this.gui = new GUI();
-        this.gui.close();
+        if( window.location.search == "?debug" ){
+            this.gui = new GUI();
+            this.stats = Stats();
+            document.body.appendChild(this.stats.domElement);
+        }
+
+        this.gui?.close();
         
         this.domElement = this.main.renderer.domElement;
-        this.gui.add(window,"innerHeight").listen();
+        this.gui?.add(window,"innerHeight").listen();
 
-        this.gui.add(this,"mouseX").listen();
-        this.gui.add(this,"mouseY").listen();
-        this.gui.add(this,"isTouch").listen();
+        this.gui?.add(this,"mouseX").listen();
+        this.gui?.add(this,"mouseY").listen();
+        this.gui?.add(this,"isTouch").listen();
 
         //隠す
-        this.gui.domElement.style.display="none";
+        if(this.gui){
+            this.gui.domElement.style.display="none";
+        }
 
         this.isSp = this.isSmartPhone();
 
@@ -53,10 +62,12 @@ import { Params } from './Params';
             document.addEventListener('keydown', (event) => {
                 const keyName = event.key;
                 if(keyName=="d"){
-                    if(this.gui.domElement.style.display=="none"){
-                        this.gui.domElement.style.display="block";
-                    }else{
-                        this.gui.domElement.style.display="none";
+                    if(this.gui){
+                        if(this.gui.domElement.style.display=="none"){
+                            this.gui.domElement.style.display="block";
+                        }else{
+                            this.gui.domElement.style.display="none";
+                        }    
                     }
                 }
             });
@@ -85,9 +96,25 @@ import { Params } from './Params';
 
         
         //ここ
+        // ウィンドウをフォーカスしたら指定した関数を実行
+        window.addEventListener('focus', ()=>{
+            console.log('onFOCUS');
+            this.main.audio.resume();
+        }, false);
+
+        // ウィンドウからフォーカスが外れたら指定した関数を実行
+        window.addEventListener('blur', ()=>{
+            console.log("onBlur");
+            this.main.audio.pause();
+        }, false);
         
- 
+
     }
+
+    startCheckFocus(){
+
+    }
+
 
     private isSmartPhone():boolean {
         if (navigator.userAgent.match(/iPhone|Android.+Mobile/)) {
@@ -117,6 +144,10 @@ import { Params } from './Params';
         }
 
         return new THREE.Vector3(xx,yy,0);
+    }
+
+    public update(){
+        this.stats?.update();
     }
 
 
