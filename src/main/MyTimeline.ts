@@ -5,6 +5,7 @@ import { Main } from "./Main"
 import { KeyFrame } from "./KeyFrame"
 import { DataManager } from "../data/DataManager";
 import { WaveController } from "../wave/WaveController";
+import { Params } from "../data/Params";
 class MyTimeline{
 
     audio:MyAudio;
@@ -13,10 +14,8 @@ class MyTimeline{
     myWaveMesh:MyWaveMesh;
     frames:Array<KeyFrame>;
     past:number=0;
-
-    rotN:number = -Math.PI/4;
-    rotV:number = Math.PI/2;
-    rotH:number = 0;//Math.PI/4;
+    isSP:boolean=false;
+    
 
     init(main:Main){
         
@@ -25,12 +24,32 @@ class MyTimeline{
         this.audio      = main.audio;
         this.myWaveMesh = main.myWaveMesh;
         this.myGPU      = main.myGPU;
+        this.isSP = DataManager.getInstance().isSp;
 
         DataManager.getInstance().gui?.add(
             this,"reset"
         );
 
         this.frames=[];
+
+        //１回目this.rot45 > rot60
+        //２回目this.rotV いっせーのせ
+        //３回目this.rot60
+        //４回目-this.rot60
+        //５かいめ　０
+        //６かいめ　-this.rot60
+        //最後　
+
+
+        let rots = [
+            Params.ROT60,//0１回目
+            -Params.ROT30,//1 rot いっせのせ
+            Params.ROT90,//2
+            Params.ROT0,//3
+            -Params.ROT60,//4
+            Params.ROT60//5,最後
+        ];
+
 
         this.frames.push(
             new KeyFrame(0.2,()=>{this.first()}),
@@ -46,11 +65,11 @@ class MyTimeline{
             new KeyFrame(19.7,()=>{this.firstDon()}),
 
             //チンチンチチチン
-            new KeyFrame(21.2,()=>{this.firstGlitch(0.3,3,this.rotN);this.myWaveMesh.blink();}),
-            new KeyFrame(21.5,()=>{this.firstGlitch(0.4,6,this.rotN)}),
-            new KeyFrame(21.8,()=>{this.firstGlitch(0.5,12,this.rotN)}),
-            new KeyFrame(22.0,()=>{this.firstGlitch(0.6,24,this.rotN)}),
-            new KeyFrame(22.2,()=>{this.firstGlitch(0.7,48,this.rotN);}),
+            new KeyFrame(21.2,()=>{this.firstGlitch(0.3,3,rots[0]);this.myWaveMesh.blink();}),
+            new KeyFrame(21.5,()=>{this.firstGlitch(0.4,6,rots[0])}),
+            new KeyFrame(21.8,()=>{this.firstGlitch(0.5,12,rots[0])}),
+            new KeyFrame(22.0,()=>{this.firstGlitch(0.6,24,rots[0])}),
+            new KeyFrame(22.2,()=>{this.firstGlitch(0.7,48,rots[0]);}),
 
 
             new KeyFrame(22.3,()=>{this.moriagariA()}),
@@ -69,16 +88,20 @@ class MyTimeline{
             new KeyFrame(61.92,()=>{this.moriagariForceImpulse(20,5)}),
 
             //いっせーのっせ
-            new KeyFrame(63.1,()=>{this.firstGlitch(0.1,4,-this.rotN);this.myWaveMesh.changeTex();}),
-            new KeyFrame(63.6,()=>{this.firstGlitch(0.3,8,-this.rotN);this.myWaveMesh.changeTex();}),
-            new KeyFrame(63.95,()=>{this.firstGlitch(0.8,16,-this.rotN);}),
-            new KeyFrame(64.2,()=>{this.resetGlitch();this.myWaveMesh.changeTex();}),
+            new KeyFrame(63.1,()=>{this.firstGlitch(0.1,8,rots[1]);this.myWaveMesh.changeTex();}),
+            new KeyFrame(63.6,()=>{this.firstGlitch(0.3,16,rots[1]);this.myWaveMesh.changeTex();}),
+            new KeyFrame(63.95,()=>{this.firstGlitch(0.8,64,rots[1])}),
+            new KeyFrame(64.2,()=>{
+                this.moriagariB();
+                this.resetGlitch();
+                this.myWaveMesh.changeTex();
+            }),
             
             //トリッキー
             new KeyFrame(75.09,()=>{this.moriagariForceImpulse(20,5)}),
                                   
-            new KeyFrame(79.1,()=>{this.firstGlitch(1,24,20);}),
-            new KeyFrame(79.5,()=>{this.firstGlitch(0.5,36,20);}),
+            new KeyFrame(79.1,()=>{this.firstGlitch(1,24,rots[2]);}),
+            new KeyFrame(79.5,()=>{this.firstGlitch(0.5,36,rots[2]);}),
             new KeyFrame(79.8,()=>{this.resetGlitch();this.myWaveMesh.changeTex();}),
             //おい
             new KeyFrame(80.26,()=>{this.moriagariForceImpulse(20,5)}),  
@@ -87,8 +110,8 @@ class MyTimeline{
             //トリッキー
             new KeyFrame(90.59,()=>{this.moriagariForceImpulse(20,5)}),
 
-            new KeyFrame(94.7,()=>{this.firstGlitch(1,24,80);}),
-            new KeyFrame(95.0,()=>{this.firstGlitch(0.5,36,80);}),
+            new KeyFrame(94.7,()=>{this.firstGlitch(1,24,rots[3]);}),
+            new KeyFrame(95.0,()=>{this.firstGlitch(0.5,36,rots[3]);}),
             new KeyFrame(95.3,()=>{this.resetGlitch();this.myWaveMesh.changeTex();}),
             //おい
             new KeyFrame(95.8,()=>{this.moriagariForceImpulse(20,5)}),
@@ -98,8 +121,8 @@ class MyTimeline{
             new KeyFrame(105.0,()=>{this.moriagariForceImpulse(20,5)}),
             new KeyFrame(110.0,()=>{this.moriagariForceImpulse(20,5)}),
 
-            new KeyFrame(110.2,()=>{this.firstGlitch(1,24,0);}),
-            new KeyFrame(110.5,()=>{this.firstGlitch(0.5,36,0);}),
+            new KeyFrame(110.2,()=>{this.firstGlitch(1,24,rots[4]);}),
+            new KeyFrame(110.5,()=>{this.firstGlitch(0.5,36,rots[4]);}),
             new KeyFrame(110.8,()=>{this.resetGlitch();this.myWaveMesh.changeTex();}),
             
             //おい
@@ -107,7 +130,7 @@ class MyTimeline{
             new KeyFrame(116.71,()=>{this.moriagariForceImpulse(20,5)}),
 
 
-            new KeyFrame(116.4,()=>{this.startFinal();this.firstGlitch(1,24,Math.PI/3);})
+            new KeyFrame(116.4,()=>{this.startFinal();this.firstGlitch(1,24,rots[5]);})
         );
 
     }
@@ -150,6 +173,16 @@ class MyTimeline{
         this.myGPU.setAmplitude(1);
         
         this.waveCon.setMode(WaveController.MODE_AUTO);
+    }
+
+    moriagariB(){
+        
+        if(this.isSP){
+            this.myGPU.setAmplitude(1.4);
+        }else{
+            this.myGPU.setAmplitude(1.9);
+        }
+
     }
 
     moriagariForceImpulse(size:number,amplitude:number){

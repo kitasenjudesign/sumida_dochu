@@ -3,6 +3,12 @@ body{
     margin: 0;
     font-family: serif;
     overflow-x: hidden;
+    color: #114;
+}
+
+.bodyContainer{
+    margin: 0;
+    overflow-x: hidden;
 }
 
 /*** コンテンツ部分 ***/
@@ -10,19 +16,26 @@ body{
     margin: 0;
     /*background-color: rgba(255,255,255,0.5);*/
     z-index: 10;
+    display: none;
     position: absolute;
+    overflow-x: hidden;
 }
 
 .content{
     background-color: rgba(255,255,255,0.9);
     /*backdrop-filter: blur(8px);*/
-    border: 1px solid #000;
+    /*border: 1px solid #000;*/
     margin-bottom: 100px;
     padding: 50px;
+    
 }
 
 .content h2{
+    width: 100%;
+    text-align: center;
     margin: 0px;
+    transform: scale(0.75,1.0);
+    font-size: 30px;
 }
 
 .footer{
@@ -41,4 +54,5 @@ body{
     writing-mode: vertical-rl;
     transform: scale(1,0.75);    
     color: #fff;
+    mix-blend-mode: difference;
 }

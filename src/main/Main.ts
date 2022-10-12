@@ -34,11 +34,15 @@ class Main{
 
     stats:Stats;
     isDebug:boolean;
+    clock:THREE.Clock;
 
     audio:MyAudio;
     timeline:MyTimeline;
     enterPanel:EnterPanel;
     isSP:boolean=false;
+    oldTime:number=0;
+    counter:number=0;
+    //mostBottom:number=0;
 
     init(){
         
@@ -46,9 +50,11 @@ class Main{
         this.domResizer.init();
 
         this.enterPanel = new EnterPanel();
+        this.enterPanel.init0();
         //this.stats = Stats();
         //document.body.appendChild(this.stats.dom);
-       
+       this.clock = new THREE.Clock(true);
+       this.clock.start();
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector('#webgl'),
             antialias: false
@@ -126,13 +132,18 @@ class Main{
         this.timeline.init(this);//開始する
 
         this.onWindowResize();
+
+
+        
+        
+
     }
 
     //サウンドロード
     onLoadSound(){
         
         console.log("onLoadSound");
-        this.enterPanel.init(()=>{
+        this.enterPanel.show(()=>{
             this.playSound();
         });
 
@@ -144,6 +155,7 @@ class Main{
 
     playSound(){
 
+        this.myWaveMesh.blink(0.1);
         this.timeline.start();        
         if(document.getElementById(Params.CONTENTS)!=null){
             document.getElementById(Params.CONTENTS).style.display = "block";
@@ -155,28 +167,52 @@ class Main{
 
     tick(){
 
+        //console.log(this.clock.getDelta());
+        //0.0215
+        //Main.ts:161 0.0085
+        //Main.ts:161 0.017
+
+
+        if(this.clock.getElapsedTime()-this.oldTime>=1/100){
+
+            this.oldTime=this.clock.getElapsedTime();
+            this.dataManager.update();
+
+            if( this.domResizer.checkHeight()){
+                this.onWindowResize();
+            }
+    
+            this.enterPanel?.update();
+    
+            if(this.audio!=null){
+                if(this.dataManager.scrollMode==Params.MODE_HIGH){
+                    if(this.counter%2==1) this.audio.update();
+                }else{
+                    if(this.counter%4==1) this.audio.update();
+                }
+                this.myGPU.update(this.audio);
+            }
+    
+            // 描画
+            if(this.dataManager.scrollMode==Params.MODE_HIGH){
+                this.renderer.render(this.scene, this.camera);
+                this.myWaveMesh?.update(this.myGPU.testMat.map);
+            }else{
+                if(this.counter%2==0){
+                    this.renderer.render(this.scene, this.camera);
+                    this.myWaveMesh?.update(this.myGPU.testMat.map);
+                }
+            }
+            
+            this.stats?.update();
+            this.timeline?.update();
+            this.counter++;
+        }
+        
+
 //resizeチェック
 
-        this.dataManager.update();
-
-        if( this.domResizer.checkHeight() ){
-            this.onWindowResize();
-        }
-
-
-        this.enterPanel?.update();
-
-        if(this.audio!=null){
-            this.audio.update();
-            this.myGPU.update(this.audio);
-        }
-
-        this.myWaveMesh?.update(this.myGPU.testMat.map);
-    
-        // 描画
-        this.renderer.render(this.scene, this.camera);
-        this.stats?.update();
-        this.timeline?.update();
+        
 
         //loop
         window.requestAnimationFrame(()=>{

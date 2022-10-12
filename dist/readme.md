@@ -1,3 +1,20 @@
+
+
+
+* bundle.js置き換え
+* mainVisual.css置き換え
+* HTMLの<!--メインビジュアル開始-->の該当部分の更新
+
+以下２ヶ所の更新をお願いします
+
+↓styleにdisplay:none追加 一瞬見えちゃう問題の回避（最適な方法がどうかわからないですが）
+<div id="contents" class="contents" style="display: none;">
+
+↓白背景になったときjsから色を変えますのでidを追加(PCのみ)
+<div id="footerCenter" class="footerCenter"> 十月二十九・三十日　乞う御期待</br>
+
+
+
 ## フォルダ構成
 
 * css - cssが入ってます

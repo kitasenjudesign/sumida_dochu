@@ -23,8 +23,12 @@ class MyAudio{
     waveVolume:number=0;
     bars:Array<THREE.Mesh>;
     isReady:boolean=false;
+    isBarVisible:boolean=false;
+    isPlaying:boolean=false;
 
     volumeTarget:number=0;
+    dataManager:DataManager;
+
 
     callback:()=>void;
 
@@ -33,6 +37,7 @@ class MyAudio{
         
         this.callback=callback;
 
+        this.dataManager = DataManager.getInstance();
         this.context = new AudioContext();
         //let buffer = null;
         this.source = this.context.createBufferSource();
@@ -113,6 +118,7 @@ class MyAudio{
     }
 
     play(){
+      this.isPlaying=true;
       this.source.start(0,Params.SOUND_OFFSET);
       this.volume = Params.MAX_VOLUME;
       this.source.loop = true;
@@ -123,13 +129,17 @@ class MyAudio{
       this.gain.gain.value=v;
     }
 
+    //スクロールによって音を決める
     updateVolumeByScroll(){
 
-      if( window.scrollY < 200 ){
-        this.volumeTarget+=(Params.MAX_VOLUME-this.volumeTarget)/10;
+      let mode = this.dataManager.scrollMode;
+
+
+      if( mode==Params.MODE_HIGH ){
+        this.volumeTarget+=(Params.MAX_VOLUME-this.volumeTarget)/5;
         
       }else{
-        this.volumeTarget+=(Params.MIN_VOLUME-this.volumeTarget)/10;
+        this.volumeTarget+=(Params.MIN_VOLUME-this.volumeTarget)/5;
 
       }
 
@@ -154,9 +164,11 @@ class MyAudio{
         this.volume += this.freqs[i]/this.FFT_SIZE;
         this.bars[i].scale.y = this.freqs[i]/300;
       }*/
-      for(let i=0;i<this.FFT_MATOME;i++){
-        this.waveVolume += this.mFreqs[i]/this.FFT_MATOME;
-        this.bars[i].scale.y = Math.abs(this.mSubFreqs[i])/300;
+      if(this.isBarVisible){
+        for(let i=0;i<this.FFT_MATOME;i++){
+          this.waveVolume += this.mFreqs[i]/this.FFT_MATOME;
+          this.bars[i].scale.y = Math.abs(this.mSubFreqs[i])/300;
+        }  
       }
 
       //まとめをつくる
@@ -176,11 +188,11 @@ class MyAudio{
 
     
     pause(){
-      this.context.suspend();
+      if(this.isPlaying) this.context.suspend();
     }
 
     resume(){
-      this.context.resume();
+      if(this.isPlaying) this.context.resume();
     }
 
 

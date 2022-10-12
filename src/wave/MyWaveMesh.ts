@@ -27,11 +27,16 @@ class MyWaveMesh{
     envMap:THREE.Texture;
     texFlag:boolean=false;
     isSP:boolean=false;
+    footer:HTMLElement;
+    dataManager:DataManager;
 
     init(){
 
+        this.dataManager = DataManager.getInstance();
 
+        this.footer = document.getElementById(Params.FOOTER_CENTER);
         this.isSP = DataManager.getInstance().isSp;
+        this.setFooterTextColor();
 
         const materialColor = 0x0040C0;
 
@@ -68,7 +73,7 @@ class MyWaveMesh{
                     'diffuse':{value: new THREE.Color( 0xffffff ) },
                     'specular':{value: new THREE.Color( 0x222222 ) },//ハイライト
                     'emissive':{value: new THREE.Color( 0x000000 ) },
-                    'shininess':{value: 30},
+                    'shininess':{value: this.isSP ? 60 : 50 },
                     'map':{value: this.texture},
                     'map2':{value: this.texture2},
                     'noise':{value: this.isSP ? 0.08 : 0.24},
@@ -107,35 +112,41 @@ class MyWaveMesh{
 
     initGUI(){
         let uniform = this.material.uniforms;
+        let gui = DataManager.getInstance().gui;
 
-        DataManager.getInstance().gui?.add(
+        if(gui==null)return;
+
+        gui.add(
             uniform["offsetY"],"value",0,1
         ).name("offsetY");
-        DataManager.getInstance().gui?.addColor(
+        gui.addColor(
             uniform["offsetCol"],"value"
         ).name("color").listen();
-        DataManager.getInstance().gui?.add(
+        gui.add(
             this,"blink"
         );
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["glitch"].value,"x",0,5
         ).name("glitchX");
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["glitch"].value,"y",0,5
         ).name("glitchY");
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["glitch"].value,"z",1,100
         ).name("glitchZ");
 
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["colDisplace"].value,"x",0,0.2
         ).name("colDispX");
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["colDisplace"].value,"y",0,0.2
         ).name("colDispY");
-        DataManager.getInstance().gui?.add(
+        gui.add(
             uniform["colDisplace"].value,"z",0,0.2
         ).name("colDispZ");
+        gui.add(
+            uniform["shininess"],"value",20,200
+        ).name("shininess");
     }
 
 
@@ -165,11 +176,11 @@ class MyWaveMesh{
     }
 
 
-    blink(){
+    blink(value:number=0.5){
         let uniform = this.material.uniforms;
-        uniform["offsetCol"].value.r=0.5;
-        uniform["offsetCol"].value.g=0.5;
-        uniform["offsetCol"].value.b=0.5;
+        uniform["offsetCol"].value.r = value;
+        uniform["offsetCol"].value.g = value;
+        uniform["offsetCol"].value.b = value;
         gsap.to(uniform["offsetCol"].value, {
             duration: 0.5,
             r: 0,
@@ -184,16 +195,40 @@ class MyWaveMesh{
 
     changeTex(){
         this.texFlag=!this.texFlag;
-
         this.material.uniforms['map'].value = this.texFlag ? this.texture2 : this.texture;
         this.material.uniforms['map2'].value = !this.texFlag ? this.texture2 : this.texture;
-        
+
+        this.setFooterTextColor();
+
     }
 
+    setFooterTextColor(){
+
+        if(this.footer){            
+            if(this.dataManager.isSp){
+                //this.footer.style.color=this.texFlag ? "#ffffff" : "#111144";
+                this.footer.style.color="#fff";
+                this.footer.style.textShadow="0 0 6px #00469b";
+
+            }else{
+                this.footer.style.color=!this.texFlag ? "#ffffff" : "#111144";
+                
+                
+
+            }            
+        }
+
+    }
 
     update(tex:THREE.Texture){
 
-        if(this.isStart) this.counter+=0.06;
+        if(this.isStart){
+            this.counter+=0.06;
+        }else{
+            this.material.uniforms['offsetY'].value+=
+            (this.getOffsetY()-this.material.uniforms['offsetY'].value)/2;
+        }
+        
         //else this.counter-=0.06;
         this.material.uniforms['heightmap'].value   = tex;
         this.material.uniforms['counter'].value     = this.counter + window.scrollY*0.06;
@@ -202,8 +237,6 @@ class MyWaveMesh{
 
     getOffsetY():number{
         //スケールも加味する
-
-
         if(window.innerHeight<window.innerWidth){
             let w = window.innerHeight/window.innerWidth;//横長
             return (1-w)/2*Params.ZOOM;
@@ -212,8 +245,6 @@ class MyWaveMesh{
 
         }
         return 0;
-
-        
     }
 
 

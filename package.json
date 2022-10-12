@@ -16,7 +16,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.10.0"
   },
-  "dependencies": {
+  "ependencies": {
     "gsap": "^3.11.0"
   }
 }

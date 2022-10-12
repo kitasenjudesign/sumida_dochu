@@ -125,7 +125,7 @@ void main() {
 
 
 //	sampledDiffuseColor.xyz += vNormal.xyz*0.8;
-	sampledDiffuseColor.xy+=vNormal.xy*0.2;
+	sampledDiffuseColor.xy+=vNormal.xy*0.1;
 	
 	
 
@@ -158,7 +158,12 @@ void main() {
 	#include <lights_fragment_maps>
 	#include <lights_fragment_end>
 	#include <aomap_fragment>
-	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+	vec3 outgoingLight = 
+	reflectedLight.directDiffuse +
+	reflectedLight.indirectDiffuse +
+	reflectedLight.directSpecular +
+	reflectedLight.indirectSpecular +
+	totalEmissiveRadiance;
 		
 	outgoingLight.xyz += (noise*(random(vUv.xy)-0.5));
 

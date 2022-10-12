@@ -6,19 +6,37 @@
     z-index: 0;
 }
 
+/****** ******/
+#enterMusician{
+    position: absolute;
+    top:-500px;
+    left:-100px;
+    z-index: 9999;
+    line-height: 150%;
+}
+
+.enterSmallText{
+    font-family: serif;
+    font-size: 16px;
+    color: #fff;    
+    transform: scale(0.75,1);
+    opacity: 0.85;
+    text-align: center;
+}
+
 
 
 /****** センターの文字部分 ******/
+
+
 #enterTitle{
     font-family: serif;
     display: block;
     color: #fff;
-    width: 600px;
+    width: 400px;
     text-align: center;
     pointer-events: none;
-    /*background-image: url("../topimg/a.png");
-    background-size: cover;
-    mix-blend-mode: hard-light; */
+    line-height: 200%;
 }
 
 #enterTitle .enterVertical{
@@ -30,6 +48,7 @@
     color: #fff;
     
 }
+
 
 #enterTitleLoading{
     display: inline-block;
@@ -50,16 +69,13 @@
 }
 
 #enterBtnText{
-    font-family: serif;
     width: 100%;
-    transform: scale(1,0.75);
-    text-align: center;
-    color: #fff;
+    margin-bottom: 0px;
 }
 
 #enterPlay .enterPlay{
     margin-top: 10px;
-    font-size: 12px;
+    
     text-align: center;
     color: #fff;
     pointer-events: none;

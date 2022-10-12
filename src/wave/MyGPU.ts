@@ -135,6 +135,8 @@ class MyGPU{
     }
 
     setAmplitude(a:number){
+
+        if( this.isSP ) a *= 0.8;
         this.uniforms['amplitude'].value = a;
         //console.log("amp " + a);
     }
@@ -164,7 +166,7 @@ class MyGPU{
 
 
         if(this.isSP){
-            uniforms[ 'deltaPos' ].value.y = -(window.scrollY-this.pastPosY)/2000;
+            //uniforms[ 'deltaPos' ].value.y = -(window.scrollY-this.pastPosY)/2000;
             this.pastPosY = window.scrollY;    
         }
 

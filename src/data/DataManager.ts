@@ -16,6 +16,9 @@ import Stats from 'three/examples/jsm/libs/stats.module'
     public domElement:HTMLElement;
     public main:Main;
     public stats:Stats;
+    public scrollRatio:number=0;
+    public scrollMode:string;
+    public allHeight:number=0;
     private isInit:boolean=false;
 
     /**
@@ -30,6 +33,7 @@ import Stats from 'three/examples/jsm/libs/stats.module'
         this.isInit=true;
 
         this.main = m;
+        this.scrollMode=Params.MODE_HIGH;
 
         if( window.location.search == "?debug" ){
             this.gui = new GUI();
@@ -108,6 +112,40 @@ import Stats from 'three/examples/jsm/libs/stats.module'
             this.main.audio.pause();
         }, false);
         
+        //スクロール量
+        window.addEventListener('scroll', () => {
+            this.allHeight = Math.max(
+                document.body.scrollHeight, document.documentElement.scrollHeight,
+                document.body.offsetHeight, document.documentElement.offsetHeight,
+                document.body.clientHeight, document.documentElement.clientHeight
+              );
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            let mostBottom = this.allHeight - window.innerHeight;
+            
+            //console.log(
+            //    scrollTop + "//"+ window.scrollY + "//" + window.innerHeight 
+            //    + "--" + allHeight
+            //);
+
+            //console.log(scrollTop+"/"+mostBottom);
+            this.scrollRatio = scrollTop/mostBottom;
+            if(this.scrollRatio>=1)this.scrollRatio=1;
+
+            //モードもついでに決めよう
+            if(scrollTop<window.innerHeight*0.7 || scrollTop>this.allHeight-window.innerHeight*1.4){
+                this.scrollMode = Params.MODE_HIGH;
+            }else{
+                this.scrollMode = Params.MODE_LOW;
+            }
+
+            if (scrollTop >= mostBottom) {
+                // 最下部に到達したときに実行する処理
+                //console.log("一番下");
+            }
+        });
+
+
 
     }
 

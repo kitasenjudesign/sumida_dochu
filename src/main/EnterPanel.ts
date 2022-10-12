@@ -9,6 +9,7 @@ class EnterPanel{
     enterBtnText    :HTMLElement;
     enterTitleText   :HTMLElement;
     enterTitleLoading    :HTMLElement;
+    enterMusician       :HTMLElement;
 
     enterImgScale:number=1;
     callback:()=>void;
@@ -20,30 +21,43 @@ class EnterPanel{
     isSp:boolean=true;
     isInit:boolean=false;
 
-    init(callback:()=>void){
+    init0(){
+        this.initDoms();
+        this.enterTitleLoading.style.display="inline-block";
+    }
+
+    show(callback:()=>void){
 
         this.callback = callback;
-        this.initDoms();
-
+        
         //ローディング終了時に呼ばれるため
         this.enterTitleLoading.style.display="none";
         this.enterTitleLoading.innerText="";
         
-    this.enterTitleText.style.display="inline-block";
+        this.enterTitleText.style.display="inline-block";
+        
 
         this.isSp = DataManager.getInstance().isSp;
 
         this.enterBtn.style.display="block";
         this.enterBtn.style.position="absolute";
+
+        if(this.isSp){
+            this.enterBtnText.style.visibility="hidden";
+        }
        
         //画面クリック
         DataManager.getInstance().domElement.addEventListener('click', ()=>{
             this.isEnter=true;
+
+            this.enterMusician.style.display="none";
             this.enterBtnText.style.visibility="hidden";
 
             if(this.callback!=null) this.callback();
             this.callback=null;
         });
+
+
 
     }
 
@@ -52,6 +66,7 @@ class EnterPanel{
         if(this.isInit)return;
         this.isInit=true;
 
+        this.enterMusician  = document.getElementById(Params.ENTER_MUSICIAN);
         this.enterTitle     = document.getElementById(Params.ENTER_TITLE);
         this.enterBtnImg    = document.getElementById(Params.ENTER_BTN_IMG);
         this.enterBtnText   = document.getElementById(Params.ENTER_BTN_TEXT);
@@ -78,7 +93,7 @@ class EnterPanel{
     }
 
 
-
+    /*
     moveTitle(){
         if(this.enterTitle){
             let yy:number =(window.innerHeight/2-this.enterTitle.clientHeight/2+this.enterOffsetY);
@@ -86,7 +101,8 @@ class EnterPanel{
                 this.enterTitle.style.top    =yy+"px";
             }
         }
-    }
+    }*/
+
     
     moveBtn(){
 
@@ -146,9 +162,18 @@ class EnterPanel{
             let yy:number = (window.innerHeight/2-this.enterTitle.clientHeight/2+this.enterOffsetY);
             let xx:number = (window.innerWidth/2-this.enterTitle.clientWidth/2);
 
+            if(yy<-window.innerHeight/2) return;//完全に消えたら終了
+
             this.enterTitle.style.position="absolute";
             this.enterTitle.style.zIndex="999";
             
+            this.enterMusician.style.left = 
+            (window.innerWidth/2-this.enterMusician.clientWidth/2)+"px";
+
+            this.enterMusician.style.top 
+            = (window.innerHeight-this.enterMusician.clientHeight-20)+"px";
+
+
             if(!this.isSp){
                 //PC
                 this.enterTitle.style.left   =xx+"px"; 

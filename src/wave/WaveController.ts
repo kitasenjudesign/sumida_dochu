@@ -22,6 +22,7 @@ class WaveController{
     autoImpulseSize=20;
     dataManager:DataManager;
     mouseCount:number=0;
+    counter:number=0;
 
     init(main:Main){
 
@@ -108,16 +109,17 @@ class WaveController{
     updateIntro(){
         let dir:number = Math.random()<0.5 ? -1 : 1;
         this.myGPU.setAmplitude( dir*(1+1*Math.random()) );
-
-        if(Math.random()<0.01){
-            if(Math.random()<0.1){
+        
+        this.counter++;
+        if(this.counter%180==0){
+            if(Math.random()<0){
                 this.myGPU.addImpulse(
                     Math.random()<0.5 ? -256+10*Math.random() : 256-10*Math.random(),
                     256*(Math.random()-0.5)
                 );        
             }else{
                 this.myGPU.addImpulse(
-                    0.6*256*(Math.random()-0.5),
+                    0,//0.6*256*(Math.random()-0.5),
                     256//Math.random()<0.5 ? -256 : 256
                 );        
             }
@@ -141,13 +143,15 @@ class WaveController{
                 let hh:number = window.innerHeight;
 
                 if(ww>hh){
+                    //PC wwが大きい
                     this.myGPU.addImpulse(
                         0.9*512*(Math.random()-0.5),
                         0.9*512*(Math.random()-0.5)*hh/ww
                     );    
                 }else{
+                    //SP
                     this.myGPU.addImpulse(
-                        0.9*512*(Math.random()-0.5)*hh/ww,
+                        0.9*512*(Math.random()-0.5)*ww/hh,
                         0.9*512*(Math.random()-0.5)
                     );    
 

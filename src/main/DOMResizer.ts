@@ -18,7 +18,9 @@ class DOMResizer{
     checkHeight():boolean{
 
 
-        if(window.innerHeight!=this.pastHeight)return true;
+        if(window.innerHeight!=this.pastHeight){
+            return true;
+        }
 
         this.pastHeight = window.innerHeight;
 

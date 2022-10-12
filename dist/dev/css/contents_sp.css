@@ -1,0 +1,304 @@
+@charset "UTF-8";
+@media print, screen and (max-width: 767px) {
+  /*-------------------------------------
+			PC/SP出し分け
+---------------------------------------*/
+  .pc-only {
+    display: none !important;
+  }
+  .smp-only {
+    display: block !important;
+  }
+  .br_pc {
+    display: none;
+  }
+  .br_sp {
+    display: block;
+  }
+  /*** contents ***/
+  .content {
+    padding: 3rem 1.25rem 3rem;
+  }
+  .container {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .content h2.heading {
+    font-size: 2rem;
+  }
+  .content h2.heading.jp {
+    font-size: 2rem;
+    letter-spacing: 0;
+  }
+  .content h4.heading {
+    font-size: 1.5rem;
+  }
+  .content .ttl {
+    font-size: 1.4rem;
+  }
+  .content p {
+    font-size: 1rem;
+  }
+  /*--------------------------------------
+ * btn
+ * ---------------------------------------*/
+  .btn {
+    width: 100%;
+    margin: 2rem auto 0;
+  }
+  .btn a {
+    font-size: 1.2rem;
+  }
+  /*--------------------------------------
+ * SNS
+ * ---------------------------------------*/
+  .in_fixed_sns {
+    width: 100%;
+    bottom: 0;
+  }
+  .in_fixed_sns[aria-expanded=false] {
+    right: 0;
+    bottom: -200px;
+    transition: .5s;
+  }
+  .in_fixed_bottom[aria-expanded=true] {
+    bottom: 0;
+    transition: .5s;
+  }
+  .in_fixed-btn {
+    transform: scale(1);
+  }
+  .in_fixed-btn ul {
+    display: flex;
+  }
+  .in_fixed-btn li {
+    width: 35%;
+    border-left: none;
+  }
+  .in_fixed-btn a {
+    writing-mode: inherit;
+    font-size: 0.8rem;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-image: linear-gradient(to top, #FFFFFF 0%, #FFFFFF 50%, #00469b 50%, #00469b 100%);
+    transition: background-position ease 0.4s;
+    background-size: auto 200%;
+    background-position: 0 100%;
+    line-height: 1.2;
+    transform: scale(0.75, 1.0);
+    transform-origin: left top;
+    width: 133%;
+  }
+  .in_fixed-btn li:first-child {
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+  }
+  .in_fixed-btn li:hover {
+    background-position: 0 0;
+  }
+  .in_fixed-btn li.ate-btn {
+    width: 31%;
+  }
+  .in_fixed-btn a.disabled {
+    background: #dddddd;
+  }
+  .in_fixed-btn a:hover {
+    opacity: 1;
+    color: #FFFFFF;
+    ;
+  }
+  .is-hidden {
+    visibility: hidden;
+    opacity: 0;
+  }
+  /*--------------------------------------
+ * lead
+ * ---------------------------------------*/
+  #lead .inner p {
+    text-align: left;
+    font-size: 1.5rem;
+  }
+  #lead .inner p .small {
+    text-align: left;
+    font-size: 1.2rem;
+  }
+  #lead .inner .btn-area {
+    display: block;
+  }
+  #lead .inner .btn-area .btn {
+    width: 85%;
+    margin: 1rem auto;
+  }
+  /*--------------------------------------
+ * news
+ * ---------------------------------------*/
+  .splide {
+    padding: 0 2rem;
+  }
+  /*** Program***/
+  #program .program-lists {
+    display: block;
+  }
+  #program .program-lists li {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  #program .content h3.heading {
+    font-size: 1.3rem;
+    height: auto;
+  }
+  /*--------------------------------------
+ * info
+ * ---------------------------------------*/
+  .info-lists {
+    max-width: 100%;
+  }
+  .info-lists dl {
+    display: block;
+    width: 100%;
+  }
+  .info-lists dl dt {
+    width: 100%;
+  }
+  .info-lists dl dd {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  /*--------------------------------------
+ * map
+ * ---------------------------------------*/
+  .map-img {
+    max-width: 90%;
+  }
+  /***map***/
+  #funding dl {
+    max-width: 100%;
+    display: block;
+  }
+  #funding dl dt {
+    width: 100%;
+    padding-right: 0;
+    border-right: none;
+  }
+  #funding dl dd {
+    width: 100%;
+  }
+  /*--------------------------------------
+ * ticket
+ * ---------------------------------------*/
+  #ticket .ticket-lists li .flexbox {
+    display: block;
+  }
+  #ticket .ticket-lists li .area-l {
+    width: 100%;
+    padding-right: 0;
+  }
+  #ticket .ticket-lists li .area-r {
+    width: 100%;
+    margin: 1rem auto;
+  }
+  #ticket .ticket-lists li .area-r a {}
+  #ticket .ticket-lists li .ttl {}
+  /*--------------------------------------
+ * youtube
+ * ---------------------------------------*/
+  .youtube .content {
+    padding-top: 3.5rem;
+  }
+  .youtube .youthum {
+    width: 100%;
+  }
+  /*--------------------------------------
+ * footer
+ * ---------------------------------------*/
+  .footer {
+    width: 100%;
+    padding: 1.25rem;
+    height: auto;
+  }
+  .footer_inner {
+    min-width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: left;
+    padding: 0;
+  }
+  .ft-logo {
+    width: 100%;
+  }
+  .ft-logo img {
+    width: 150px;
+  }
+  .ft-logo ul li {
+    float: left;
+    font-size: 1.5rem;
+    padding-left: 15px;
+  }
+  /*-------------------------------------
+			セカンダリ
+---------------------------------------*/
+	#second .inner{
+		margin-top: 3rem;
+	}
+  #second .content h3.ttl {
+    margin-top: 3rem;
+    font-size: 1.5rem;
+  }
+#second .content .text h4.heading {
+  font-size: 1.3rem;
+}
+  #second .program-main img {
+    max-width: 100%;
+  }
+	#second .program-sub img {
+  margin-top: 2rem;
+}
+  #second .detail {
+    margin-top: 2rem;
+  }
+  #second .detail {
+    display: block;
+  }
+  #second .detail .text {}
+  #second .detail .text {
+    width: 100%;
+    margin-left: 2%;
+    margin-top: 1rem;
+  }
+  #second .detail.large .text {
+    width: 100%;
+    margin-left: 0;
+  }
+  #second .detail .thum {
+    width: 60%;
+    margin: 0 auto;
+  }
+  #second .detail.large .thum {
+    width: 100%;
+    margin: 0 auto;
+  }
+  #second .parallax {
+    height: 80vh;
+  }
+  #second .info-box {
+    width: 100%;
+  }
+  #second .info-box dl dt {}
+  #second .info-box dl dd {}
+  #second .market-lists {
+    margin-top: 1rem;
+  }
+  #second .market-lists li {
+    width: 48%;
+  }
+}
+@media screen and (max-width:429px) {
+  #second .market-lists {
+    display: block;
+  }
+  #second .market-lists li {
+    width: 85%;
+    margin: 0 auto;
+  }
+}
